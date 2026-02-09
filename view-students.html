@@ -3,88 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student List - The Lalit International School</title>
+    <title>Manage Students - The Lalit Intl.</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .list-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: auto; }
-        .header { color: #2c3e50; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .table thead { background-color: #3498db; color: white; }
+        :root { --sidebar-width: 250px; --primary: #2c3e50; }
+        body { background-color: #f4f7f6; display: flex; }
+        .sidebar { width: var(--sidebar-width); height: 100vh; background: var(--primary); position: fixed; color: white; }
+        .logo-section { padding: 20px; text-align: center; background: rgba(0,0,0,0.1); }
+        .school-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #3498db; }
+        .sidebar a { color: #bdc3c7; text-decoration: none; padding: 12px 20px; display: block; border-left: 4px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { background: #34495e; color: white; border-left-color: #3498db; }
+        .main-content { margin-left: var(--sidebar-width); padding: 30px; width: 100%; }
+        .table-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-<div class="list-container shadow">
-    <div class="header">
-        <div>
-            <h2>Registered Students</h2>
-            <p class="text-muted">Total admissions in the system</p>
-        </div>
-        <button class="btn btn-outline-primary" onclick="location.reload()">Refresh List</button>
+<div class="sidebar">
+    <div class="logo-section">
+        <img src="logo.png" class="school-logo">
+        <h6 class="mt-2">The Lalit Intl.</h6>
     </div>
+    <div class="mt-3">
+        <a href="index.html"><i class="fas fa-home me-2"></i> Dashboard</a>
+        <a href="add-student.html"><i class="fas fa-user-plus me-2"></i> Admission</a>
+        <a href="view-students.html" class="active"><i class="fas fa-users me-2"></i> Student List</a>
+        <a href="attendance.html"><i class="fas fa-calendar-check me-2"></i> Attendance</a>
+        <a href="fees.html"><i class="fas fa-money-bill-wave me-2"></i> Fees</a>
+    </div>
+</div>
 
-    <div class="table-responsive">
-        <table class="table table-hover mt-3">
-            <thead>
-                <tr>
-                    <th>Roll No</th>
-                    <th>Full Name</th>
-                    <th>Class</th>
-                    <th>Father's Name</th>
-                    <th>Contact</th>
-                </tr>
+<div class="main-content">
+    <div class="table-card">
+        <div class="d-flex justify-content-between mb-4">
+            <h4><i class="fas fa-user-edit text-primary me-2"></i>Manage Students</h4>
+            <input type="text" id="search" class="form-control w-25 shadow-sm" placeholder="Search students..." onkeyup="filter()">
+        </div>
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr><th>Roll</th><th>Name</th><th>Class</th><th>Action</th></tr>
             </thead>
-            <tbody id="studentTableBody">
-                </tbody>
+            <tbody id="studentBody"></tbody>
         </table>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-        authDomain: "the-lalit-d7472.firebaseapp.com",
-        databaseURL: "https://the-lalit-d7472-default-rtdb.firebaseio.com",
-        projectId: "the-lalit-d7472",
-        storageBucket: "the-lalit-d7472.firebasestorage.app",
-        messagingSenderId: "479237084229",
-        appId: "1:479237084229:web:f1da384b45c5883b12ff2c"
-    };
+    const firebaseConfig = { apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs", authDomain: "the-lalit-d7472.firebaseapp.com", databaseURL: "https://the-lalit-d7472-default-rtdb.firebaseio.com", projectId: "the-lalit-d7472", storageBucket: "the-lalit-d7472.firebasestorage.app", messagingSenderId: "479237084229", appId: "1:479237084229:web:f1da384b45c5883b12ff2c" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Data Load Karne ka Function
-    function loadStudents() {
-        const tableBody = document.getElementById('studentTableBody');
-        tableBody.innerHTML = "<tr><td colspan='5' class='text-center'>Loading data...</td></tr>";
-
-        db.ref('students').once('value', (snapshot) => {
-            tableBody.innerHTML = ""; // Loader hatao
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    const student = childSnapshot.val();
-                    const row = `
-                        <tr>
-                            <td><b>${student.roll}</b></td>
-                            <td>${student.name}</td>
-                            <td>Class ${student.class}</td>
-                            <td>${student.father}</td>
-                            <td>${student.phone}</td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-            } else {
-                tableBody.innerHTML = "<tr><td colspan='5' class='text-center'>No students found!</td></tr>";
-            }
+    db.ref('students').on('value', snap => {
+        const body = document.getElementById('studentBody');
+        body.innerHTML = "";
+        snap.forEach(child => {
+            const s = child.val();
+            body.innerHTML += `
+                <tr>
+                    <td><b>#${s.roll}</b></td>
+                    <td>${s.name}</td>
+                    <td>Class ${s.class}</td>
+                    <td>
+                        <a href="edit-student.html?roll=${s.roll}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i> Edit</a>
+                    </td>
+                </tr>`;
         });
-    }
-
-    // Page khulte hi data load karo
-    window.onload = loadStudents;
+    });
 </script>
 </body>
 </html>
