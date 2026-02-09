@@ -1,41 +1,39 @@
-/* Imperial Master Stylesheet */
+/* ULTRA-ROYAL MASTER CSS */
 :root { 
-    --velvet: #300a24; 
-    --gold: #d4af37; 
-    --parchment: #f4e4bc; 
+    --royal-blue: #002366; /* Velvet Purple ki jagah Deep Royal Blue */
+    --gold: #ffd700;       /* Aur bhi chamakdar Sona */
+    --parchment: #fffaf0;  /* Saaf Ivory Paper */
 }
 
 body { 
-    background: var(--velvet); 
-    font-family: 'Georgia', serif; 
+    background: var(--royal-blue); 
+    font-family: 'Times New Roman', serif; 
     color: var(--gold); 
     display: flex; 
     min-height: 100vh; 
     margin: 0; 
 }
 
-/* Sidebar Navigation */
+/* Sidebar Update */
 .sidebar { 
     width: 260px; 
-    background: rgba(0,0,0,0.4); 
-    border-right: 2px solid var(--gold); 
+    background: rgba(0,0,0,0.6); 
+    border-right: 3px solid var(--gold); 
     height: 100vh; 
     position: fixed; 
-    box-shadow: 5px 0 15px rgba(0,0,0,0.5); 
 }
 
 .logo-box { 
     padding: 30px 15px; 
     text-align: center; 
-    border-bottom: 1px solid var(--gold); 
+    border-bottom: 2px solid var(--gold); 
 }
 
 .school-logo { 
     width: 85px; 
     height: 85px; 
     border-radius: 50%; 
-    border: 3px double var(--gold); 
-    box-shadow: 0 0 10px var(--gold); 
+    border: 3px solid var(--gold); 
 }
 
 .sidebar a { 
@@ -44,61 +42,64 @@ body {
     padding: 15px 25px; 
     display: block; 
     font-weight: bold; 
-    transition: 0.3s; 
-    border-bottom: 1px solid rgba(212, 175, 55, 0.1); 
+    transition: 0.4s; 
 }
 
+/* Jab mouse le jayein toh Sona Chamke */
 .sidebar a:hover, .sidebar a.active { 
     background: var(--gold); 
-    color: var(--velvet); 
+    color: var(--royal-blue); 
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
-/* Main Content Area */
+/* Content Area */
 .main-content { 
     margin-left: 260px; 
     padding: 40px; 
     width: 100%; 
 }
 
-/* Royal Parchment Cards */
+/* Royal Cards Update */
 .royal-card { 
     background: var(--parchment); 
-    border: 8px double var(--gold); 
+    border: 5px double var(--gold); 
     padding: 35px; 
-    color: #2c3e50; 
-    box-shadow: 10px 10px 25px rgba(0,0,0,0.5); 
+    color: #1a1a1a; 
+    box-shadow: 15px 15px 30px rgba(0,0,0,0.6); 
+    border-radius: 10px;
 }
 
 h2, h3 { 
-    color: var(--velvet); 
-    border-bottom: 2px solid var(--gold); 
+    color: var(--royal-blue); 
+    border-bottom: 3px double var(--gold); 
     padding-bottom: 10px; 
-    font-style: italic; 
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-/* Imperial Buttons */
+/* Buttons */
 .royal-btn { 
-    background: var(--velvet); 
+    background: var(--royal-blue); 
     color: var(--gold); 
     border: 2px solid var(--gold); 
-    padding: 10px 30px; 
+    padding: 12px 35px; 
     font-weight: bold; 
     text-transform: uppercase; 
     cursor: pointer;
+    transition: 0.3s;
 }
 
 .royal-btn:hover { 
-    background: var(--gold); 
-    color: var(--velvet); 
+    background: #001a4d; 
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 /* Forms */
 input, select { 
-    background: transparent !important; 
-    border: none !important; 
-    border-bottom: 2px solid var(--gold) !important; 
-    border-radius: 0 !important; 
-    color: #333 !important; 
-    font-weight: bold; 
-    padding: 8px;
+    background: rgba(0,0,0,0.05) !important; 
+    border: 1px solid var(--gold) !important; 
+    border-radius: 5px !important; 
+    color: #000 !important; 
+    padding: 10px;
 }
