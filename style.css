@@ -1,133 +1,137 @@
-/* --- CURRENCY NOTE / OFFICIAL BOND PAPER STYLE --- */
-
-/* Body: Dark background taaki White Paper pop kare */
-body {
-    background-color: #1e1e1e;
-    /* Agar texture chahiye to niche wali line uncomment kar dena */
-    /* background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png'); */
+/* IMPERIAL MASTER STYLESHEET - GOVERNMENT DOCUMENT VERSION */
+:root { 
+    --velvet: #300a24; 
+    --gold: #d4af37; 
+    --parchment: #f4e4bc; 
+    --ink: #1a1a1a;
 }
 
-/* MAIN DOCUMENT CARD */
-.royal-card {
-    /* 1. Base Paper Color - Off-white (Note jaisa) */
-    background-color: #fffdf0;
-    
-    /* 2. BACKGROUND PATTERNS (Currency Look) */
-    background-image: 
-        /* Layer A: Watermark (Tumhara Logo) - Center mein bada sa */
-        url('logo.png'),
-        
-        /* Layer B: Fine Security Mesh (Barik Jaali) */
-        repeating-linear-gradient(
-            45deg,
-            rgba(0, 51, 102, 0.03) 0px,
-            rgba(0, 51, 102, 0.03) 1px,
-            transparent 1px,
-            transparent 10px
-        ),
-        
-        /* Layer C: Vertical Security Lines */
-        repeating-linear-gradient(
-            90deg,
-            rgba(200, 160, 60, 0.05) 0px,
-            rgba(200, 160, 60, 0.05) 1px,
-            transparent 1px,
-            transparent 30px
-        );
+body { 
+    background: var(--velvet); 
+    font-family: 'Georgia', serif; 
+    color: var(--gold); 
+    display: flex; 
+    min-height: 100vh; 
+    margin: 0; 
+    /* Velvet background par thoda pinstripe pattern */
+    background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png');
+}
 
-    /* Positioning and Sizing */
-    background-position: center center, top left, top left;
-    background-repeat: no-repeat, repeat, repeat;
-    background-size: 50% auto, auto, auto; /* Logo size control */
-    
-    /* 3. BORDERS (Complex Currency Border) */
-    border: 2px solid #333; /* Inner thin line */
-    outline: 8px solid transparent; /* Space for pattern */
-    box-shadow: 
-        0 0 0 6px #fffdf0, /* White gap */
-        0 0 0 8px #003366, /* Blue heavy line */
-        0 0 0 12px #d4af37, /* Gold thin line */
-        0 0 30px rgba(0,0,0,0.5); /* Shadow for depth */
-    
-    /* Spacing */
-    padding: 60px;
-    margin: 40px auto; /* Center in main content */
-    max-width: 1000px; /* Note width limit */
+/* Sidebar Navigation */
+.sidebar { 
+    width: 260px; 
+    background: rgba(0,0,0,0.6); 
+    border-right: 2px solid var(--gold); 
+    height: 100vh; 
+    position: fixed; 
+    box-shadow: 5px 0 25px rgba(0,0,0,0.7); 
+    z-index: 1000;
+}
+
+.logo-box { 
+    padding: 30px 15px; 
+    text-align: center; 
+    border-bottom: 2px solid var(--gold); 
+}
+
+.school-logo { 
+    width: 90px; 
+    height: 90px; 
+    border-radius: 50%; 
+    border: 3px double var(--gold); 
+    box-shadow: 0 0 15px var(--gold); 
+}
+
+.sidebar a { 
+    color: var(--gold); 
+    text-decoration: none; 
+    padding: 15px 25px; 
+    display: block; 
+    font-weight: bold; 
+    transition: 0.3s; 
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1); 
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.sidebar a:hover, .sidebar a.active { 
+    background: var(--gold); 
+    color: var(--velvet); 
+}
+
+/* Main Content Area */
+.main-content { 
+    margin-left: 260px; 
+    padding: 50px; 
+    width: 100%; 
+}
+
+/* ORIGINAL GOVERNMENT DOCUMENT CARD */
+.royal-card { 
+    background-color: var(--parchment);
+    /* Asli puraane paper ka texture */
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), 
+                      url('https://www.transparenttextures.com/patterns/old-map.png');
+    border: 2px solid #c2a366;
+    /* Shahi Double Border */
+    outline: 8px double var(--gold);
+    outline-offset: -15px;
+    padding: 50px; 
+    color: var(--ink); 
+    box-shadow: 20px 20px 50px rgba(0,0,0,0.6); 
     position: relative;
-    overflow: hidden; /* Clean edges */
+    min-height: 80vh;
 }
 
-/* KONE MEIN ORNAMENT (Corner Designs) */
-/* Yeh ek visual trick hai corners ko royal banane ke liye */
-.royal-card::before, .royal-card::after {
-    content: "★"; /* Star symbol as security mark */
-    position: absolute;
-    font-size: 30px;
-    color: #d4af37;
-    top: 15px;
-    right: 15px;
-    border: 2px solid #003366;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-}
-.royal-card::after {
-    top: auto;
-    bottom: 15px;
-    right: auto;
-    left: 15px;
-}
-
-/* HEADINGS - Official Blue Ink */
-h2, h3 {
-    font-family: 'Times New Roman', serif;
-    color: #003366;
-    text-transform: uppercase;
+/* Document Header Style */
+h2, h3 { 
+    color: var(--velvet); 
+    border-bottom: 2px solid var(--gold); 
+    padding-bottom: 15px; 
+    font-style: italic; 
     text-align: center;
-    letter-spacing: 4px;
-    border-bottom: 2px double #d4af37;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
-}
-
-/* INPUT FIELDS - Dotted Line Style */
-input, select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.5) !important;
-    border: none !important;
-    border-bottom: 2px dotted #003366 !important; /* Dotted line like forms */
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    color: #000 !important;
-}
-
-input:focus {
-    background: #f0f8ff !important;
-    outline: none;
-}
-
-/* BUTTONS - Stamp Style */
-.royal-btn {
-    background-color: #003366;
-    color: #fff;
-    border: 2px solid #d4af37;
-    padding: 12px 30px;
     font-family: 'Times New Roman', serif;
     text-transform: uppercase;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 4px 4px 0px #ccc; /* 3D effect */
-    transition: all 0.2s;
+    letter-spacing: 3px;
 }
 
-.royal-btn:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px #ccc;
+/* Imperial Buttons (Golden Seal Style) */
+.royal-btn { 
+    background: var(--velvet); 
+    color: var(--gold); 
+    border: 2px solid var(--gold); 
+    padding: 12px 35px; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: 0.3s;
+}
+
+.royal-btn:hover { 
+    background: var(--gold); 
+    color: var(--velvet); 
+    transform: scale(1.05);
+}
+
+/* Forms (Ink on Paper Style) */
+input, select { 
+    background: rgba(0,0,0,0.03) !important; 
+    border: none !important; 
+    border-bottom: 2px solid var(--gold) !important; 
+    border-radius: 0 !important; 
+    color: #1a1a1a !important; 
+    font-weight: bold; 
+    padding: 10px;
+    font-family: 'Courier New', monospace; /* Typewriter feel */
+}
+
+/* Stats Box for Dashboard */
+.stat-box {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--gold);
+    padding: 20px;
+    text-align: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
