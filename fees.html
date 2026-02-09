@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Collection - The Lalit International School</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; }
+        .fee-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 700px; margin: auto; }
+        .header-section { border-bottom: 2px solid #f1c40f; margin-bottom: 25px; padding-bottom: 10px; }
+        .search-box { background: #fff9e6; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="fee-container shadow">
+    <div class="header-section text-center">
+        <h2>Fee Collection</h2>
+        <p class="text-muted">The Lalit International School</p>
+    </div>
+
+    <div class="search-box">
+        <label class="fw-bold">Enter Student Roll Number to Collect Fee:</label>
+        <div class="input-group mt-2">
+            <input type="number" id="feeRoll" class="form-control" placeholder="Roll No...">
+            <button class="btn btn-warning" onclick="findStudentForFee()">Find Student</button>
+        </div>
+    </div>
+
+    <div id="feeForm" style="display: none;">
+        <div class="alert alert-info">
+            <strong>Student:</strong> <span id="displayStudentName"></span><br>
+            <strong>Class:</strong> <span id="displayStudentClass"></span>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Fee Amount (₹)</label>
+            <input type="number" id="fAmount" class="form-control" placeholder="0.00">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Month/Description</label>
+            <input type="text" id="fMonth" class="form-control" placeholder="e.g. February Fee">
+        </div>
+        <button class="btn btn-success w-100" onclick="submitFee()">Submit Fee Payment</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
+        authDomain: "the-lalit-d7472.firebaseapp.com",
+        databaseURL: "https://the-lalit-d7472-default-rtdb.firebaseio.com",
+        projectId: "the-lalit-d7472",
+        storageBucket: "the-lalit-d7472.firebasestorage.app",
+        messagingSenderId: "479237084229",
+        appId: "1:479237084229:web:f1da384b45c5883b12ff2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function findStudentForFee() {
+        const roll = document.getElementById('feeRoll').value;
+        if(!roll) return alert("Enter Roll Number");
+
+        db.ref('students/' + roll).once('value', (snapshot) => {
+            if(snapshot.exists()) {
+                const s = snapshot.val();
+                document.getElementById('displayStudentName').innerText = s.name;
+                document.getElementById('displayStudentClass').innerText = "Class " + s.class;
+                document.getElementById('feeForm').style.display = 'block';
+            } else {
+                alert("Student not found!");
+                document.getElementById('feeForm').style.display = 'none';
+            }
+        });
+    }
+
+    function submitFee() {
+        const roll = document.getElementById('feeRoll').value;
+        const amount = document.getElementById('fAmount').value;
+        const month = document.getElementById('fMonth').value;
+
+        if(amount && month) {
+            const feeId = Date.now(); // Unique ID for transaction
+            db.ref('fees/' + roll + '/' + feeId).set({
+                amount: amount,
+                month: month,
+                date: new Date().toLocaleDateString('en-GB'),
+                time: new Date().toLocaleTimeString()
+            }).then(() => {
+                alert("Fee Received Successfully!");
+                location.reload();
+            });
+        } else {
+            alert("Fill all details");
+        }
+    }
+</script>
+</body>
+</html>
