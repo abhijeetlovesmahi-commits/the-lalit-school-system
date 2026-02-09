@@ -3,65 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit International School - Management System</title>
+    <title>Dashboard - The Lalit International School</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar { background-color: #2c3e50; }
-        .hero-section { padding: 60px 0; text-align: center; background: white; margin-bottom: 30px; border-bottom: 5px solid #3498db; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-        .btn-primary { background-color: #3498db; border: none; }
+        :root { --sidebar-width: 250px; --primary-color: #2c3e50; }
+        body { background-color: #f4f7f6; overflow-x: hidden; }
+        /* Sidebar Style */
+        .sidebar { width: var(--sidebar-width); height: 100vh; background: var(--primary-color); position: fixed; color: white; transition: 0.3s; }
+        .sidebar a { color: #bdc3c7; text-decoration: none; padding: 15px 20px; display: block; transition: 0.2s; border-left: 4px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { background: #34495e; color: white; border-left: 4px solid #3498db; }
+        .content { margin-left: var(--sidebar-width); padding: 20px; width: calc(100% - var(--sidebar-width)); }
+        /* Card Style */
+        .stat-card { border: none; border-radius: 12px; transition: 0.3s; color: white; }
+        .bg-students { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .bg-attendance { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+        .bg-fees { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 0; overflow: hidden; }
+            .content { margin-left: 0; width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <strong>The Lalit International School</strong>
-        </a>
+<div class="sidebar shadow">
+    <div class="p-3 text-center border-bottom border-secondary">
+        <h5>The Lalit Intl.</h5>
     </div>
-</nav>
-
-<div class="hero-section shadow-sm">
-    <div class="container">
-        <h1>Welcome to School Portal</h1>
-        <p class="text-muted">Manage Students, Staff, and Academics efficiently.</p>
+    <div class="mt-3">
+        <a href="index.html" class="active"><i class="fas fa-home me-2"></i> Dashboard</a>
+        <a href="add-student.html"><i class="fas fa-user-plus me-2"></i> New Admission</a>
+        <a href="view-students.html"><i class="fas fa-users me-2"></i> Student List</a>
+        <a href="attendance.html"><i class="fas fa-calendar-check me-2"></i> Attendance</a>
+        <a href="fees.html"><i class="fas fa-money-bill-wave me-2"></i> Collect Fees</a>
+        <a href="fee-history.html"><i class="fas fa-history me-2"></i> Fee Records</a>
     </div>
 </div>
 
-<div class="container">
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>School Overview</h4>
+        <span class="badge bg-dark p-2" id="liveClock"></span>
+    </div>
+
     <div class="row g-4">
         <div class="col-md-4">
-            <div class="card p-4 text-center">
-                <h3>Attendance</h3>
-                <p>Track daily student presence.</p>
-                <button class="btn btn-primary" onclick="alert('Module Loading...')">Open Register</button>
+            <div class="stat-card bg-students p-4 shadow-sm">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>Total Students</h3>
+                        <h2 id="totalCount">0</h2>
+                    </div>
+                    <i class="fas fa-user-graduate fa-3x opacity-50"></i>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card p-4 text-center">
-                <h3>Students</h3>
-                <p>Add or view student profiles.</p>
-                <button class="btn btn-primary" onclick="alert('Module Loading...')">Manage Data</button>
+            <div class="stat-card bg-attendance p-4 shadow-sm">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>Today Present</h3>
+                        <h2 id="presentCount">0</h2>
+                    </div>
+                    <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card p-4 text-center">
-                <h3>Fees</h3>
-                <p>Check pending and paid fees.</p>
-                <button class="btn btn-primary" onclick="alert('Module Loading...')">Fee Records</button>
+            <div class="stat-card bg-fees p-4 shadow-sm">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>Recent Fees</h3>
+                        <h2 id="feeCount">0</h2>
+                    </div>
+                    <i class="fas fa-wallet fa-3x opacity-50"></i>
+                </div>
             </div>
         </div>
     </div>
+
+    <div class="mt-5 p-5 border-dashed border-2 text-center text-muted bg-white rounded shadow-sm">
+        <img src="https://cdn-icons-png.flaticon.com/512/2940/2940651.png" width="100" class="mb-3">
+        <h4>Welcome to The Lalit International School Management System</h4>
+        <p>Left side menu se koi bhi module select karein kaam shuru karne ke liye.</p>
+    </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // Apki Firebase Config yahan setup kar di hai
     const firebaseConfig = {
         apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
         authDomain: "the-lalit-d7472.firebaseapp.com",
@@ -71,11 +104,33 @@
         messagingSenderId: "479237084229",
         appId: "1:479237084229:web:f1da384b45c5883b12ff2c"
     };
-    
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    console.log("Firebase Connected Successfully!");
-</script>
+    const db = firebase.database();
 
+    // Clock
+    setInterval(() => {
+        document.getElementById('liveClock').innerText = new Date().toLocaleString();
+    }, 1000);
+
+    // Load Stats
+    function updateStats() {
+        // Total Students
+        db.ref('students').on('value', snap => {
+            document.getElementById('totalCount').innerText = snap.numChildren();
+        });
+
+        // Attendance Today
+        const today = new Date().toLocaleDateString('en-GB').replace(/\//g, "-");
+        db.ref('attendance/' + today).on('value', snap => {
+            let present = 0;
+            snap.forEach(child => {
+                if(child.val().status === 'Present') present++;
+            });
+            document.getElementById('presentCount').innerText = present;
+        });
+    }
+
+    window.onload = updateStats;
+</script>
 </body>
 </html>
