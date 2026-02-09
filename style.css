@@ -1,26 +1,31 @@
-/* ULTRA-ROYAL MASTER CSS */
+/* IMPERIAL MASTER STYLESHEET - GOVERNMENT DOCUMENT VERSION */
 :root { 
-    --royal-blue: #002366; /* Velvet Purple ki jagah Deep Royal Blue */
-    --gold: #ffd700;       /* Aur bhi chamakdar Sona */
-    --parchment: #fffaf0;  /* Saaf Ivory Paper */
+    --velvet: #300a24; 
+    --gold: #d4af37; 
+    --parchment: #f4e4bc; 
+    --ink: #1a1a1a;
 }
 
 body { 
-    background: var(--royal-blue); 
-    font-family: 'Times New Roman', serif; 
+    background: var(--velvet); 
+    font-family: 'Georgia', serif; 
     color: var(--gold); 
     display: flex; 
     min-height: 100vh; 
     margin: 0; 
+    /* Velvet background par thoda pinstripe pattern */
+    background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png');
 }
 
-/* Sidebar Update */
+/* Sidebar Navigation */
 .sidebar { 
     width: 260px; 
     background: rgba(0,0,0,0.6); 
-    border-right: 3px solid var(--gold); 
+    border-right: 2px solid var(--gold); 
     height: 100vh; 
     position: fixed; 
+    box-shadow: 5px 0 25px rgba(0,0,0,0.7); 
+    z-index: 1000;
 }
 
 .logo-box { 
@@ -30,10 +35,11 @@ body {
 }
 
 .school-logo { 
-    width: 85px; 
-    height: 85px; 
+    width: 90px; 
+    height: 90px; 
     border-radius: 50%; 
-    border: 3px solid var(--gold); 
+    border: 3px double var(--gold); 
+    box-shadow: 0 0 15px var(--gold); 
 }
 
 .sidebar a { 
@@ -42,64 +48,90 @@ body {
     padding: 15px 25px; 
     display: block; 
     font-weight: bold; 
-    transition: 0.4s; 
+    transition: 0.3s; 
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1); 
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
 }
 
-/* Jab mouse le jayein toh Sona Chamke */
 .sidebar a:hover, .sidebar a.active { 
     background: var(--gold); 
-    color: var(--royal-blue); 
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    color: var(--velvet); 
 }
 
-/* Content Area */
+/* Main Content Area */
 .main-content { 
     margin-left: 260px; 
-    padding: 40px; 
+    padding: 50px; 
     width: 100%; 
 }
 
-/* Royal Cards Update */
+/* ORIGINAL GOVERNMENT DOCUMENT CARD */
 .royal-card { 
-    background: var(--parchment); 
-    border: 5px double var(--gold); 
-    padding: 35px; 
-    color: #1a1a1a; 
-    box-shadow: 15px 15px 30px rgba(0,0,0,0.6); 
-    border-radius: 10px;
+    background-color: var(--parchment);
+    /* Asli puraane paper ka texture */
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), 
+                      url('https://www.transparenttextures.com/patterns/old-map.png');
+    border: 2px solid #c2a366;
+    /* Shahi Double Border */
+    outline: 8px double var(--gold);
+    outline-offset: -15px;
+    padding: 50px; 
+    color: var(--ink); 
+    box-shadow: 20px 20px 50px rgba(0,0,0,0.6); 
+    position: relative;
+    min-height: 80vh;
 }
 
+/* Document Header Style */
 h2, h3 { 
-    color: var(--royal-blue); 
-    border-bottom: 3px double var(--gold); 
-    padding-bottom: 10px; 
+    color: var(--velvet); 
+    border-bottom: 2px solid var(--gold); 
+    padding-bottom: 15px; 
+    font-style: italic; 
+    text-align: center;
+    font-family: 'Times New Roman', serif;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
 }
 
-/* Buttons */
+/* Imperial Buttons (Golden Seal Style) */
 .royal-btn { 
-    background: var(--royal-blue); 
+    background: var(--velvet); 
     color: var(--gold); 
     border: 2px solid var(--gold); 
     padding: 12px 35px; 
     font-weight: bold; 
     text-transform: uppercase; 
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     transition: 0.3s;
 }
 
 .royal-btn:hover { 
-    background: #001a4d; 
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    background: var(--gold); 
+    color: var(--velvet); 
+    transform: scale(1.05);
 }
 
-/* Forms */
+/* Forms (Ink on Paper Style) */
 input, select { 
-    background: rgba(0,0,0,0.05) !important; 
-    border: 1px solid var(--gold) !important; 
-    border-radius: 5px !important; 
-    color: #000 !important; 
+    background: rgba(0,0,0,0.03) !important; 
+    border: none !important; 
+    border-bottom: 2px solid var(--gold) !important; 
+    border-radius: 0 !important; 
+    color: #1a1a1a !important; 
+    font-weight: bold; 
     padding: 10px;
+    font-family: 'Courier New', monospace; /* Typewriter feel */
+}
+
+/* Stats Box for Dashboard */
+.stat-box {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--gold);
+    padding: 20px;
+    text-align: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
