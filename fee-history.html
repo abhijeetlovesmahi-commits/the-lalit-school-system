@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee History - The Lalit International School</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; }
+        .history-container { background: white; padding: 30px; border-radius: 15px; shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        .receipt-card { border-left: 5px solid #27ae60; margin-bottom: 10px; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+<div class="history-container shadow">
+    <div class="text-center mb-4">
+        <h2>Student Fee History</h2>
+        <p class="text-muted">The Lalit International School</p>
+    </div>
+
+    <div class="input-group mb-4">
+        <input type="number" id="searchRoll" class="form-control" placeholder="Enter Roll Number to see History...">
+        <button class="btn btn-primary" onclick="loadHistory()">View History</button>
+    </div>
+
+    <div id="studentInfo" class="mb-3 fw-bold text-primary"></div>
+    <div id="historyList">
+        </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
+        authDomain: "the-lalit-d7472.firebaseapp.com",
+        databaseURL: "https://the-lalit-d7472-default-rtdb.firebaseio.com",
+        projectId: "the-lalit-d7472",
+        storageBucket: "the-lalit-d7472.firebasestorage.app",
+        messagingSenderId: "479237084229",
+        appId: "1:479237084229:web:f1da384b45c5883b12ff2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function loadHistory() {
+        const roll = document.getElementById('searchRoll').value;
+        const list = document.getElementById('historyList');
+        const info = document.getElementById('studentInfo');
+        
+        if(!roll) return alert("Roll number daliye");
+
+        list.innerHTML = "Searching...";
+        
+        // Pehle student ka naam confirm karein
+        db.ref('students/' + roll).once('value', (sSnap) => {
+            if(sSnap.exists()){
+                info.innerText = "Showing records for: " + sSnap.val().name;
+                
+                // Phir uski fees load karein
+                db.ref('fees/' + roll).once('value', (snapshot) => {
+                    list.innerHTML = "";
+                    if(snapshot.exists()) {
+                        snapshot.forEach((child) => {
+                            const f = child.val();
+                            const card = `
+                                <div class="card receipt-card p-3 shadow-sm">
+                                    <div class="d-flex justify-content-between">
+                                        <span><strong>Amount:</strong> ₹${f.amount}</span>
+                                        <span class="text-muted small">${f.date} | ${f.time}</span>
+                                    </div>
+                                    <div><strong>For:</strong> ${f.month}</div>
+                                </div>
+                            `;
+                            list.innerHTML += card;
+                        });
+                    } else {
+                        list.innerHTML = "<div class='alert alert-warning'>No fee records found for this student.</div>";
+                    }
+                });
+            } else {
+                info.innerText = "";
+                list.innerHTML = "<div class='alert alert-danger'>Roll Number not found!</div>";
+            }
+        });
+    }
+</script>
+</body>
+</html>
