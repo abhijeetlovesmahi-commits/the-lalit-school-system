@@ -3,33 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee History - The Lalit International School</title>
+    <title>Imperial Archive - TLIS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .history-container { background: white; padding: 30px; border-radius: 15px; shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
-        .receipt-card { border-left: 5px solid #27ae60; margin-bottom: 10px; background: #f9f9f9; }
+        .archive-card { border-left: 5px solid var(--gold); background: rgba(255,255,255,0.6); margin-bottom: 15px; transition: 0.3s; }
+        .archive-card:hover { transform: translateX(10px); background: rgba(255,255,255,0.9); }
     </style>
 </head>
 <body>
 
-<div class="history-container shadow">
-    <div class="text-center mb-4">
-        <h2>Student Fee History</h2>
-        <p class="text-muted">The Lalit International School</p>
+<div class="sidebar">
+    <div class="logo-box">
+        <img src="logo.png" class="school-logo">
+        <h5 class="mt-3">The Lalit Intl.</h5>
     </div>
-
-    <div class="input-group mb-4">
-        <input type="number" id="searchRoll" class="form-control" placeholder="Enter Roll Number to see History...">
-        <button class="btn btn-primary" onclick="loadHistory()">View History</button>
+    <div class="nav-links">
+        <a href="index.html"><i class="fas fa-crown me-2"></i> Dashboard</a>
+        <a href="add-student.html"><i class="fas fa-scroll me-2"></i> Admission</a>
+        <a href="view-students.html"><i class="fas fa-users me-2"></i> Student List</a>
+        <a href="attendance.html"><i class="fas fa-pen-fancy me-2"></i> Attendance</a>
+        <a href="fees.html"><i class="fas fa-coins me-2"></i> Fee Collection</a>
+        <a href="fee-history.html" class="active"><i class="fas fa-history me-2"></i> Fee Records</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
     </div>
+</div>
 
-    <div id="studentInfo" class="mb-3 fw-bold text-primary"></div>
-    <div id="historyList">
+<div class="main-content">
+    <div class="royal-card">
+        <h2 class="text-center mb-4"><i class="fas fa-book me-2"></i>Treasury Archives</h2>
+        
+        <div class="p-3 mb-4" style="background: rgba(0,0,0,0.05); border: 1px dashed var(--gold);">
+            <label class="fw-bold mb-2">Search Treasury Records by Roll:</label>
+            <div class="input-group">
+                <input type="number" id="searchRoll" class="form-control" placeholder="Enter Seal/Roll No...">
+                <button class="royal-btn" onclick="loadHistory()">Retrieve Records</button>
+            </div>
         </div>
+
+        <div id="studentNameHeader" class="h4 mb-4 text-center text-velvet"></div>
+        <div id="historyContainer">
+            <p class="text-center text-muted">Enter a roll number to view the scroll of payments.</p>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
@@ -45,47 +67,48 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    firebase.auth().onAuthStateChanged(u => { if(!u) window.location.href="login.html"; });
+
     function loadHistory() {
         const roll = document.getElementById('searchRoll').value;
-        const list = document.getElementById('historyList');
-        const info = document.getElementById('studentInfo');
+        const container = document.getElementById('historyContainer');
+        const header = document.getElementById('studentNameHeader');
         
-        if(!roll) return alert("Roll number daliye");
+        if(!roll) return alert("Please specify a Roll Number.");
 
-        list.innerHTML = "Searching...";
-        
-        // Pehle student ka naam confirm karein
-        db.ref('students/' + roll).once('value', (sSnap) => {
+        container.innerHTML = "<p class='text-center'>Searching the archives...</p>";
+
+        db.ref('students/' + roll).once('value', sSnap => {
             if(sSnap.exists()){
-                info.innerText = "Showing records for: " + sSnap.val().name;
+                header.innerText = "Financial Scroll for: " + sSnap.val().name;
                 
-                // Phir uski fees load karein
-                db.ref('fees/' + roll).once('value', (snapshot) => {
-                    list.innerHTML = "";
-                    if(snapshot.exists()) {
-                        snapshot.forEach((child) => {
+                db.ref('fees/' + roll).once('value', fSnap => {
+                    container.innerHTML = "";
+                    if(fSnap.exists()){
+                        fSnap.forEach(child => {
                             const f = child.val();
-                            const card = `
-                                <div class="card receipt-card p-3 shadow-sm">
-                                    <div class="d-flex justify-content-between">
+                            container.innerHTML += `
+                                <div class="archive-card p-3 shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center">
                                         <span><strong>Amount:</strong> ₹${f.amount}</span>
-                                        <span class="text-muted small">${f.date} | ${f.time}</span>
+                                        <span class="badge bg-dark text-gold">${f.date}</span>
                                     </div>
-                                    <div><strong>For:</strong> ${f.month}</div>
+                                    <div class="mt-2"><strong>Purpose:</strong> ${f.month}</div>
                                 </div>
                             `;
-                            list.innerHTML += card;
                         });
                     } else {
-                        list.innerHTML = "<div class='alert alert-warning'>No fee records found for this student.</div>";
+                        container.innerHTML = "<div class='alert alert-light text-center'>No treasury records found for this soul.</div>";
                     }
                 });
             } else {
-                info.innerText = "";
-                list.innerHTML = "<div class='alert alert-danger'>Roll Number not found!</div>";
+                header.innerText = "";
+                container.innerHTML = "<div class='alert alert-danger text-center'>Soul not found in Imperial Registry.</div>";
             }
         });
     }
+
+    function logout() { firebase.auth().signOut().then(() => { window.location.href = "login.html"; }); }
 </script>
 </body>
 </html>
