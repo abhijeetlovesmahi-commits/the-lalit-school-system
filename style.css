@@ -1,142 +1,183 @@
-/* PREMIUM CURRENCY-INSPIRED CLEAN DASHBOARD */
+/* PREMIUM 200-CURRENCY CLEAN THEME (MERGED VERSION)
+   Designed for: The Lalit International School
+   Main Features: Royal Header, 12px Body, Currency Texture, Logo Watermark
+*/
+
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@400;600&display=swap');
 
 :root { 
-    --note-accent: #ff9800; /* Clean Orange */
-    --note-bg: #fffbf2;     /* Very Light Cream (Clean Note) */
-    --text-dark: #2d2d2d;   /* Professional Grey-Black */
-    --royal-gold: #c5a059;  /* Muted Gold */
+    --note-accent: #ff9800; /* ₹200 Orange */
+    --note-bg: #fffbf2;     /* Light Clean Cream */
+    --text-dark: #2d2d2d;   
     --sidebar-dark: #1e1e1e;
 }
 
 body { 
     background: #f0f0f0; 
     font-family: 'Poppins', sans-serif; 
-    font-size: 12px; /* Small font for body as requested */
+    font-size: 12px; 
     color: var(--text-dark); 
     display: flex; 
     min-height: 100vh; 
     margin: 0; 
 }
 
-/* --- SIDEBAR --- */
+/* --- 1. SHORTCUT MENU (3 LINES) --- */
+.menu-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 30px;
+    height: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    z-index: 3000;
+    background: var(--note-accent);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.menu-toggle span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: white;
+    border-radius: 2px;
+}
+
+/* --- 2. SIDEBAR (AUTO-HIDE VERSION) --- */
 .sidebar { 
     width: 250px; 
     background: var(--sidebar-dark); 
     height: 100vh; 
     position: fixed; 
-    z-index: 1000;
+    left: -250px; /* Hidden by default */
+    transition: 0.4s ease;
+    z-index: 2000;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+}
+
+/* Jab checkbox click ho to sidebar dikhe */
+#menu-checkbox:checked ~ .sidebar {
+    left: 0;
+}
+
+/* Overlay for click-to-close effect */
+#menu-checkbox:checked ~ .sidebar-overlay {
+    display: block;
+}
+
+.logo-box { 
+    padding: 40px 15px 20px; 
+    text-align: center; 
+    border-bottom: 1px solid #333; 
+}
+
+.school-logo { 
+    width: 70px; 
+    height: 70px; 
+    border-radius: 50%; 
+    border: 2px solid var(--note-accent);
 }
 
 .sidebar a { 
     color: #bbb; 
     text-decoration: none; 
-    padding: 12px 20px; 
+    padding: 15px 20px; 
     display: block; 
     font-size: 12px;
-    transition: 0.3s;
-    border-left: 3px solid transparent;
+    border-bottom: 1px solid #252525;
 }
 
-.sidebar a:hover, .sidebar a.active { 
+.sidebar a:hover { 
     background: #2d2d2d;
     color: var(--note-accent);
-    border-left: 3px solid var(--note-accent);
 }
 
-/* --- MAIN CONTENT & CLEAN CARD --- */
+/* --- 3. MAIN DASHBOARD AREA --- */
 .main-content { 
-    margin-left: 250px; 
-    padding: 30px; 
+    margin-left: 0; 
+    padding: 70px 20px 20px; /* Space for hamburger icon */
     width: 100%; 
 }
 
 .royal-card { 
     background-color: var(--note-bg);
-    /* Subtle Currency Pattern */
     background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
-    
     border: 1px solid #e0d0b0;
-    border-radius: 8px;
-    padding: 40px; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+    border-radius: 12px;
+    padding: 30px; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
     position: relative;
-    min-height: 85vh;
+    min-height: 80vh;
     overflow: hidden;
 }
 
-/* --- LOGO WATERMARK --- */
+/* --- 4. SCHOOL LOGO WATERMARK --- */
 .royal-card::after {
     content: "";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 400px;
-    height: 400px;
-    background-image: url('logo.png'); /* Aapka logo */
+    width: 350px;
+    height: 350px;
+    background-image: url('logo.png'); /* Aapka logo path */
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    opacity: 0.05; /* Bahut halka taaki text saaf dikhe */
+    opacity: 0.05; 
     pointer-events: none;
     z-index: 0;
 }
 
-/* --- TYPOGRAPHY --- */
+/* --- 5. HEADINGS & FONTS --- */
 h2, h3 { 
-    font-family: 'Cinzel', serif; /* Royal Font */
-    font-size: 2.2rem; /* Badi Heading */
-    color: #8d6e63; /* Deep Terracotta (Note link color) */
+    font-family: 'Cinzel', serif; 
+    font-size: 2rem; 
+    color: #8d6e63; 
     text-align: center;
-    margin-bottom: 30px;
     border-bottom: 2px solid var(--note-accent);
-    display: block;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
     position: relative;
     z-index: 1;
 }
 
-p, span, div, td, th {
-    font-size: 12px !important; /* Force small font for everything else */
+/* Sab font ko 12px fix kar diya */
+p, span, div, td, th, label, input {
+    font-size: 12px !important;
     position: relative;
     z-index: 1;
 }
 
-/* --- CLEAN BUTTONS --- */
+/* --- 6. BUTTONS (CLEAN & BRIGHT) --- */
 .royal-btn { 
     background: var(--note-accent); 
     color: white; 
     border: none; 
-    padding: 10px 25px; 
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase; 
+    padding: 8px 20px; 
     cursor: pointer;
     border-radius: 4px;
-    transition: 0.3s;
+    font-weight: 600;
 }
 
-.royal-btn:hover { 
-    background: #e68a00;
-    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+/* CSS-ONLY TRICK (NO JS NEEDED) */
+#menu-checkbox { display: none; }
+.sidebar-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    z-index: 1500;
 }
 
-/* --- FORM ELEMENTS --- */
-input, select { 
-    background: #ffffff !important; 
-    border: 1px solid #ddd !important; 
-    padding: 8px;
-    font-size: 12px !important;
-    border-radius: 4px !important;
-}
-
-/* --- STAT BOXES --- */
+/* Stats Box */
 .stat-box {
-    background: #ffffff;
+    background: white;
     border: 1px solid #eee;
     padding: 15px;
-    border-radius: 6px;
+    border-radius: 8px;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
