@@ -6,155 +6,91 @@
     <title>Admission Scroll - TLIS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* Sirf Photo Upload Box ke liye extra style yahan hai */
-        /* Agar chahein to isse copy karke apne style.css mein daal dein aur yahan se hata dein */
-        .photo-preview-box {
-            width: 140px;
-            height: 140px;
-            border: 2px dashed var(--gold, #d4af37); /* Fallback color added */
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin: 0 auto;
-            background: #f8f9fa;
+        .photo-preview-box { width: 140px; height: 140px; border: 2px dashed #ff9800; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; background: #f8f9fa; }
+        .photo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .section-header { border-bottom: 2px solid #ff9800; padding-bottom: 5px; margin-bottom: 20px; margin-top: 20px; font-weight: bold; color: #300a24; }
+        
+        /* ID CARD STYLE LIST */
+        .student-card-mini {
+            background: #fff; border: 1px solid #e0d0b0; border-radius: 10px; padding: 15px;
+            text-align: center; transition: 0.3s; cursor: pointer; position: relative;
         }
-        .photo-preview-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .section-header {
-            border-bottom: 2px solid var(--gold, #d4af37);
-            padding-bottom: 5px;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            font-weight: bold;
-            color: var(--velvet, #333);
-        }
+        .student-card-mini:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .mini-photo { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ff9800; margin-bottom: 10px; }
+        .mini-id { font-size: 10px; color: #ff9800; font-weight: bold; }
     </style>
 </head>
 <body>
 
+<input type="checkbox" id="menu-checkbox">
+<label for="menu-checkbox" class="menu-toggle"><span></span><span></span><span></span></label>
+<label for="menu-checkbox" class="sidebar-overlay"></label>
+
 <div class="sidebar">
     <div class="logo-box">
-        <img src="logo.png" class="school-logo" alt="TLIS Logo">
+        <img src="logo.png" class="school-logo">
         <h5 class="mt-2">TLIS Imperial</h5>
     </div>
-    
     <a href="index.html"><i class="fas fa-crown me-2"></i> Dashboard</a>
-    <a href="add-student.html" class="active-link" style="background:var(--gold); color:var(--velvet);"><i class="fas fa-scroll me-2"></i> Admission</a>
+    <a href="add-student.html" class="active"><i class="fas fa-scroll me-2"></i> Admission</a>
     <a href="view-students.html"><i class="fas fa-users me-2"></i> Student List</a>
     <a href="attendance.html"><i class="fas fa-pen-fancy me-2"></i> Attendance</a>
 </div>
 
 <div class="main-content">
-    <div class="scroll-card">
-        <h2 class="text-center mb-4" style="font-style: italic;">Imperial Admission Registry</h2>
+    <div class="royal-card">
+        <h2 class="text-center mb-4">Imperial Admission Registry</h2>
         
         <form id="admissionForm">
-            
             <div class="row mb-4 align-items-center">
                 <div class="col-md-8">
-                    <h5 class="section-header"><i class="fas fa-id-card me-2"></i>Official Records (Auto-Generated)</h5>
+                    <h5 class="section-header"><i class="fas fa-id-card me-2"></i>Official Records</h5>
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label text-muted">Unique Student ID</label>
-                            <input type="text" id="sUniqueId" class="form-control fw-bold" placeholder="Auto-generated" disabled style="background:#e9ecef;">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-muted">Class Roll Number</label>
-                            <input type="text" id="sRoll" class="form-control fw-bold" placeholder="Auto-generated" disabled style="background:#e9ecef;">
-                        </div>
+                        <div class="col-md-6"><label class="small">Unique ID</label><input type="text" id="sUniqueId" class="form-control" placeholder="Auto" disabled></div>
+                        <div class="col-md-6"><label class="small">Roll No</label><input type="text" id="sRoll" class="form-control" placeholder="Auto" disabled></div>
                     </div>
                 </div>
                 <div class="col-md-4 text-center">
-                    <label class="form-label">Student Photo</label>
-                    <div class="photo-preview-box mb-2" id="photoPreview">
-                        <span class="text-muted small"><i class="fas fa-camera"></i> No Image</span>
-                    </div>
+                    <label class="small">Student Photo</label>
+                    <div class="photo-preview-box mb-2" id="photoPreview"><i class="fas fa-camera text-muted"></i></div>
                     <input type="file" id="sPhoto" class="form-control form-control-sm" accept="image/*" onchange="previewImage(this)">
                 </div>
             </div>
 
             <h5 class="section-header"><i class="fas fa-user me-2"></i>Personal Details</h5>
             <div class="row g-3">
-                <div class="col-md-4">
-                    <label>Full Name <span class="text-danger">*</span></label>
-                    <input type="text" id="sName" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                    <label>Date of Birth <span class="text-danger">*</span></label>
-                    <input type="date" id="sDob" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                    <label>Aadhaar Number</label>
-                    <input type="number" id="sAadhaar" class="form-control" placeholder="12 Digit UID">
-                </div>
-            </div>
-
-            <h5 class="section-header"><i class="fas fa-house-user me-2"></i>Family & Address</h5>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label>Father's Name <span class="text-danger">*</span></label>
-                    <input type="text" id="sFather" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                    <label>Mother's Name <span class="text-danger">*</span></label>
-                    <input type="text" id="sMother" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                    <label>Parent's Mobile No <span class="text-danger">*</span></label>
-                    <input type="tel" id="sMobile" class="form-control" required pattern="[0-9]{10}">
-                </div>
-                <div class="col-12">
-                    <label>Village / Full Address</label>
-                    <input type="text" id="sVillage" class="form-control" placeholder="Village, Post, District...">
-                </div>
-            </div>
-
-            <h5 class="section-header"><i class="fas fa-graduation-cap me-2"></i>Academic & Transport</h5>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label>Select Class <span class="text-danger">*</span></label>
+                <div class="col-md-4"><label>Full Name *</label><input type="text" id="sName" class="form-control" required></div>
+                <div class="col-md-4"><label>DOB *</label><input type="date" id="sDob" class="form-control" required></div>
+                <div class="col-md-4"><label>Aadhaar</label><input type="number" id="sAadhaar" class="form-control"></div>
+                <div class="col-md-4"><label>Father's Name *</label><input type="text" id="sFather" class="form-control" required></div>
+                <div class="col-md-4"><label>Mother's Name *</label><input type="text" id="sMother" class="form-control" required></div>
+                <div class="col-md-4"><label>Mobile *</label><input type="tel" id="sMobile" class="form-control" required></div>
+                <div class="col-md-8"><label>Address</label><input type="text" id="sVillage" class="form-control"></div>
+                <div class="col-md-2">
+                    <label>Class *</label>
                     <select id="sClass" class="form-select" required>
-                        <option value="" selected disabled>Choose Class...</option>
-                        <option value="1">Class 1</option>
-                        <option value="2">Class 2</option>
-                        <option value="3">Class 3</option>
-                        <option value="4">Class 4</option>
-                        <option value="5">Class 5</option>
-                        <option value="9">Class 9</option>
-                        <option value="10">Class 10</option>
+                        <option value="1">Class 1</option><option value="10">Class 10</option>
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label>Select Section</label>
-                    <select id="sSection" class="form-select">
-                        <option value="A">Section A</option>
-                        <option value="B">Section B</option>
-                        <option value="C">Section C</option>
-                    </select>
-                </div>
-                <div class="col-md-4 d-flex align-items-center mt-4">
-                    <div class="form-check form-switch fs-5">
-                        <input class="form-check-input" type="checkbox" id="sTransport">
-                        <label class="form-check-label" for="sTransport">Requires Transport?</label>
-                    </div>
+                <div class="col-md-2">
+                    <label>Transport?</label>
+                    <div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="sTransport"></div>
                 </div>
             </div>
 
-            <div class="mt-5 text-center">
-                <button type="button" id="submitBtn" class="royal-btn shadow px-5 py-2" onclick="saveData()">
-                    <i class="fas fa-stamp me-2"></i>Seal & Register Admission
-                </button>
+            <div class="mt-4 text-center">
+                <button type="button" id="submitBtn" class="royal-btn px-5" onclick="saveData()">Seal Admission</button>
             </div>
         </form>
+
+        <hr class="my-5">
+
+        <h4 class="section-header"><i class="fas fa-users me-2"></i>Recent Admissions</h4>
+        <div class="row g-3" id="recentStudentsList">
+            </div>
     </div>
 </div>
 
@@ -163,96 +99,73 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // Firebase Config
     const firebaseConfig = { apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs", authDomain: "the-lalit-d7472.firebaseapp.com", databaseURL: "https://the-lalit-d7472-default-rtdb.firebaseio.com", projectId: "the-lalit-d7472", storageBucket: "the-lalit-d7472.firebasestorage.app", messagingSenderId: "479237084229", appId: "1:479237084229:web:f1da384b45c5883b12ff2c" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Auth Check
-    firebase.auth().onAuthStateChanged(u => { if(!u) window.location.href="login.html"; });
-
-    // Photo Variable
     let photoBase64 = "";
 
-    // Image Preview Logic
     function previewImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('photoPreview').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+            reader.onload = e => {
+                document.getElementById('photoPreview').innerHTML = `<img src="${e.target.result}">`;
                 photoBase64 = e.target.result;
-            }
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // Save Data Logic
+    // LIST LOAD KARNE KA FUNCTION
+    function loadRecentStudents() {
+        db.ref('students').limitToLast(6).on('value', snap => {
+            const list = document.getElementById('recentStudentsList');
+            list.innerHTML = "";
+            snap.forEach(child => {
+                const s = child.val();
+                list.innerHTML += `
+                    <div class="col-6 col-md-3">
+                        <div class="student-card-mini" onclick="window.location.href='profile.html?id=${s.uniqueId}'">
+                            <img src="${s.photo || 'https://via.placeholder.com/70'}" class="mini-photo">
+                            <div class="mini-id">${s.uniqueId}</div>
+                            <div class="fw-bold" style="font-size:12px;">${s.name}</div>
+                            <div class="text-muted" style="font-size:10px;">Class: ${s.class}</div>
+                        </div>
+                    </div>`;
+            });
+        });
+    }
+
+    loadRecentStudents();
+
     function saveData() {
         const btn = document.getElementById('submitBtn');
-        const name = document.getElementById('sName').value;
         const sClass = document.getElementById('sClass').value;
-        const father = document.getElementById('sFather').value;
-        const mobile = document.getElementById('sMobile').value;
-
-        if(!name || !sClass || !father || !mobile) {
-            alert("Please fill all required fields (*)");
-            return;
-        }
+        const name = document.getElementById('sName').value;
+        
+        if(!name) return alert("Name is required");
 
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-        // Unique ID & Roll No Generator
-        const countersRef = db.ref('metadata/counters');
-
-        countersRef.transaction((currentData) => {
-            if (currentData === null) {
-                return { totalStudents: 1, classCounts: { [sClass]: 1 } };
-            } else {
-                currentData.totalStudents = (currentData.totalStudents || 0) + 1;
-                if (!currentData.classCounts) currentData.classCounts = {};
-                currentData.classCounts[sClass] = (currentData.classCounts[sClass] || 0) + 1;
-                return currentData;
-            }
-        }, (error, committed, snapshot) => {
-            if (error) {
-                console.error(error);
-                btn.disabled = false;
-                alert("System Error: Could not generate IDs.");
-            } else if (committed) {
-                const data = snapshot.val();
-                const newUniqueID = "TLIS-" + String(data.totalStudents).padStart(4, '0');
-                const newRollNo = data.classCounts[sClass];
-
-                // Data Object
-                const studentData = {
-                    uniqueId: newUniqueID,
-                    rollNo: newRollNo,
-                    name: name,
-                    dob: document.getElementById('sDob').value,
-                    aadhaar: document.getElementById('sAadhaar').value,
-                    photo: photoBase64,
-                    father: father,
-                    mother: document.getElementById('sMother').value,
-                    mobile: mobile,
-                    village: document.getElementById('sVillage').value,
-                    class: sClass,
-                    section: document.getElementById('sSection').value,
-                    transport: document.getElementById('sTransport').checked ? "Yes" : "No",
-                    admissionDate: new Date().toLocaleDateString()
-                };
-
-                // Save to Database
-                db.ref('students/' + newUniqueID).set(studentData)
-                .then(() => {
-                    alert(`Admission Sealed!\n\nID: ${newUniqueID}\nRoll No: ${newRollNo}`);
-                    document.getElementById('admissionForm').reset();
-                    document.getElementById('photoPreview').innerHTML = '<span class="text-muted small">No Image</span>';
-                    photoBase64 = "";
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-stamp me-2"></i>Seal & Register Admission';
-                });
-            }
+        
+        db.ref('metadata/counters').transaction(c => {
+            if(!c) return {total:1};
+            c.total = (c.total || 0) + 1;
+            return c;
+        }, (err, comm, snap) => {
+            const id = "TLIS-" + String(snap.val().total).padStart(4, '0');
+            const data = {
+                uniqueId: id,
+                name: name,
+                photo: photoBase64,
+                class: sClass,
+                father: document.getElementById('sFather').value,
+                mobile: document.getElementById('sMobile').value,
+                dob: document.getElementById('sDob').value
+            };
+            db.ref('students/' + id).set(data).then(() => {
+                alert("Saved!");
+                location.reload();
+            });
         });
     }
 </script>
