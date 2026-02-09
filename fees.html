@@ -3,50 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Collection - The Lalit International School</title>
+    <title>Imperial Treasury - TLIS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .fee-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 700px; margin: auto; }
-        .header-section { border-bottom: 2px solid #f1c40f; margin-bottom: 25px; padding-bottom: 10px; }
-        .search-box { background: #fff9e6; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="fee-container shadow">
-    <div class="header-section text-center">
-        <h2>Fee Collection</h2>
-        <p class="text-muted">The Lalit International School</p>
+<div class="sidebar">
+    <div class="logo-box">
+        <img src="logo.png" class="school-logo" alt="TLIS Seal">
+        <h5 class="mt-3">The Lalit Intl.</h5>
     </div>
-
-    <div class="search-box">
-        <label class="fw-bold">Enter Student Roll Number to Collect Fee:</label>
-        <div class="input-group mt-2">
-            <input type="number" id="feeRoll" class="form-control" placeholder="Roll No...">
-            <button class="btn btn-warning" onclick="findStudentForFee()">Find Student</button>
-        </div>
+    <div class="nav-links">
+        <a href="index.html"><i class="fas fa-crown me-2"></i> Dashboard</a>
+        <a href="add-student.html"><i class="fas fa-scroll me-2"></i> New Admission</a>
+        <a href="view-students.html"><i class="fas fa-users me-2"></i> Student List</a>
+        <a href="attendance.html"><i class="fas fa-pen-fancy me-2"></i> Attendance</a>
+        <a href="fees.html" class="active"><i class="fas fa-coins me-2"></i> Fee Collection</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
     </div>
+</div>
 
-    <div id="feeForm" style="display: none;">
-        <div class="alert alert-info">
-            <strong>Student:</strong> <span id="displayStudentName"></span><br>
-            <strong>Class:</strong> <span id="displayStudentClass"></span>
-        </div>
+<div class="main-content">
+    <div class="royal-card">
+        <h2 class="text-center mb-4"><i class="fas fa-vault me-2"></i>Imperial Treasury</h2>
         
-        <div class="mb-3">
-            <label class="form-label">Fee Amount (₹)</label>
-            <input type="number" id="fAmount" class="form-control" placeholder="0.00">
+        <div class="p-3 mb-4" style="background: rgba(0,0,0,0.05); border: 1px dashed var(--gold);">
+            <label class="fw-bold mb-2">Search Student by Roll Number:</label>
+            <div class="input-group">
+                <input type="number" id="feeRoll" class="form-control" placeholder="Enter Roll Number...">
+                <button class="royal-btn" onclick="findStudent()">Locate Soul</button>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Month/Description</label>
-            <input type="text" id="fMonth" class="form-control" placeholder="e.g. February Fee">
+
+        <div id="treasuryForm" style="display: none;" class="mt-4">
+            <div class="alert alert-warning border-gold" style="background: rgba(212, 175, 55, 0.1);">
+                <h5 id="sNameDisplay" class="mb-0"></h5>
+                <small id="sClassDisplay" class="text-muted"></small>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Amount to Collect (₹)</label>
+                    <input type="number" id="fAmount" class="form-control" placeholder="Enter Amount">
+                </div>
+                <div class="col-md-6">
+                    <label>Month/Purpose</label>
+                    <input type="text" id="fMonth" class="form-control" placeholder="e.g., February 2026">
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <button class="royal-btn shadow w-100" onclick="submitFee()">Receive Gold (Submit Payment)</button>
+            </div>
         </div>
-        <button class="btn btn-success w-100" onclick="submitFee()">Submit Fee Payment</button>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
@@ -62,43 +79,52 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function findStudentForFee() {
+    // Security Check
+    firebase.auth().onAuthStateChanged((user) => {
+        if (!user) { window.location.href = "login.html"; }
+    });
+
+    // Student find karne ka function
+    function findStudent() {
         const roll = document.getElementById('feeRoll').value;
-        if(!roll) return alert("Enter Roll Number");
+        if(!roll) return alert("Enter a Roll Number first!");
 
         db.ref('students/' + roll).once('value', (snapshot) => {
             if(snapshot.exists()) {
                 const s = snapshot.val();
-                document.getElementById('displayStudentName').innerText = s.name;
-                document.getElementById('displayStudentClass').innerText = "Class " + s.class;
-                document.getElementById('feeForm').style.display = 'block';
+                document.getElementById('sNameDisplay').innerText = "Student: " + s.name;
+                document.getElementById('sClassDisplay').innerText = "Class: " + s.class;
+                document.getElementById('treasuryForm').style.display = 'block';
             } else {
-                alert("Student not found!");
-                document.getElementById('feeForm').style.display = 'none';
+                alert("No such student found in Imperial Records!");
+                document.getElementById('treasuryForm').style.display = 'none';
             }
         });
     }
 
+    // Fee submit karne ka function
     function submitFee() {
         const roll = document.getElementById('feeRoll').value;
         const amount = document.getElementById('fAmount').value;
         const month = document.getElementById('fMonth').value;
 
         if(amount && month) {
-            const feeId = Date.now(); // Unique ID for transaction
-            db.ref('fees/' + roll + '/' + feeId).set({
+            const transactionId = Date.now();
+            db.ref('fees/' + roll + '/' + transactionId).set({
                 amount: amount,
                 month: month,
                 date: new Date().toLocaleDateString('en-GB'),
-                time: new Date().toLocaleTimeString()
+                timestamp: transactionId
             }).then(() => {
-                alert("Fee Received Successfully!");
+                alert("Treasury Updated: Fee Received Successfully!");
                 location.reload();
             });
         } else {
-            alert("Fill all details");
+            alert("Please fill all details of the transaction!");
         }
     }
+
+    function logout() { firebase.auth().signOut().then(() => { window.location.href = "login.html"; }); }
 </script>
 </body>
 </html>
