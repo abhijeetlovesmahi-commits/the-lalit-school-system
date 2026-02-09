@@ -3,39 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Attendance - The Lalit International School</title>
+    <title>Class-wise Attendance - The Lalit International School</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; padding: 20px; }
-        .attendance-container { background: white; padding: 25px; border-radius: 15px; shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
-        .date-header { background: #2c3e50; color: white; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-        .btn-present { background-color: #27ae60; color: white; }
-        .btn-absent { background-color: #e74c3c; color: white; }
+        .attendance-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
+        .header-section { background: #2c3e50; color: white; padding: 20px; border-radius: 15px 15px 0 0; margin: -25px -25px 20px -25px; text-align: center; }
+        .filter-box { background: #ecf0f1; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #dcdde1; }
+        .btn-present.active { background-color: #27ae60 !important; color: white !important; }
+        .btn-absent.active { background-color: #e74c3c !important; color: white !important; }
     </style>
 </head>
 <body>
 
 <div class="attendance-container shadow">
-    <div class="date-header">
-        <h3 id="currentDate">Daily Attendance</h3>
+    <div class="header-section">
+        <h2 id="displayDate">Attendance</h2>
+        <p>The Lalit International School</p>
+    </div>
+
+    <div class="filter-box">
+        <label class="fw-bold mb-1">Select Class to Mark Attendance:</label>
+        <select id="classSelector" class="form-select form-select-lg" onchange="loadAttendanceList()">
+            <option value="">-- Choose Class --</option>
+            <option value="1">Class 1</option>
+            <option value="2">Class 2</option>
+            <option value="3">Class 3</option>
+            <option value="4">Class 4</option>
+            <option value="5">Class 5</option>
+            <option value="6">Class 6</option>
+            <option value="7">Class 7</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+        </select>
     </div>
 
     <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
                 <tr>
                     <th>Roll No</th>
-                    <th>Student Name</th>
-                    <th>Class</th>
-                    <th>Mark Attendance</th>
+                    <th>Name</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody id="attendanceList">
-                </tbody>
+                <tr><td colspan="3" class="text-center text-muted">Please select a class first</td></tr>
+            </tbody>
         </table>
-    </div>
-    <div class="mt-4">
-        <button class="btn btn-dark w-100" onclick="alert('Attendance Saved Locally!')">Finish & Save for Today</button>
     </div>
 </div>
 
@@ -55,31 +71,46 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Aaj ki date dikhana
     const today = new Date().toLocaleDateString('en-GB');
-    document.getElementById('currentDate').innerText = "Date: " + today;
+    document.getElementById('displayDate').innerText = "Attendance: " + today;
 
     function loadAttendanceList() {
+        const selectedClass = document.getElementById('classSelector').value;
         const list = document.getElementById('attendanceList');
+        
+        if(!selectedClass) {
+            list.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>Please select a class first</td></tr>";
+            return;
+        }
+
+        list.innerHTML = "<tr><td colspan='3' class='text-center'>Loading students...</td></tr>";
+
         db.ref('students').once('value', (snapshot) => {
             list.innerHTML = "";
+            let found = false;
             snapshot.forEach((childSnapshot) => {
                 const s = childSnapshot.val();
-                const row = `
-                    <tr>
-                        <td>${s.roll}</td>
-                        <td>${s.name}</td>
-                        <td>${s.class}</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-outline-success btn-sm" onclick="mark('${s.roll}', 'Present', this)">Present</button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="mark('${s.roll}', 'Absent', this)">Absent</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                list.innerHTML += row;
+                // Yahan hum sirf wahi bacche dikhayenge jo selected class ke hain
+                if(s.class == selectedClass) {
+                    found = true;
+                    const row = `
+                        <tr>
+                            <td><b>${s.roll}</b></td>
+                            <td>${s.name}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-success btn-sm btn-present" onclick="mark('${s.roll}', 'Present', this)">Present</button>
+                                    <button class="btn btn-outline-danger btn-sm btn-absent" onclick="mark('${s.roll}', 'Absent', this)">Absent</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    list.innerHTML += row;
+                }
             });
+            if(!found) {
+                list.innerHTML = "<tr><td colspan='3' class='text-center'>No students admitted in Class "+selectedClass+"</td></tr>";
+            }
         });
     }
 
@@ -89,7 +120,6 @@
             status: status,
             time: new Date().toLocaleTimeString()
         }).then(() => {
-            // Button ka color change karna feedback ke liye
             const parent = btn.parentElement;
             parent.querySelectorAll('button').forEach(b => b.classList.remove('active', 'btn-success', 'btn-danger'));
             btn.classList.add('active');
@@ -97,8 +127,6 @@
             else btn.classList.add('btn-danger');
         });
     }
-
-    window.onload = loadAttendanceList;
 </script>
 </body>
 </html>
