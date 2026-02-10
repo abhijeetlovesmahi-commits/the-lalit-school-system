@@ -1,10 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Scroll - TLIS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .photo-preview-box { width: 140px; height: 140px; border: 2px dashed #ff9800; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; background: #f8f9fa; }
+        .photo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .section-header { border-bottom: 2px solid #ff9800; padding-bottom: 5px; margin-bottom: 20px; margin-top: 20px; font-weight: bold; color: #300a24; }
+        .student-card-mini { background: #fff; border: 1px solid #e0d0b0; border-radius: 10px; padding: 15px; text-align: center; transition: 0.3s; cursor: pointer; }
+        .student-card-mini:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .mini-photo { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ff9800; margin-bottom: 10px; }
+        .search-box { background: #fff; border: 2px solid #ff9800; border-radius: 30px; padding: 5px 20px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo-box"><h5 class="mt-2 text-white">TLIS Imperial</h5></div>
+    <a href="index.html"><i class="fas fa-crown me-2"></i> Dashboard</a>
+    <a href="add-student.html" class="active"><i class="fas fa-scroll me-2"></i> Admission</a>
+</div>
+
+<div class="main-content">
+    <div class="royal-card">
+        <h2 class="text-center mb-4">Imperial Admission Registry</h2>
+        <form id="admissionForm">
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-8">
+                    <h5 class="section-header">Official Records</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="small">Unique ID</label><input type="text" class="form-control" placeholder="Auto" disabled></div>
+                        <div class="col-md-6"><label class="small">Roll No</label><input type="text" class="form-control" placeholder="Auto" disabled></div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <label class="small">Student Photo</label>
+                    <div class="photo-preview-box mb-2" id="photoPreview"><i class="fas fa-camera text-muted"></i></div>
+                    <input type="file" id="sPhoto" class="form-control form-control-sm" accept="image/*" onchange="previewAndCompress(this)">
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4"><label>Full Name *</label><input type="text" id="sName" class="form-control" required></div>
+                <div class="col-md-4"><label>DOB *</label><input type="date" id="sDob" class="form-control" required></div>
+                <div class="col-md-4"><label>Aadhaar</label><input type="number" id="sAadhaar" class="form-control"></div>
+                <div class="col-md-4"><label>Father's Name *</label><input type="text" id="sFather" class="form-control" required></div>
+                <div class="col-md-4"><label>Mother's Name *</label><input type="text" id="sMother" class="form-control" required></div>
+                <div class="col-md-4"><label>Mobile *</label><input type="tel" id="sMobile" class="form-control" required></div>
+                <div class="col-md-8"><label>Address</label><input type="text" id="sVillage" class="form-control"></div>
+                <div class="col-md-2"><label>Class *</label><select id="sClass" class="form-select"><option value="1">Class 1</option><option value="10">Class 10</option></select></div>
+                <div class="col-md-2"><label>Transport?</label><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="sTransport"></div></div>
+            </div>
+            <div class="mt-4 text-center"><button type="button" id="submitBtn" class="btn btn-warning px-5" onclick="saveData()">Seal Admission</button></div>
+        </form>
+
+        <hr class="my-5">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-transparent border-0 text-warning"><i class="fas fa-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control bg-transparent" placeholder="Search Student by Name..." onkeyup="searchStudent()">
+                </div>
+            </div>
+        </div>
+        <div class="row g-3" id="recentStudentsList"></div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-    // ... (Firebase config wahi rahega) ...
+    const firebaseConfig = { apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs", authDomain: "the-lalit-d7472.firebaseapp.com", databaseURL: "https://the-lalit-d7472-default-rtdb.firebaseio.com", projectId: "the-lalit-d7472", storageBucket: "the-lalit-d7472.firebasestorage.app", messagingSenderId: "479237084229", appId: "1:479237084229:web:f1da384b45c5883b12ff2c" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     let photoBase64 = "";
 
-    // PHOTO COMPRESSION LOGIC
-    function previewImage(input) {
+    // PHOTO COMPRESSION
+    function previewAndCompress(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = e => {
@@ -12,13 +89,13 @@
                 img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 300; // Photo ko chota kar dega
+                    const MAX_WIDTH = 300;
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    photoBase64 = canvas.toDataURL('image/jpeg', 0.7); // Quality 70%
+                    photoBase64 = canvas.toDataURL('image/jpeg', 0.6); // Choti photo
                     document.getElementById('photoPreview').innerHTML = `<img src="${photoBase64}">`;
                 };
             };
@@ -26,6 +103,55 @@
         }
     }
 
-    // Baaki loadRecentStudents aur saveData functions purane wale hi rakhein, 
-    // bas dhyan dein ki window.location.href='profile.html?id=${s.uniqueId}' sahi likha ho.
+    function renderStudents(snap) {
+        const list = document.getElementById('recentStudentsList');
+        list.innerHTML = "";
+        snap.forEach(child => {
+            const s = child.val();
+            list.innerHTML += `
+                <div class="col-6 col-md-3">
+                    <div class="student-card-mini" onclick="window.location.href='profile.html?id=${s.uniqueId}'">
+                        <img src="${s.photo || 'https://via.placeholder.com/70'}" class="mini-photo">
+                        <div style="font-size:12px; font-weight:bold;">${s.name}</div>
+                        <div class="text-muted" style="font-size:10px;">ID: ${s.uniqueId}</div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function searchStudent() {
+        const query = document.getElementById('searchInput').value;
+        if(!query) return loadRecent();
+        db.ref('students').orderByChild('name').startAt(query).endAt(query + "\uf8ff").once('value', renderStudents);
+    }
+
+    function loadRecent() { db.ref('students').limitToLast(8).once('value', renderStudents); }
+    loadRecent();
+
+    function saveData() {
+        const name = document.getElementById('sName').value;
+        if(!name) return alert("Name is required");
+        document.getElementById('submitBtn').disabled = true;
+
+        db.ref('metadata/counters').transaction(c => {
+            if(!c) return {total:1};
+            c.total = (c.total || 0) + 1;
+            return c;
+        }, (err, comm, snap) => {
+            const id = "TLIS-" + String(snap.val().total).padStart(4, '0');
+            const data = {
+                uniqueId: id, name: name, photo: photoBase64,
+                class: document.getElementById('sClass').value,
+                father: document.getElementById('sFather').value,
+                mother: document.getElementById('sMother').value,
+                mobile: document.getElementById('sMobile').value,
+                dob: document.getElementById('sDob').value,
+                aadhaar: document.getElementById('sAadhaar').value,
+                transport: document.getElementById('sTransport').checked
+            };
+            db.ref('students/' + id).set(data).then(() => { alert("Saved!"); location.reload(); });
+        });
+    }
 </script>
+</body>
+</html>
