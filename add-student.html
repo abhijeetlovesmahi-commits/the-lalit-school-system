@@ -109,6 +109,32 @@
 
         .main-btn:hover { background: #001a4d; }
 
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px;
+            border: 1px solid var(--gold);
+            font-size: 1rem;
+            border-radius: 4px;
+        }
+
+        .search-btn {
+            padding: 0 25px;
+            background: var(--gold);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
         .profile-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -155,8 +181,8 @@
             margin: 5% auto;
             padding: 30px;
             border: 3px solid var(--gold);
-            width: 80%;
-            max-width: 800px;
+            width: 85%;
+            max-width: 850px;
             position: relative;
             animation: slideDown 0.4s;
         }
@@ -175,7 +201,7 @@
         .modal-body { display: flex; gap: 30px; flex-wrap: wrap; }
         .modal-photo { width: 180px; height: 220px; border: 4px solid var(--gold); object-fit: cover; }
         .modal-details { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .modal-details p { margin: 5px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; }
+        .modal-details p { margin: 5px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-size: 0.95rem; }
 
         .action-bar {
             margin-top: 30px;
@@ -203,6 +229,7 @@
 
     <form id="admissionForm">
         <input type="hidden" id="editingId">
+        
         <section class="form-section">
             <span class="section-title">Photo Upload</span>
             <div style="text-align: center;">
@@ -226,7 +253,7 @@
         </section>
 
         <section class="form-section">
-            <span class="section-title">Academic Details</span>
+            <span class="section-title">Academic & Facilities</span>
             <div class="input-grid">
                 <select id="sClass" required>
                     <option value="">Select Class</option>
@@ -259,6 +286,14 @@
                     <option value="House C">House C</option>
                     <option value="House D">House D</option>
                 </select>
+                <select id="sHostel">
+                    <option value="No">Opt for Hostel? (No)</option>
+                    <option value="Yes">Yes (Hosteller)</option>
+                </select>
+                <select id="sTransport">
+                    <option value="No">Use School Transport? (No)</option>
+                    <option value="Yes">Yes (Bus/Van)</option>
+                </select>
             </div>
         </section>
 
@@ -273,9 +308,9 @@
 
         <section class="form-section">
             <span class="section-title">Residential Address</span>
-            <input type="text" id="currAddr" placeholder="Current Address" required style="width:100%; margin-bottom:10px;">
+            <input type="text" id="currAddr" placeholder="Current Address" required style="width:100%; margin-bottom:10px; box-sizing: border-box;">
             <label style="font-size:0.8rem;"><input type="checkbox" id="sameAddr" onclick="syncAddress()"> Permanent same as current</label>
-            <input type="text" id="permAddr" placeholder="Permanent Address" required style="width:100%; margin-top:10px;">
+            <input type="text" id="permAddr" placeholder="Permanent Address" required style="width:100%; margin-top:10px; box-sizing: border-box;">
         </section>
 
         <button type="submit" id="submitBtn" class="main-btn">REGISTER STUDENT</button>
@@ -284,18 +319,23 @@
 
     <div style="margin-top:50px;">
         <h2 style="text-align:center; color:var(--gold); font-size: 1.2rem;">REGISTRY LOG</h2>
-        <div id="recentList" class="profile-grid"></div>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search by Name or ID...">
+            <button class="search-btn" onclick="searchStudents()">SEARCH</button>
+        </div>
+        <div id="recentList" class="profile-grid">
+            <p style="text-align:center; grid-column:1/-1;">Loading students...</p>
+        </div>
     </div>
 </div>
 
 <div id="detailModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 id="modalName" style="text-align:center; border-bottom: 2px solid var(--gold); padding-bottom:10px;">STUDENT PROFILE</h2>
+        <h2 id="modalName" style="text-align:center; border-bottom: 2px solid var(--gold); padding-bottom:10px; color: var(--royal-blue);">STUDENT PROFILE</h2>
         <div class="modal-body">
             <img id="modalPhoto" src="" class="modal-photo">
-            <div class="modal-details" id="modalDetails">
-                </div>
+            <div class="modal-details" id="modalDetails"></div>
         </div>
         <div class="action-bar">
             <button class="btn-edit" id="modalEditBtn">EDIT RECORD</button>
@@ -316,6 +356,7 @@ const db = firebase.firestore();
 
 let compressedBase64 = "";
 let currentViewData = null;
+let allStudents = [];
 
 function processPhoto(input) {
     const file = input.files[0];
@@ -330,7 +371,7 @@ function processPhoto(input) {
                 canvas.width = 150; canvas.height = 190;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, 150, 190);
-                compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
                 const preview = document.getElementById('imgPreview');
                 preview.src = compressedBase64;
                 preview.style.display = 'block';
@@ -348,19 +389,16 @@ document.getElementById('admissionForm').addEventListener('submit', async (e) =>
     const btn = document.getElementById('submitBtn');
     const editingId = document.getElementById('editingId').value;
     btn.disabled = true;
+    btn.innerText = "Processing...";
 
     try {
         let uniqueID = editingId;
-        let rollNo;
         const sClass = document.getElementById('sClass').value;
         const sSection = document.getElementById('sSection').value;
-        const classSection = sClass + sSection;
 
         if(!editingId) {
             const lastSnap = await db.collection('students').orderBy('uniqueID', 'desc').limit(1).get();
             uniqueID = lastSnap.empty ? 1001 : Number(lastSnap.docs[0].data().uniqueID) + 1;
-            const classSnap = await db.collection('students').where("classSection", "==", classSection).get();
-            rollNo = classSnap.size + 1;
         }
 
         const studentData = {
@@ -371,76 +409,99 @@ document.getElementById('admissionForm').addEventListener('submit', async (e) =>
             blood: document.getElementById('sBlood').value,
             aadhar: document.getElementById('sAadhar').value,
             class: sClass, section: sSection, house: document.getElementById('sHouse').value,
+            hostel: document.getElementById('sHostel').value,
+            transport: document.getElementById('sTransport').value,
             father: document.getElementById('pFather').value,
             mother: document.getElementById('pMother').value,
             contact: document.getElementById('pContact').value,
             currentAddr: document.getElementById('currAddr').value,
             permanentAddr: document.getElementById('permAddr').value,
             photo: compressedBase64 || (currentViewData ? currentViewData.photo : ""),
-            timestamp: Date.now(),
-            classSection
+            timestamp: Date.now()
         };
-        
-        if(!editingId) studentData.rollNo = rollNo;
 
         await db.collection('students').doc(uniqueID.toString()).set(studentData, {merge: true});
-        alert(editingId ? "Update Successful!" : "Registration Successful! ID: " + uniqueID);
+        alert("Success! ID: " + uniqueID);
         location.reload();
-    } catch (err) { alert(err.message); btn.disabled = false; }
+    } catch (err) { 
+        alert("Error: " + err.message); 
+        btn.disabled = false; 
+    }
 });
 
-async function loadRecent() {
-    const snap = await db.collection('students').orderBy('timestamp', 'desc').limit(10).get();
+async function loadAllData() {
+    try {
+        const snap = await db.collection('students').get();
+        allStudents = [];
+        snap.forEach(doc => allStudents.push(doc.data()));
+        allStudents.sort((a, b) => b.timestamp - a.timestamp);
+        renderList(allStudents);
+    } catch (err) {
+        document.getElementById('recentList').innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    }
+}
+
+function renderList(dataArray) {
     const list = document.getElementById('recentList');
     list.innerHTML = "";
-    snap.forEach(doc => {
-        const data = doc.data();
+    if(dataArray.length === 0) {
+        list.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No records found.</p>';
+        return;
+    }
+    dataArray.forEach(data => {
         const card = document.createElement('div');
         card.className = 'profile-card';
         card.onclick = () => showDetails(data);
         card.innerHTML = `
-            <img src="${data.photo}" class="card-img">
+            <img src="${data.photo || 'https://via.placeholder.com/150'}" class="card-img">
             <div class="card-info">
                 <h4>${data.name}</h4>
-                <p><b>ID:</b> ${data.uniqueID} | <b>Roll:</b> ${data.rollNo}</p>
-                <p><b>Class:</b> ${data.class}-${data.section}</p>
+                <p><b>ID:</b> ${data.uniqueID} | <b>Class:</b> ${data.class}</p>
+                <p style="color: ${data.hostel === 'Yes' ? 'green' : '#666'}"><b>Hostel:</b> ${data.hostel}</p>
             </div>`;
         list.appendChild(card);
     });
 }
 
+function searchStudents() {
+    const val = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allStudents.filter(s => 
+        s.name.toLowerCase().includes(val) || s.uniqueID.toString().includes(val)
+    );
+    renderList(filtered);
+}
+
+document.getElementById('searchInput').addEventListener('input', searchStudents);
+
 function showDetails(data) {
     currentViewData = data;
     document.getElementById('modalName').innerText = data.name;
-    document.getElementById('modalPhoto').src = data.photo;
+    document.getElementById('modalPhoto').src = data.photo || 'https://via.placeholder.com/150';
     
-    const detailsHtml = `
-        <p><b>Admission ID:</b> ${data.uniqueID}</p>
-        <p><b>Roll No:</b> ${data.rollNo}</p>
+    document.getElementById('modalDetails').innerHTML = `
+        <p><b>ID:</b> ${data.uniqueID}</p>
         <p><b>DOB:</b> ${data.dob}</p>
-        <p><b>Gender:</b> ${data.gender}</p>
         <p><b>Class:</b> ${data.class} (${data.section})</p>
         <p><b>House:</b> ${data.house}</p>
-        <p><b>Aadhar:</b> ${data.aadhar}</p>
-        <p><b>Blood:</b> ${data.blood}</p>
+        <p><b>Hostel:</b> <span style="color:${data.hostel==='Yes'?'green':'red'}">${data.hostel}</span></p>
+        <p><b>Transport:</b> <span style="color:${data.transport==='Yes'?'green':'red'}">${data.transport}</span></p>
         <p><b>Father:</b> ${data.father}</p>
         <p><b>Mother:</b> ${data.mother}</p>
         <p><b>Contact:</b> ${data.contact}</p>
-        <p style="grid-column: 1 / -1;"><b>Address:</b> ${data.currentAddr}</p>
+        <p><b>Aadhar:</b> ${data.aadhar}</p>
+        <p style="grid-column: 1/-1;"><b>Address:</b> ${data.currentAddr}</p>
     `;
-    document.getElementById('modalDetails').innerHTML = detailsHtml;
     
     document.getElementById('modalEditBtn').onclick = () => startEdit(data);
     document.getElementById('modalDeleteBtn').onclick = () => deleteRecord(data.uniqueID);
-    
     document.getElementById('detailModal').style.display = 'block';
 }
 
 function startEdit(data) {
     closeModal();
-    window.scrollTo(0,0);
-    document.getElementById('formTitle').innerText = "Update Student Record";
-    document.getElementById('submitBtn').innerText = "UPDATE RECORD";
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    document.getElementById('formTitle').innerText = "Update Profile";
+    document.getElementById('submitBtn').innerText = "SAVE CHANGES";
     document.getElementById('cancelEdit').style.display = 'block';
     
     document.getElementById('editingId').value = data.uniqueID;
@@ -452,6 +513,8 @@ function startEdit(data) {
     document.getElementById('sClass').value = data.class;
     document.getElementById('sSection').value = data.section;
     document.getElementById('sHouse').value = data.house;
+    document.getElementById('sHostel').value = data.hostel;
+    document.getElementById('sTransport').value = data.transport;
     document.getElementById('pFather').value = data.father;
     document.getElementById('pMother').value = data.mother;
     document.getElementById('pContact').value = data.contact;
@@ -459,16 +522,14 @@ function startEdit(data) {
     document.getElementById('permAddr').value = data.permanentAddr;
     
     if(data.photo) {
-        const preview = document.getElementById('imgPreview');
-        preview.src = data.photo;
-        preview.style.display = 'block';
+        document.getElementById('imgPreview').src = data.photo;
+        document.getElementById('imgPreview').style.display = 'block';
     }
 }
 
 async function deleteRecord(id) {
-    if(confirm("Are you sure you want to delete this royal record?")) {
+    if(confirm("Permanently delete this record?")) {
         await db.collection('students').doc(id.toString()).delete();
-        alert("Record deleted.");
         location.reload();
     }
 }
@@ -476,7 +537,7 @@ async function deleteRecord(id) {
 function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 function resetForm() { location.reload(); }
 
-loadRecent();
+loadAllData();
 </script>
 </body>
 </html>
