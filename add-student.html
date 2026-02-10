@@ -4,7 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Admission System - Final</title>
-    <link rel="stylesheet" href="style.css">
+<style>
+/* --- FORM SPECIFIC STYLES (Existing master theme ke saath compatible) --- */
+
+/* Form sections ko royal-card ke upar sahi se dikhane ke liye */
+.form-section {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px dashed var(--note-accent);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.section-title {
+    font-family: 'Cinzel', serif;
+    color: #8d6e63;
+    font-size: 14px !important;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--note-accent);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Grid layout for inputs */
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* Inputs styling matching your note-bg */
+input, select {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    border-color: var(--note-accent);
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 152, 0, 0.2);
+}
+
+/* Submit Button styling */
+.main-btn {
+    background: var(--note-accent);
+    color: white !important;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: block;
+    margin: 20px auto;
+    transition: 0.3s;
+}
+
+.main-btn:hover {
+    transform: scale(1.05);
+    background: #e68a00;
+}
+
+/* Recent Admissions Grid */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.profile-card {
+    background: white;
+    border: 1px solid #e0d0b0;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: 0.3s;
+    cursor: pointer;
+    border-bottom: 4px solid var(--note-accent);
+}
+
+.profile-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+.card-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--note-accent);
+    margin-bottom: 10px;
+}
+
+/* Modal styling matching your cream theme */
+.modal-content {
+    background-color: var(--note-bg);
+    background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+    border: 2px solid var(--note-accent);
+    padding: 25px;
+    border-radius: 15px;
+    max-width: 450px;
+    margin: 10% auto;
+    position: relative;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.checkbox-row input { width: auto; }
+</style>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
