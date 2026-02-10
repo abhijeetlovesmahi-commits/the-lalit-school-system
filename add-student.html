@@ -13,7 +13,7 @@
         .photo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
         .section-header { border-bottom: 2px solid #ff9800; padding-bottom: 5px; margin-bottom: 20px; margin-top: 20px; font-weight: bold; color: #300a24; }
         
-        /* ID CARD STYLE LIST */
+        /* CARD STYLE */
         .student-card-mini {
             background: #fff; border: 1px solid #e0d0b0; border-radius: 10px; padding: 15px;
             text-align: center; transition: 0.3s; cursor: pointer; position: relative;
@@ -21,6 +21,16 @@
         .student-card-mini:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .mini-photo { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ff9800; margin-bottom: 10px; }
         .mini-id { font-size: 10px; color: #ff9800; font-weight: bold; }
+        
+        /* SEARCH BAR STYLE */
+        .search-box {
+            background: #fff;
+            border: 2px solid #ff9800;
+            border-radius: 30px;
+            padding: 5px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .search-box input { border: none; outline: none; box-shadow: none; }
     </style>
 </head>
 <body>
@@ -31,8 +41,7 @@
 
 <div class="sidebar">
     <div class="logo-box">
-        <img src="logo.png" class="school-logo">
-        <h5 class="mt-2">TLIS Imperial</h5>
+        <h5 class="mt-2 text-white">TLIS Imperial</h5>
     </div>
     <a href="index.html"><i class="fas fa-crown me-2"></i> Dashboard</a>
     <a href="add-student.html" class="active"><i class="fas fa-scroll me-2"></i> Admission</a>
@@ -88,9 +97,19 @@
 
         <hr class="my-5">
 
-        <h4 class="section-header"><i class="fas fa-users me-2"></i>Recent Admissions</h4>
-        <div class="row g-3" id="recentStudentsList">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-transparent border-0 text-warning"><i class="fas fa-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control bg-transparent" placeholder="Search Student by Name..." onkeyup="searchStudent()">
+                </div>
             </div>
+        </div>
+
+        <h4 class="section-header"><i class="fas fa-users me-2"></i>Recent / Search Results</h4>
+        <div class="row g-3" id="recentStudentsList">
+            <div class="text-center text-muted">Loading...</div>
+        </div>
     </div>
 </div>
 
@@ -116,28 +135,60 @@
         }
     }
 
-    // LIST LOAD KARNE KA FUNCTION
-    function loadRecentStudents() {
-        db.ref('students').limitToLast(6).on('value', snap => {
-            const list = document.getElementById('recentStudentsList');
-            list.innerHTML = "";
-            snap.forEach(child => {
-                const s = child.val();
-                list.innerHTML += `
-                    <div class="col-6 col-md-3">
-                        <div class="student-card-mini" onclick="window.location.href='profile.html?id=${s.uniqueId}'">
-                            <img src="${s.photo || 'https://via.placeholder.com/70'}" class="mini-photo">
-                            <div class="mini-id">${s.uniqueId}</div>
-                            <div class="fw-bold" style="font-size:12px;">${s.name}</div>
-                            <div class="text-muted" style="font-size:10px;">Class: ${s.class}</div>
-                        </div>
-                    </div>`;
-            });
+    // --- NEW: DISPLAY LOGIC ---
+    function renderStudents(snapshot) {
+        const list = document.getElementById('recentStudentsList');
+        list.innerHTML = "";
+        
+        if(!snapshot.exists()){
+            list.innerHTML = "<div class='col-12 text-center'>No students found.</div>";
+            return;
+        }
+
+        snapshot.forEach(child => {
+            const s = child.val();
+            // Note: onclick event ab profile.html par bhejega ID ke sath
+            list.innerHTML += `
+                <div class="col-6 col-md-3">
+                    <div class="student-card-mini" onclick="window.location.href='profile.html?id=${s.uniqueId}'">
+                        <img src="${s.photo || 'https://via.placeholder.com/70'}" class="mini-photo">
+                        <div class="mini-id">${s.uniqueId}</div>
+                        <div class="fw-bold" style="font-size:12px;">${s.name}</div>
+                        <div class="text-muted" style="font-size:10px;">Class: ${s.class}</div>
+                    </div>
+                </div>`;
         });
     }
 
+    // --- NEW: SEARCH LOGIC ---
+    let searchTimeout;
+    function searchStudent() {
+        const query = document.getElementById('searchInput').value.trim();
+        
+        clearTimeout(searchTimeout);
+        
+        if(query.length === 0) {
+            loadRecentStudents(); // Agar search khali hai to wapis recent dikhao
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            db.ref('students')
+              .orderByChild('name')
+              .startAt(query)
+              .endAt(query + "\uf8ff")
+              .once('value', renderStudents);
+        }, 500);
+    }
+
+    function loadRecentStudents() {
+        db.ref('students').limitToLast(8).once('value', renderStudents);
+    }
+
+    // Initial Load
     loadRecentStudents();
 
+    // --- SAVE DATA LOGIC ---
     function saveData() {
         const btn = document.getElementById('submitBtn');
         const sClass = document.getElementById('sClass').value;
@@ -146,12 +197,18 @@
         if(!name) return alert("Name is required");
 
         btn.disabled = true;
+        btn.innerText = "Processing...";
         
         db.ref('metadata/counters').transaction(c => {
             if(!c) return {total:1};
             c.total = (c.total || 0) + 1;
             return c;
         }, (err, comm, snap) => {
+            if(err) {
+                alert("Error generating ID");
+                btn.disabled = false;
+                return;
+            }
             const id = "TLIS-" + String(snap.val().total).padStart(4, '0');
             const data = {
                 uniqueId: id,
@@ -159,11 +216,14 @@
                 photo: photoBase64,
                 class: sClass,
                 father: document.getElementById('sFather').value,
+                mother: document.getElementById('sMother').value,
                 mobile: document.getElementById('sMobile').value,
-                dob: document.getElementById('sDob').value
+                dob: document.getElementById('sDob').value,
+                aadhaar: document.getElementById('sAadhaar').value,
+                transport: document.getElementById('sTransport').checked
             };
             db.ref('students/' + id).set(data).then(() => {
-                alert("Saved!");
+                alert("Student Admitted Successfully! ID: " + id);
                 location.reload();
             });
         });
