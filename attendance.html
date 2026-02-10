@@ -1,48 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Final AI Check</title>
+    <title>Lalit Sir AI Test - Fixed</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background: #fff8e1; }
-        .box { border: 2px solid #d4af37; padding: 20px; display: inline-block; background: white; border-radius: 10px; }
-        #out { margin-top: 20px; color: blue; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px; background: #fdfbf0; }
+        .card { border: 2px solid #D4AF37; padding: 30px; display: inline-block; background: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-width: 400px; }
+        h2 { color: #002366; }
+        input { padding: 12px; width: 80%; border: 1px solid #D4AF37; border-radius: 5px; margin-bottom: 10px; }
+        button { padding: 12px 25px; background: #002366; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #output { margin-top: 20px; color: #333; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 5px; min-height: 40px; line-height: 1.5; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h3>Lalit Sir, yahan test karein:</h3>
-        <input type="text" id="inp" value="Hello Gemini" style="padding:10px;">
-        <button onclick="runTest()" style="padding:10px; background:#002366; color:white; border:none;">CHECK AI NOW</button>
-        <div id="out">Result yahan aayega...</div>
+
+    <div class="card">
+        <h2>✨ Lalit AI Test</h2>
+        <input type="text" id="userInput" placeholder="Ask me something (e.g. Hello)">
+        <br>
+        <button onclick="callGemini()">CHECK AI NOW</button>
+        <div id="output">Result yahan dikhega...</div>
     </div>
 
 <script>
-async function runTest() {
-    const out = document.getElementById('out');
-    const key = "AIzaSyD6EgG0jj3_oHrUUYuKBhcFGxO-XoAMJSY"; // Aapki key
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+async function callGemini() {
+    const output = document.getElementById('output');
+    const input = document.getElementById('userInput').value;
+    const key = "AIzaSyD6EgG0jj3_oHrUUYuKBhcFGxO-XoAMJSY";
     
-    out.innerText = "Processing... Please wait...";
+    // Yahan humne v1 use kiya hai jo zyada stable hai
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
+
+    if(!input) return alert("Kuch type karein!");
+
+    output.innerText = "Soch raha hun... 🧠";
+    output.style.color = "#002366";
 
     try {
-        const res = await fetch(url, {
+        const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: document.getElementById('inp').value }] }] })
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: input }] }]
+            })
         });
-        const data = await res.json();
-        if(data.candidates) {
-            out.style.color = "green";
-            out.innerText = "Success! AI says: " + data.candidates[0].content.parts[0].text;
+
+        const data = await response.json();
+
+        if (data.candidates && data.candidates[0].content) {
+            output.innerText = data.candidates[0].content.parts[0].text;
+            output.style.color = "green";
         } else {
-            out.style.color = "red";
-            out.innerText = "Error: " + (data.error ? data.error.message : "Invalid Key");
+            // Agar model nahi milta toh error message yahan dikhega
+            output.innerText = "Error: " + (data.error ? data.error.message : "Response nahi mila");
+            output.style.color = "red";
         }
-    } catch (e) {
-        out.style.color = "orange";
-        out.innerText = "Network Blocked! Browser ne request rok di hai. File banakar chalaein.";
+    } catch (err) {
+        output.innerText = "Network Error: GitHub se Google tak connection nahi ho paya.";
+        output.style.color = "orange";
     }
 }
 </script>
+
 </body>
 </html>
