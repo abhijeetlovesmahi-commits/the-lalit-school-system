@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Fee Master System</title>
+    <title>The Lalit - Fee & Transport Master</title>
     <style>
         :root {
             --royal-blue: #002366;
@@ -11,85 +11,80 @@
             --deep-gold: #aa8a2e;
             --light-gold: #FDFBF0;
             --white: #ffffff;
+            --gray: #666;
+            --accent-purple: #8e44ad;
         }
 
         body {
             background: var(--light-gold);
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
             font-family: 'Georgia', serif;
             color: var(--royal-blue);
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             background: var(--white);
-            padding: 40px;
-            border-radius: 5px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             border: 1px solid var(--gold);
-            position: relative;
-        }
-
-        /* LOGO STYLING */
-        .logo-container {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        
-        .main-logo {
-            width: 80px; /* Aap size yahan se adjust kar sakte hain */
-            height: 80px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid var(--gold);
-            padding: 5px;
-            background: white;
         }
 
         .header {
             text-align: center;
             border-bottom: 3px double var(--gold);
             margin-bottom: 30px;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
         }
 
-        h1 {
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-size: 2rem;
-            margin: 10px 0 0 0;
+        .logo-img {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
         }
 
         .form-section {
-            margin-bottom: 30px;
-            border: 1px solid #eee;
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
             padding: 20px;
-            background: #fff;
+            border-radius: 5px;
             position: relative;
+            background: #fcfcfc;
+        }
+
+        .transport-section {
+            border: 2px solid var(--accent-purple);
+            background: #f9f4ff;
         }
 
         .section-title {
             position: absolute;
-            top: -12px; left: 20px;
+            top: -12px; left: 15px;
             background: white;
             padding: 0 10px;
             font-weight: bold;
             color: var(--deep-gold);
-            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-size: 0.75rem;
         }
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
         }
+
+        .field-group { display: flex; flex-direction: column; }
+        label { font-size: 0.8rem; margin-bottom: 5px; color: var(--gray); font-weight: bold; }
 
         input, select {
             padding: 10px;
             border: 1px solid #ccc;
             border-bottom: 2px solid var(--gold);
+            font-size: 0.9rem;
             outline: none;
         }
 
@@ -98,50 +93,33 @@
             padding: 15px;
             background: var(--royal-blue);
             color: var(--gold);
-            border: 1px solid var(--gold);
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-
-        .main-btn:hover { background: #001a4d; }
-
-        .edit-btn {
-            background: var(--gold);
-            color: white;
             border: none;
-            padding: 5px 12px;
-            cursor: pointer;
-            border-radius: 3px;
-            font-family: sans-serif;
+            font-size: 1rem;
             font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            margin-top: 15px;
         }
 
-        .edit-btn:hover { background: var(--deep-gold); }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
+        .trans-btn {
+            background: var(--accent-purple);
+            color: white;
         }
 
-        th {
-            background: var(--royal-blue);
-            color: var(--gold);
-            padding: 12px;
-            text-align: left;
-            border: 1px solid var(--gold);
-        }
+        .main-btn:hover { opacity: 0.9; border-radius: 5px; }
 
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 0.85rem; }
+        th { background: var(--royal-blue); color: var(--gold); padding: 12px; border: 1px solid var(--gold); }
+        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        
+        .tag-mo { color: #2ecc71; font-weight: bold; }
+        .tag-an { color: #e67e22; font-weight: bold; }
+        .tag-tr { color: var(--accent-purple); font-weight: bold; }
 
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        .edit-btn { background: var(--gold); color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; margin: 2px; }
+        .del-btn { background: #e74c3c; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; }
+        tr:nth-child(even) { background: #f9f9f9; }
     </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -150,76 +128,110 @@
 <body>
 
 <div class="container">
-    <div class="logo-container">
-        <img src="logo.png" alt="The Lalit Logo" class="main-logo">
-    </div>
-    
     <div class="header">
-        <h1>Fee Master Dashboard</h1>
-        <p style="letter-spacing: 3px; font-size: 0.7rem; color: var(--deep-gold);">MANAGE SCHOOL FEE STRUCTURE</p>
+        <img src="logo.png" alt="The Lalit Logo" class="logo-img">
+        <h1>Fee & Transport Master</h1>
+        <p style="letter-spacing: 2px; font-size: 0.8rem;">ADMINISTRATION CONTROL PANEL</p>
     </div>
 
     <section class="form-section">
-        <span class="section-title">Step 1: Set Class Rates</span>
+        <span class="section-title">Class-wise Fees (Academic)</span>
         <div class="input-grid">
-            <select id="mClass" required>
-                <option value="">Select Class</option>
-                <option value="Pre-Nursery">Pre-Nursery</option>
-                <option value="Nursery">Nursery</option>
-                <option value="LKG">LKG</option>
-                <option value="UKG">UKG</option>
-                <option value="1">Class 1</option>
-                <option value="2">Class 2</option>
-                <option value="3">Class 3</option>
-                <option value="4">Class 4</option>
-                <option value="5">Class 5</option>
-                <option value="6">Class 6</option>
-                <option value="7">Class 7</option>
-                <option value="8">Class 8</option>
-                <option value="9">Class 9</option>
-                <option value="10">Class 10</option>
-                <option value="11">Class 11</option>
-                <option value="12">Class 12</option>
-            </select>
-            <input type="number" id="mTuition" placeholder="Monthly Tuition">
-            <input type="number" id="mAdmission" placeholder="Admission Fee">
-            <input type="number" id="mDev" placeholder="Development Fee">
-            <input type="number" id="mExam" placeholder="Exam Fee">
-            <input type="number" id="mBooks" placeholder="Books/Stationery">
+            <div class="field-group">
+                <label>Select Class</label>
+                <select id="mClass">
+                    <option value="">-- Choose Class --</option>
+                    <option value="Pre-Nursery">Pre-Nursery</option>
+                    <option value="Nursery">Nursery</option>
+                    <option value="LKG">LKG</option>
+                    <option value="UKG">UKG</option>
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                    <option value="Class 3">Class 3</option>
+                    <option value="Class 4">Class 4</option>
+                    <option value="Class 5">Class 5</option>
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                    <option value="Class 11">Class 11</option>
+                    <option value="Class 12">Class 12</option>
+                </select>
+            </div>
+            <div class="field-group"><label>Registration Fee</label><input type="number" id="mReg"></div>
+            <div class="field-group"><label>Admission Fee (An)</label><input type="number" id="mAdmission"></div>
+            <div class="field-group"><label>Development (An)</label><input type="number" id="mDev"></div>
+            <div class="field-group"><label>Exam Fee (An)</label><input type="number" id="mExam"></div>
+            <div class="field-group"><label>Tuition (Mo)</label><input type="number" id="mTuition"></div>
+            <div class="field-group"><label>Hostel (Mo)</label><input type="number" id="mHostel"></div>
+            <div class="field-group"><label>Misc Monthly</label><input type="number" id="mMisc"></div>
         </div>
+        <button onclick="saveFeeMaster()" class="main-btn" id="saveBtn">Save Class Fee Structure</button>
     </section>
 
-    <section class="form-section">
-        <span class="section-title">Step 2: Additional Services (Monthly)</span>
+    <section class="form-section transport-section">
+        <span class="section-title" style="color: var(--accent-purple);">Transport Fee (Distance Based)</span>
         <div class="input-grid">
-            <input type="number" id="mHostel" placeholder="Hostel Fee">
-            <input type="number" id="mTransport" placeholder="Transport Fee">
+            <div class="field-group">
+                <label>Distance Slab</label>
+                <select id="tSlab">
+                    <option value="">-- Select Distance --</option>
+                    <option value="0-3 KM">0-3 KM</option>
+                    <option value="3-5 KM">3-5 KM</option>
+                    <option value="5-7 KM">5-7 KM</option>
+                    <option value="7-10 KM">7-10 KM</option>
+                    <option value="10-15 KM">10-15 KM</option>
+                    <option value="15-20 KM">15-20 KM</option>
+                    <option value="Above 20 KM">Above 20 KM</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Monthly Transport Fee</label>
+                <input type="number" id="tAmount" placeholder="₹ Enter Amount">
+            </div>
         </div>
-        <button onclick="saveFeeMaster()" class="main-btn" id="saveBtn">UPDATE MASTER DATABASE</button>
+        <button onclick="saveTransportFee()" class="main-btn trans-btn" id="saveTransBtn">Update Transport Rate</button>
     </section>
 
-    <div style="overflow-x:auto;">
-        <h3 style="text-align: center; color: var(--deep-gold);">Current Fee Structure</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Class</th>
-                    <th>Tuition</th>
-                    <th>Admission</th>
-                    <th>Dev. Fee</th>
-                    <th>Exam</th>
-                    <th>Hostel</th>
-                    <th>Transport</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="masterFeeBody"></tbody>
-        </table>
+    <div style="display: grid; grid-template-columns: 1fr; gap: 30px; margin-top: 20px;">
+        <div style="overflow-x:auto;">
+            <h3 style="text-align: center; color: var(--royal-blue);">Academic Fee Master</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Reg.</th>
+                        <th>Adm.</th>
+                        <th>Dev.</th>
+                        <th>Exam</th>
+                        <th>Tuition</th>
+                        <th>Hostel</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="masterFeeBody"></tbody>
+            </table>
+        </div>
+
+        <div style="overflow-x:auto; max-width: 600px; margin: 0 auto;">
+            <h3 style="text-align: center; color: var(--accent-purple);">Transport Fee Master</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Distance Slab</th>
+                        <th>Monthly Fee</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="transportFeeBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-// Firebase aur Functions purane code jaise hi rahenge
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
   authDomain: "the-lalit-d7472.firebaseapp.com",
@@ -230,72 +242,123 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// --- ACADEMIC FEE LOGIC ---
 async function saveFeeMaster() {
     const cls = document.getElementById('mClass').value;
-    if(!cls) { alert("Pehle Class select karein!"); return; }
+    if(!cls) { alert("Please select a class!"); return; }
+    
     const btn = document.getElementById('saveBtn');
     btn.innerText = "Saving...";
-    btn.disabled = true;
-
+    
     const feeData = {
         className: cls,
-        tuition: Number(document.getElementById('mTuition').value) || 0,
+        registration: Number(document.getElementById('mReg').value) || 0,
         admission: Number(document.getElementById('mAdmission').value) || 0,
         development: Number(document.getElementById('mDev').value) || 0,
         exam: Number(document.getElementById('mExam').value) || 0,
-        books: Number(document.getElementById('mBooks').value) || 0,
+        tuition: Number(document.getElementById('mTuition').value) || 0,
         hostel: Number(document.getElementById('mHostel').value) || 0,
-        transport: Number(document.getElementById('mTransport').value) || 0,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        misc: Number(document.getElementById('mMisc').value) || 0,
+        lastUpdate: new Date().toLocaleString()
     };
 
     try {
         await db.collection('fee_master').doc(cls).set(feeData);
-        alert("Success!");
+        alert(cls + " record updated!");
         loadMasterFees();
-        resetFields();
-    } catch (e) { alert(e.message); }
-    finally { btn.innerText = "UPDATE MASTER DATABASE"; btn.disabled = false; }
+        resetAcademicForm();
+    } catch (e) { alert("Error: " + e.message); }
+    finally { btn.innerText = "Save Class Fee Structure"; }
 }
 
 async function loadMasterFees() {
     const tableBody = document.getElementById('masterFeeBody');
+    tableBody.innerHTML = "<tr><td colspan='8'>Loading...</td></tr>";
+    const snapshot = await db.collection('fee_master').orderBy('className').get();
     tableBody.innerHTML = "";
-    const snapshot = await db.collection('fee_master').get();
     snapshot.forEach(doc => {
         const d = doc.data();
-        const row = `<tr>
+        tableBody.innerHTML += `<tr>
             <td><b>${d.className}</b></td>
-            <td>₹${d.tuition}</td>
-            <td>₹${d.admission}</td>
-            <td>₹${d.development}</td>
-            <td>₹${d.exam}</td>
-            <td>₹${d.hostel}</td>
-            <td>₹${d.transport}</td>
-            <td><button class="edit-btn" onclick='editFee(${JSON.stringify(d)})'>Edit</button></td>
+            <td>₹${d.registration}</td>
+            <td class="tag-an">₹${d.admission}</td>
+            <td class="tag-an">₹${d.development}</td>
+            <td class="tag-an">₹${d.exam}</td>
+            <td class="tag-mo">₹${d.tuition}</td>
+            <td class="tag-mo">₹${d.hostel}</td>
+            <td><button class="edit-btn" onclick='editAcademic(${JSON.stringify(d)})'>Edit</button></td>
         </tr>`;
-        tableBody.innerHTML += row;
     });
 }
 
-function editFee(data) {
-    document.getElementById('mClass').value = data.className;
-    document.getElementById('mTuition').value = data.tuition;
-    document.getElementById('mAdmission').value = data.admission;
-    document.getElementById('mDev').value = data.development;
-    document.getElementById('mExam').value = data.exam;
-    document.getElementById('mBooks').value = data.books || 0;
-    document.getElementById('mHostel').value = data.hostel;
-    document.getElementById('mTransport').value = data.transport;
+function editAcademic(d) {
+    document.getElementById('mClass').value = d.className;
+    document.getElementById('mReg').value = d.registration;
+    document.getElementById('mAdmission').value = d.admission;
+    document.getElementById('mDev').value = d.development;
+    document.getElementById('mExam').value = d.exam;
+    document.getElementById('mTuition').value = d.tuition;
+    document.getElementById('mHostel').value = d.hostel;
+    document.getElementById('mMisc').value = d.misc;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function resetFields() {
-    const ids = ['mClass','mTuition','mAdmission','mDev','mExam','mBooks','mHostel','mTransport'];
-    ids.forEach(id => document.getElementById(id).value = "");
+// --- TRANSPORT FEE LOGIC ---
+async function saveTransportFee() {
+    const slab = document.getElementById('tSlab').value;
+    const amount = document.getElementById('tAmount').value;
+    
+    if(!slab || !amount) { alert("Select Distance & Enter Amount!"); return; }
+    
+    const btn = document.getElementById('saveTransBtn');
+    btn.innerText = "Processing...";
+
+    try {
+        await db.collection('transport_master').doc(slab).set({
+            slab: slab,
+            amount: Number(amount),
+            lastUpdate: new Date().toLocaleString()
+        });
+        alert("Transport slab updated!");
+        document.getElementById('tAmount').value = "";
+        loadTransportFees();
+    } catch (e) { alert("Error: " + e.message); }
+    finally { btn.innerText = "Update Transport Rate"; }
 }
 
-loadMasterFees();
+async function loadTransportFees() {
+    const tableBody = document.getElementById('transportFeeBody');
+    tableBody.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
+    const snapshot = await db.collection('transport_master').get();
+    tableBody.innerHTML = "";
+    snapshot.forEach(doc => {
+        const d = doc.data();
+        tableBody.innerHTML += `<tr>
+            <td><b>${d.slab}</b></td>
+            <td class="tag-tr">₹${d.amount}</td>
+            <td>
+                <button class="edit-btn" onclick="editTransport('${d.slab}', ${d.amount})">Edit</button>
+            </td>
+        </tr>`;
+    });
+}
+
+function editTransport(slab, amount) {
+    document.getElementById('tSlab').value = slab;
+    document.getElementById('tAmount').value = amount;
+}
+
+function resetAcademicForm() {
+    ['mClass','mReg','mAdmission','mDev','mExam','mTuition','mHostel','mMisc'].forEach(id => {
+        document.getElementById(id).value = "";
+    });
+}
+
+// Initial Load
+window.onload = () => {
+    loadMasterFees();
+    loadTransportFees();
+};
 </script>
 </body>
 </html>
