@@ -3,84 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Imperial Control Center</title>
+    <title>Dashboard - The Lalit Intl.</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
     <style>
-        .stat-card {
-            background: white; border-radius: 12px; padding: 25px;
-            border-bottom: 4px solid var(--gold);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: 0.3s;
-        }
-        .stat-card:hover { transform: translateY(-5px); }
-        .icon-circle {
-            width: 50px; height: 50px;
-            background: var(--light-gold); color: var(--royal-blue);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; border: 1px solid var(--gold);
+        .chart-container {
+            background: white; padding: 30px; border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            text-align: center; min-height: 450px;
+            border-top: 5px solid var(--royal-blue);
         }
         .recent-box {
-            background: white; padding: 20px; border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 400px;
+            background: white; padding: 25px; border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--gold);
         }
-        .transaction-item {
-            padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem;
-        }
+        canvas { max-width: 320px !important; margin: 0 auto; }
     </style>
 </head>
 <body>
 
 <div class="main-content">
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 style="font-family: 'Cinzel', serif; color: var(--royal-blue); margin: 0;">
-                Imperial Overview
-            </h2>
-            <div id="currentDay" class="badge bg-dark text-gold p-2"></div>
-        </div>
+        <h2 style="font-family: 'Cinzel', serif; color: var(--royal-blue);" class="mb-4">Control Center</h2>
 
-        <div class="row g-4 mb-5">
+        <div class="row g-4 mb-4">
             <div class="col-md-3">
-                <div class="stat-card d-flex align-items-center justify-content-between">
-                    <div><small class="text-muted text-uppercase fw-bold">Active Students</small><h2 id="totalStudents" class="m-0">0</h2></div>
-                    <div class="icon-circle"><i class="fas fa-user-graduate"></i></div>
+                <div class="royal-card text-center p-3" style="min-height: auto;">
+                    <i class="fas fa-users fa-2x mb-2 text-primary"></i>
+                    <h6 class="text-muted">Total Students</h6>
+                    <h3 id="totalStudents">0</h3>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card d-flex align-items-center justify-content-between">
-                    <div><small class="text-muted text-uppercase fw-bold">Today's Gold</small><h2 id="todayCol" class="m-0 text-success">₹0</h2></div>
-                    <div class="icon-circle"><i class="fas fa-coins"></i></div>
+                <div class="royal-card text-center p-3" style="min-height: auto; border-color: #28a745;">
+                    <i class="fas fa-hand-holding-usd fa-2x mb-2 text-success"></i>
+                    <h6 class="text-muted">Today's Cash</h6>
+                    <h3 id="todayCol">₹0</h3>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card d-flex align-items-center justify-content-between">
-                    <div><small class="text-muted text-uppercase fw-bold">Presence</small><h2 id="presentCount" class="m-0">0%</h2></div>
-                    <div class="icon-circle"><i class="fas fa-calendar-check text-primary"></i></div>
+                <div class="royal-card text-center p-3" style="min-height: auto; border-color: #ffc107;">
+                    <i class="fas fa-user-check fa-2x mb-2 text-warning"></i>
+                    <h6 class="text-muted">Present Today</h6>
+                    <h3 id="presentCount">0</h3>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card d-flex align-items-center justify-content-between">
-                    <div><small class="text-muted text-uppercase fw-bold">Defaulters</small><h2 id="dueCount" class="m-0 text-danger">0</h2></div>
-                    <div class="icon-circle"><i class="fas fa-exclamation-triangle text-danger"></i></div>
+                <div class="royal-card text-center p-3" style="min-height: auto; border-color: #dc3545;">
+                    <i class="fas fa-exclamation-circle fa-2x mb-2 text-danger"></i>
+                    <h6 class="text-muted">Pending Dues</h6>
+                    <h3 id="dueCount">0</h3>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
-            <div class="col-md-8">
-                <div class="recent-box">
-                    <h5 class="mb-4 text-velvet"><i class="fas fa-chart-line me-2"></i>Weekly Collection Analytics</h5>
-                    <canvas id="revenueChart" height="300"></canvas>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-4"><i class="fas fa-chart-pie me-2 text-gold"></i>Revenue Distribution</h5>
+                    <canvas id="feePieChart"></canvas>
+                    <div id="chartLegend" class="mt-4 small text-muted">Showing monthly collection vs pending target</div>
                 </div>
             </div>
-            <div class="col-md-4">
+            
+            <div class="col-md-6">
                 <div class="recent-box">
-                    <h5 class="mb-4 text-velvet"><i class="fas fa-receipt me-2"></i>Recent Receipts</h5>
-                    <div id="recentFees">
-                        <p class="text-center text-muted mt-5">Fetching imperial logs...</p>
+                    <h5 class="mb-4"><i class="fas fa-history me-2"></i>Recent Treasury Activity</h5>
+                    <div id="recentFees" class="list-group list-group-flush">
+                        <p class="text-center p-5">Syncing with registry...</p>
                     </div>
                 </div>
             </div>
@@ -90,7 +83,6 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -103,68 +95,61 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    document.getElementById('currentDay').innerText = new Date().toDateString();
-
-    async function loadStats() {
-        // 1. Total Students Count
+    // Data Load Logic
+    function initDashboard() {
+        // 1. Students
         db.collection('students').onSnapshot(snap => {
             document.getElementById('totalStudents').innerText = snap.size;
         });
 
         // 2. Today's Collection
-        const todayStr = new Date().toLocaleDateString('en-GB'); // Match your collect-fees date format
-        db.collection('fee_transactions').where('date', '==', todayStr).onSnapshot(snap => {
+        const today = new Date().toLocaleDateString('en-GB');
+        db.collection('fee_transactions').where('date', '==', today).onSnapshot(snap => {
             let total = 0;
             snap.forEach(doc => total += Number(doc.data().amount));
-            document.getElementById('todayCol').innerText = "₹" + total.toLocaleString();
+            document.getElementById('todayCol').innerText = "₹" + total;
         });
 
-        // 3. Recent Transactions
+        // 3. Recent Activity
         db.collection('fee_transactions').orderBy('timestamp', 'desc').limit(6).onSnapshot(snap => {
             const list = document.getElementById('recentFees');
             list.innerHTML = "";
-            if(snap.empty) list.innerHTML = "<p class='text-center mt-5'>No transactions today.</p>";
-            
             snap.forEach(doc => {
                 const d = doc.data();
                 list.innerHTML += `
-                    <div class="transaction-item d-flex justify-content-between align-items-center">
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 mb-2 shadow-sm rounded">
                         <div>
-                            <span class="fw-bold d-block">ID: ${d.studentID}</span>
-                            <small class="text-muted">${d.purpose || 'Fee'}</small>
+                            <span class="fw-bold">${d.studentName || 'Student ' + d.studentID}</span><br>
+                            <small class="text-muted">${d.purpose || 'Monthly Fee'}</small>
                         </div>
-                        <div class="text-end">
-                            <span class="text-success fw-bold">+₹${d.amount}</span><br>
-                            <small style="font-size:10px;">${d.date}</small>
-                        </div>
+                        <span class="badge bg-success">₹${d.amount}</span>
                     </div>`;
             });
         });
+
+        // 4. Pie Chart Setup
+        const ctx = document.getElementById('feePieChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Collected', 'Pending', 'Discounted'],
+                datasets: [{
+                    data: [65, 25, 10], // Inhe real data se replace kar sakte hain calculation ke baad
+                    backgroundColor: ['#002366', '#D4AF37', '#e9ecef'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
     }
 
-    // Revenue Chart Logic
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            datasets: [{
-                label: 'Collection (₹)',
-                data: [12000, 19000, 15000, 25000, 22000, 30000],
-                borderColor: '#002366',
-                backgroundColor: 'rgba(212, 175, 55, 0.2)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    loadStats();
+    window.onload = initDashboard;
 </script>
 
 <script src="menu.js"></script>
