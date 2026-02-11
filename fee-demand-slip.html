@@ -3,102 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Fee Demand Slip</title>
+    <title>The Lalit - Fee Management System</title>
     <style>
-        :root {
-            --royal-blue: #002366;
-            --gold: #D4AF37;
-            --white: #ffffff;
-            --danger: #c0392b;
+        :root { 
+            --royal-blue: #002366; 
+            --gold: #D4AF37; 
+            --danger: #c0392b; 
+            --light-gold: #fcf8e3;
         }
+        
+        body { background: #f0f2f5; margin: 0; padding: 0; font-family: 'Georgia', serif; }
 
-        body {
-            background: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            font-family: 'Georgia', serif;
+        /* --- Main Page Header & Logo --- */
+        .main-header {
+            background: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 5px solid var(--gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .main-logo { height: 120px; margin-bottom: 15px; }
 
         .no-print-zone {
-            max-width: 600px;
-            margin: 0 auto 20px auto;
+            max-width: 900px;
+            margin: 30px auto;
             background: white;
-            padding: 20px;
-            border: 1px solid var(--gold);
-            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
         }
 
-        input {
-            padding: 10px;
-            width: 60%;
-            border: 1px solid var(--gold);
-            outline: none;
+        .search-grid { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr 1fr; 
+            gap: 15px; 
+            margin: 20px 0; 
         }
 
-        .btn {
-            padding: 10px 20px;
-            background: var(--royal-blue);
-            color: var(--gold);
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
+        input, select { padding: 12px; border: 2px solid #eee; border-radius: 6px; font-size: 1rem; outline: none; }
+        input:focus { border-color: var(--gold); }
+        
+        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-gen { background: var(--royal-blue); color: var(--gold); }
+        
+        /* Golden Print Button */
+        .btn-print { 
+            background: var(--gold); 
+            color: var(--royal-blue); 
+            width: 100%; 
+            margin-top: 15px; 
+            font-size: 1.1rem; 
+            border: 2px solid var(--royal-blue);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        .btn-print:hover { background: #e5c158; color: #000; }
 
-        /* Slip Design */
-        #demandSlip {
-            max-width: 700px;
-            margin: 0 auto;
+        /* --- Slip Print Layout (2 Slips per A4) --- */
+        #printArea { max-width: 850px; margin: 0 auto; }
+
+        .slip-container {
             background: white;
-            padding: 40px;
-            border: 5px double var(--gold);
-            display: none;
+            padding: 25px;
+            border: 3px double var(--royal-blue);
+            box-sizing: border-box;
             position: relative;
+            height: 520px; /* Fits 2 on A4 */
+            margin-bottom: 5px;
         }
 
-        .slip-header {
-            text-align: center;
-            border-bottom: 2px solid var(--royal-blue);
-            margin-bottom: 20px;
-        }
-
-        .slip-title {
-            background: var(--royal-blue);
-            color: var(--gold);
-            display: inline-block;
-            padding: 5px 20px;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .details-table {
+        /* Scissor/Cut Line */
+        .cut-line {
             width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-
-        .details-table td {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .amount-row {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--danger);
-        }
-
-        .footer-note {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            font-style: italic;
-            color: #555;
+            height: 30px;
+            border-top: 2px dashed #888;
+            position: relative;
+            margin: 10px 0;
             text-align: center;
         }
+        .cut-line::after { content: '✂ Cutting Line'; color: #888; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #f0f2f5; padding: 0 10px; font-size: 0.8rem; }
+
+        .header-flex { display: flex; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        .slip-logo { height: 70px; margin-right: 15px; }
+        .student-photo { width: 90px; height: 110px; border: 2px solid var(--gold); margin-left: auto; object-fit: cover; background: #eee; }
+        
+        .details-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 1rem; }
+        .details-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+        
+        .amount-section { background: var(--light-gold); padding: 15px; border-radius: 5px; border: 1px solid var(--gold); }
+        .amount-row { font-size: 1.25rem; font-weight: bold; color: var(--danger); display: flex; justify-content: space-between; margin-top: 5px; }
+
+        .footer-signs { display: flex; justify-content: space-between; margin-top: 45px; font-size: 0.9rem; font-weight: bold; }
 
         @media print {
-            .no-print-zone { display: none; }
-            body { background: white; padding: 0; }
-            #demandSlip { display: block !important; border: 2px solid #000; width: 100%; }
+            .no-print-zone, .main-header, .cut-line:nth-last-child(1) { display: none; }
+            body { background: white; }
+            .cut-line { display: block !important; }
+            .slip-container {
+                height: 49vh; 
+                margin: 0;
+                page-break-inside: avoid;
+                border: 2px solid #000;
+            }
         }
     </style>
     
@@ -107,62 +112,44 @@
 </head>
 <body>
 
+<div class="main-header">
+    <img src="logo.png" class="main-logo" alt="The Lalit Logo">
+    <h1 style="margin:0; color:var(--royal-blue); font-size: 2.5rem;">THE LALIT INTERNATIONAL SCHOOL</h1>
+    <p style="color:var(--gold); font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">FEE DEMAND PORTAL</p>
+</div>
+
 <div class="no-print-zone">
-    <h3>Generate Demand Slip</h3>
-    <input type="number" id="slipID" placeholder="Enter Student ID">
-    <button class="btn" onclick="generateSlip()">GENERATE</button>
-    <button class="btn" style="background:var(--danger); color:white;" onclick="window.print()">PRINT / SAVE PDF</button>
+    <div class="search-grid">
+        <input type="text" id="searchVal" placeholder="Search by ID, Name or Father Name...">
+        <select id="classSelect">
+            <option value="">-- All Classes --</option>
+            <option value="Pre-Nursery">Pre-Nursery</option>
+            <option value="Nursery">Nursery</option>
+            <option value="LKG">LKG</option>
+            <option value="UKG">UKG</option>
+            <option value="1">Class 1</option>
+            <option value="2">Class 2</option>
+            <option value="3">Class 3</option>
+            <option value="4">Class 4</option>
+            <option value="5">Class 5</option>
+            <option value="6">Class 6</option>
+            <option value="7">Class 7</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+            <option value="11">Class 11</option>
+            <option value="12">Class 12</option>
+        </select>
+        <button class="btn btn-gen" onclick="processSlips()">GENERATE SLIPS</button>
+    </div>
+    <button class="btn btn-print" onclick="window.print()">🖨️ PRINT / DOWNLOAD ALL SLIPS (PDF)</button>
 </div>
 
-<div id="demandSlip">
-    <div class="slip-header">
-        <h1 style="margin:0; color:var(--royal-blue);">THE LALIT INTERNATIONAL SCHOOL</h1>
-        <p style="margin:5px 0;">Official Fee Reminder / Demand Slip</p>
-        <div class="slip-title">FEES DUE NOTICE</div>
+<div id="printArea">
     </div>
-
-    <table class="details-table">
-        <tr>
-            <td><b>Date:</b> <span id="dDate"></span></td>
-            <td><b>Student ID:</b> <span id="dID"></span></td>
-        </tr>
-        <tr>
-            <td><b>Student Name:</b> <span id="dName"></span></td>
-            <td><b>Class:</b> <span id="dClass"></span></td>
-        </tr>
-        <tr>
-            <td colspan="2"><b>Father's Name:</b> <span id="dFather"></span></td>
-        </tr>
-    </table>
-
-    <div style="margin-top:30px;">
-        <h4 style="border-bottom: 1px solid var(--gold);">OUTSTANDING BALANCE DETAILS</h4>
-        <table class="details-table">
-            <tr>
-                <td>Total Fee Applicable (Yearly/Current):</td>
-                <td style="text-align:right;">₹<span id="dTotalApplicable">0</span></td>
-            </tr>
-            <tr>
-                <td>Total Amount Paid Till Date:</td>
-                <td style="text-align:right; color:green;">- ₹<span id="dPaid">0</span></td>
-            </tr>
-            <tr class="amount-row">
-                <td>NET PAYABLE BALANCE:</td>
-                <td style="text-align:right;">₹<span id="dBalance">0</span></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="footer-note">
-        <p>Kindly ignore this slip if the payment has already been made. Please clear the dues at the earliest to avoid any late fine or inconvenience.</p>
-        <div style="margin-top:40px; display:flex; justify-content: space-between;">
-            <span>Parent's Signature</span>
-            <span>Accountant's Signature</span>
-        </div>
-    </div>
-</div>
 
 <script>
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
   authDomain: "the-lalit-d7472.firebaseapp.com",
@@ -172,43 +159,113 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-async function generateSlip() {
-    const id = document.getElementById('slipID').value;
-    if(!id) return;
+async function processSlips() {
+    const searchVal = document.getElementById('searchVal').value.trim().toLowerCase();
+    const className = document.getElementById('classSelect').value;
+    const printArea = document.getElementById('printArea');
+    
+    printArea.innerHTML = "<h2 style='text-align:center'>Generating... Please wait.</h2>";
 
-    // Fetch Student
-    const sDoc = await db.collection('students').doc(id).get();
-    if(!sDoc.exists) return alert("Student not found!");
-    const student = sDoc.data();
+    let students = [];
+    const snap = await db.collection('students').get();
 
-    // Fetch Master
+    snap.forEach(doc => {
+        const d = doc.data();
+        const sid = String(doc.id);
+        const sName = (d.name || "").toLowerCase();
+        const fName = (d.father || "").toLowerCase();
+
+        let match = false;
+        if (searchVal) {
+            if (sid === searchVal || sName.includes(searchVal) || fName.includes(searchVal)) match = true;
+        } else if (className) {
+            if (d.class === className) match = true;
+        } else {
+            match = true; // All students if no filter
+        }
+
+        if (match) students.push({id: doc.id, ...d});
+    });
+
+    if (students.length === 0) {
+        printArea.innerHTML = "<h3 style='color:red; text-align:center;'>No records found.</h3>";
+        return;
+    }
+
+    printArea.innerHTML = "";
+    for (let i = 0; i < students.length; i++) {
+        await renderSlip(students[i]);
+        if (i % 2 === 0 && i !== students.length - 1) {
+            printArea.innerHTML += `<div class="cut-line"></div>`;
+        }
+    }
+}
+
+async function renderSlip(student) {
     const mDoc = await db.collection('fee_master').doc(student.class).get();
-    if(!mDoc.exists) return alert("Master Fee not set for this class!");
+    if(!mDoc.exists) return;
     const master = mDoc.data();
 
-    // Fetch Total Paid
-    const tSnap = await db.collection('fee_transactions').where('studentID', '==', Number(id)).get();
+    const tSnap = await db.collection('fee_transactions').where('studentID', '==', Number(student.id)).get();
     let paid = 0;
     tSnap.forEach(doc => paid += Number(doc.data().amount));
 
-    // Calculation
     let expected = (master.admission || 0) + (master.tuition || 0) + (master.development || 0);
     if(student.hostel === 'Yes') expected += (master.hostel || 0);
     if(student.transport === 'Yes') expected += (master.transport || 0);
-
     const balance = expected - paid;
 
-    // Fill UI
-    document.getElementById('dDate').innerText = new Date().toLocaleDateString();
-    document.getElementById('dID').innerText = student.uniqueID;
-    document.getElementById('dName').innerText = student.name;
-    document.getElementById('dClass').innerText = student.class;
-    document.getElementById('dFather').innerText = student.father;
-    document.getElementById('dTotalApplicable').innerText = expected;
-    document.getElementById('dPaid').innerText = paid;
-    document.getElementById('dBalance').innerText = balance;
+    const slipHtml = `
+    <div class="slip-container">
+        <div class="header-flex">
+            <img src="logo.png" class="slip-logo" onerror="this.src='https://via.placeholder.com/70?text=LOGO'">
+            <div>
+                <h2 style="margin:0; color:var(--royal-blue); font-size: 1.5rem;">THE LALIT INTERNATIONAL SCHOOL</h2>
+                <div style="background:var(--royal-blue); color:var(--gold); display:inline-block; padding:2px 10px; font-weight:bold; margin-top:5px; font-size:0.8rem;">
+                    OFFICIAL FEE DUE NOTICE
+                </div>
+            </div>
+            <img src="${student.photo || 'https://via.placeholder.com/90x110?text=Photo'}" class="student-photo">
+        </div>
 
-    document.getElementById('demandSlip').style.display = 'block';
+        <table class="details-table">
+            <tr>
+                <td><b>Student ID:</b> ${student.uniqueID || student.id}</td>
+                <td style="text-align:right;"><b>Date:</b> ${new Date().toLocaleDateString()}</td>
+            </tr>
+            <tr>
+                <td><b>Student Name:</b> ${student.name}</td>
+                <td style="text-align:right;"><b>Class:</b> ${student.class}</td>
+            </tr>
+            <tr>
+                <td colspan="2"><b>Father's Name:</b> ${student.father}</td>
+            </tr>
+        </table>
+
+        <div class="amount-section">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span>Total Annual Applicable Fee:</span> <span>₹${expected}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:green; margin-bottom:10px;">
+                <span>Total Amount Received:</span> <span>- ₹${paid}</span>
+            </div>
+            <div class="amount-row">
+                <span>NET PAYABLE BALANCE:</span>
+                <span>₹${balance}</span>
+            </div>
+        </div>
+
+        <p style="font-size: 0.8rem; text-align:center; color:#666; margin-top:15px;">
+            Please ignore if already paid. Contact office for any discrepancies.
+        </p>
+
+        <div class="footer-signs">
+            <div style="border-top:1.5px solid #333; width:160px; text-align:center; padding-top:5px;">Parent's Signature</div>
+            <div style="border-top:1.5px solid #333; width:160px; text-align:center; padding-top:5px;">Authorized Accountant</div>
+        </div>
+    </div>`;
+    
+    document.getElementById('printArea').innerHTML += slipHtml;
 }
 </script>
 </body>
