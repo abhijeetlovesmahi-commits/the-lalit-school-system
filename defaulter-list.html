@@ -3,90 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Defaulter List</title>
+    <title>The Lalit - Royal Defaulter Dashboard</title>
     <style>
         :root {
-            --royal-blue: #002366;
-            --gold: #D4AF37;
-            --deep-gold: #aa8a2e;
-            --light-gold: #FDFBF0;
-            --white: #ffffff;
-            --danger: #e74c3c;
+            --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0;
+            --white: #ffffff; --danger: #e74c3c;
         }
-
-        body {
-            background: var(--light-gold);
-            margin: 0;
-            padding: 20px;
-            font-family: 'Georgia', serif;
-            color: var(--royal-blue);
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: var(--white);
-            padding: 30px;
-            border: 1px solid var(--gold);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 3px double var(--gold);
-            margin-bottom: 30px;
-        }
-
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            padding: 20px;
-            text-align: center;
-            border: 1px solid var(--gold);
-            background: #fff;
-        }
-
-        .card h2 { margin: 0; font-size: 1.8rem; color: var(--danger); }
-        .card p { margin: 5px 0; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        th {
-            background: var(--royal-blue);
-            color: var(--gold);
-            padding: 12px;
-            border: 1px solid var(--gold);
-        }
-
-        td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
+        body { background: var(--light-gold); margin: 0; padding: 20px; font-family: 'Georgia', serif; color: var(--royal-blue); }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 30px; border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 3px double var(--gold); margin-bottom: 30px; padding-bottom: 10px; }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { padding: 20px; text-align: center; border: 1px solid var(--gold); background: #fff; border-radius: 4px; }
+        .card h2 { margin: 0; font-size: 2rem; color: var(--danger); }
+        .card p { margin: 5px 0; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; color: var(--royal-blue); }
+        
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
+        th { background: var(--royal-blue); color: var(--gold); padding: 15px; border: 1px solid var(--gold); text-transform: uppercase; font-size: 0.85rem; }
+        td { padding: 12px; border: 1px solid #eee; text-align: center; font-size: 0.95rem; }
         tr:nth-child(even) { background: #fefcf0; }
+        tr:hover { background: #fff9e6; }
 
-        .btn-remind {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .loader { text-align: center; padding: 50px; font-style: italic; }
+        .btn-remind { background: #25D366; color: white; border: none; padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 3px; font-family: sans-serif; display: flex; align-items: center; gap: 5px; justify-content: center; }
+        .loader { text-align: center; padding: 50px; font-style: italic; color: var(--gold); font-weight: bold; }
+        
+        @media print { .btn-remind, .no-print { display: none; } }
     </style>
-
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
@@ -94,33 +35,32 @@
 
 <div class="container">
     <div class="header">
-        <h1>DEFAULTER LIST</h1>
-        <p>THE LALIT INTERNATIONAL SCHOOL - RECOVERY DASHBOARD</p>
+        <h1>FEE DEFAULTERS DASHBOARD</h1>
+        <p>THE LALIT INTERNATIONAL SCHOOL - OFFICIAL RECOVERY LIST</p>
     </div>
 
     <div class="summary-cards">
         <div class="card">
-            <p>Total Defaulters</p>
+            <p>Students in Arrears</p>
             <h2 id="totalCount">0</h2>
         </div>
         <div class="card">
-            <p>Total Pending Amount</p>
+            <p>Total Outstanding Amount</p>
             <h2 id="totalPending">₹0</h2>
         </div>
     </div>
 
-    <div id="loading" class="loader">Calculating dues... Please wait...</div>
+    <div id="loading" class="loader">Accessing Financial Records... 🏛️</div>
 
     <table id="defaulterTable" style="display:none;">
         <thead>
             <tr>
-                <th>Student ID</th>
-                <th>Name</th>
+                <th>ID</th>
+                <th>Student Name</th>
                 <th>Class</th>
                 <th>Father's Name</th>
-                <th>Contact</th>
-                <th>Pending Amount</th>
-                <th>Action</th>
+                <th>Pending Dues</th>
+                <th class="no-print">Action</th>
             </tr>
         </thead>
         <tbody id="listBody"></tbody>
@@ -139,21 +79,22 @@ const db = firebase.firestore();
 
 async function generateDefaulterList() {
     try {
-        // 1. Fetch all Masters, Students, and Transactions
-        const masterSnap = await db.collection('fee_master').get();
-        const studentSnap = await db.collection('students').get();
-        const transSnap = await db.collection('fee_transactions').get();
+        const [masterSnap, studentSnap, transSnap] = await Promise.all([
+            db.collection('fee_master').get(),
+            db.collection('students').get(),
+            db.collection('fee_transactions').get()
+        ]);
 
         const masters = {};
         masterSnap.forEach(doc => masters[doc.id] = doc.data());
 
-        const transactions = {};
+        const payments = {};
         transSnap.forEach(doc => {
             const d = doc.data();
-            transactions[d.studentID] = (transactions[d.studentID] || 0) + Number(d.amount);
+            payments[d.studentID] = (payments[d.studentID] || 0) + Number(d.amount);
         });
 
-        let totalDues = 0;
+        let grandTotal = 0;
         let count = 0;
         const tbody = document.getElementById('listBody');
         tbody.innerHTML = "";
@@ -163,17 +104,16 @@ async function generateDefaulterList() {
             const m = masters[s.class];
 
             if (m) {
-                // Calculate Expected Total
-                let expected = (m.admission || 0) + (m.tuition || 0) + (m.development || 0);
-                if(s.hostel === 'Yes') expected += (m.hostel || 0);
-                if(s.transport === 'Yes') expected += (m.transport || 0);
+                let expected = Number(m.tuition || 0) + Number(m.admission || 0);
+                if(s.hostel === 'Yes') expected += Number(m.hostel || 0);
+                if(s.transport === 'Yes') expected += Number(m.transport || 0);
 
-                const paid = transactions[s.uniqueID] || 0;
+                const paid = payments[s.uniqueID] || 0;
                 const balance = expected - paid;
 
                 if (balance > 0) {
                     count++;
-                    totalDues += balance;
+                    grandTotal += balance;
                     
                     const row = `
                         <tr>
@@ -181,9 +121,12 @@ async function generateDefaulterList() {
                             <td><b>${s.name}</b></td>
                             <td>${s.class}</td>
                             <td>${s.father}</td>
-                            <td>${s.contact}</td>
                             <td style="color:red; font-weight:bold;">₹${balance}</td>
-                            <td><button class="btn-remind" onclick="alert('Reminder sent to ${s.contact}')">REMIND</button></td>
+                            <td class="no-print">
+                                <button class="btn-remind" onclick="sendWhatsApp('${s.contact}', '${s.name}', '${balance}')">
+                                    WHATSAPP
+                                </button>
+                            </td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
@@ -192,17 +135,23 @@ async function generateDefaulterList() {
         });
 
         document.getElementById('totalCount').innerText = count;
-        document.getElementById('totalPending').innerText = "₹" + totalDues;
+        document.getElementById('totalPending').innerText = "₹" + grandTotal;
         document.getElementById('loading').style.display = 'none';
         document.getElementById('defaulterTable').style.display = 'table';
 
     } catch (error) {
-        console.error(error);
-        alert("Data load karne mein problem hui!");
+        alert("System Error: Records could not be loaded.");
     }
+}
+
+function sendWhatsApp(phone, name, amount) {
+    const msg = `Dear Parent, this is a reminder from The Lalit International School. A fee balance of ₹${amount} is pending for ${name}. Please clear it at the earliest. Thank you.`;
+    const url = `https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
 }
 
 generateDefaulterList();
 </script>
+<script src="menu.js"></script>
 </body>
 </html>
