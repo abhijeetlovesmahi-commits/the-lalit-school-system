@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Fee Collection & Receipt</title>
+    <title>The Lalit - Fee Collection & Pending Tracker</title>
     <style>
         :root {
             --royal-blue: #002366;
@@ -12,6 +12,7 @@
             --light-gold: #FDFBF0;
             --white: #ffffff;
             --success: #27ae60;
+            --danger: #e74c3c;
         }
 
         body {
@@ -47,7 +48,7 @@
             border-radius: 5px;
         }
 
-        input, select {
+        input {
             padding: 12px;
             border: 1px solid #ccc;
             border-bottom: 2px solid var(--gold);
@@ -75,6 +76,14 @@
             background: #fff;
         }
 
+        .balance-alert {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
         .fee-calc-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -91,7 +100,7 @@
             margin-top: 20px;
         }
 
-        /* Receipt Styles (Print Only) */
+        /* Print Section */
         #receipt-print { display: none; }
         @media print {
             body * { visibility: hidden; }
@@ -107,16 +116,18 @@
 
 <div class="container">
     <div class="header">
-        <h1>FEE COLLECTION</h1>
+        <h1>FEE COLLECTION & TRACKER</h1>
         <p>THE LALIT INTERNATIONAL SCHOOL</p>
     </div>
 
     <div class="search-box">
-        <input type="number" id="searchID" placeholder="Enter Student ID (e.g. 1001)">
-        <button class="btn" onclick="fetchStudent()">SEARCH STUDENT</button>
+        <input type="number" id="searchID" placeholder="Enter Student ID">
+        <button class="btn" onclick="fetchStudentData()">SEARCH STUDENT</button>
     </div>
 
     <div id="studentDisplay" style="display:none;">
+        <div id="pendingStatus" class="balance-alert"></div>
+
         <div class="student-info-card">
             <img id="sPhoto" src="" style="width:100px; height:120px; border:2px solid var(--gold); object-fit:cover;">
             <div>
@@ -126,39 +137,41 @@
             </div>
         </div>
 
-        <div class="form-section">
-            <h3>Fee Breakdown (From Master)</h3>
+        <div style="background:#f9f9f9; padding:20px; border:1px solid #ddd;">
+            <h3>Fee Breakdown (Current Month)</h3>
             <div class="fee-calc-grid">
-                <div>Tuition Fee: <b id="fTuition">0</b></div>
-                <div>Admission Fee: <b id="fAdmission">0</b></div>
-                <div>Hostel Fee: <b id="fHostel">0</b></div>
-                <div>Transport Fee: <b id="fTransport">0</b></div>
+                <div>Tuition: ₹<b id="fTuition">0</b></div>
+                <div>Hostel/Transport: ₹<b id="fAddons">0</b></div>
+                <div>Admission/Dev: ₹<b id="fAdmission">0</b></div>
+                <div>Previous Pending: <b id="fPrev" style="color:red;">₹0</b></div>
             </div>
             
             <div class="total-box">
-                PAYABLE AMOUNT: ₹<span id="fTotal">0</span>
+                TOTAL PAYABLE: ₹<span id="fTotal">0</span>
             </div>
 
-            <button class="btn" style="width:100%; margin-top:20px; background:var(--success); color:white; border:none;" onclick="payAndPrint()">PAY & GENERATE RECEIPT</button>
+            <div style="margin-top:20px;">
+                <input type="number" id="payAmount" placeholder="Enter Amount to Pay" style="font-size:1.2rem; margin-bottom:10px;">
+                <button class="btn" style="width:100%; background:var(--success); color:white; border:none;" onclick="processPayment()">RECEIVE PAYMENT & PRINT</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="receipt-print">
-    <div style="text-align:center; border:2px solid #000; padding:20px;">
+    <div style="text-align:center; border:2px solid #000; padding:20px; margin:20px;">
         <h2>THE LALIT INTERNATIONAL SCHOOL</h2>
         <p>Official Fee Receipt</p>
         <hr>
-        <div style="text-align:left;">
-            <p><b>Receipt No:</b> <span id="rNo"></span> | <b>Date:</b> <span id="rDate"></span></p>
+        <div style="text-align:left; line-height:1.6;">
+            <p><b>Receipt:</b> <span id="rNo"></span> | <b>Date:</b> <span id="rDate"></span></p>
             <p><b>Student:</b> <span id="rName"></span> (ID: <span id="rID"></span>)</p>
             <p><b>Class:</b> <span id="rClass"></span></p>
             <hr>
-            <p>Tuition Fee: <span id="rt"></span></p>
-            <p>Other Charges: <span id="ro"></span></p>
-            <h3>Total Paid: ₹<span id="rp"></span></h3>
+            <h3>Paid Amount: ₹<span id="rp"></span></h3>
+            <p>Balance Remaining: ₹<span id="rb"></span></p>
         </div>
-        <p style="margin-top:40px;">Authorized Signatory</p>
+        <p style="margin-top:50px;">___________________<br>Accountant Signature</p>
     </div>
 </div>
 
@@ -172,75 +185,82 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let currentStudent = null;
-let currentFees = null;
+let student = null;
+let masterFees = null;
+let pendingBal = 0;
 
-async function fetchStudent() {
+async function fetchStudentData() {
     const id = document.getElementById('searchID').value;
-    if(!id) return alert("ID daliye!");
+    if(!id) return;
 
-    // 1. Get Student Info
+    // 1. Get Student
     const sDoc = await db.collection('students').doc(id).get();
-    if(!sDoc.exists) return alert("Student nahi mila!");
-    
-    currentStudent = sDoc.data();
-    
-    // 2. Get Fee Master for this Class
-    const fDoc = await db.collection('fee_master').doc(currentStudent.class).get();
-    if(!fDoc.exists) return alert("Pehle is Class ki fees 'Master Page' par set karein!");
+    if(!sDoc.exists) return alert("Student record not found!");
+    student = sDoc.data();
 
-    currentFees = fDoc.data();
-    displayData();
+    // 2. Get Master Fees for their class
+    const mDoc = await db.collection('fee_master').doc(student.class).get();
+    if(!mDoc.exists) return alert("Please set Fee Master for " + student.class);
+    masterFees = mDoc.data();
+
+    // 3. Calculate Pending from History
+    const history = await db.collection('fee_transactions').where('studentID', '==', Number(id)).get();
+    let paidTotal = 0;
+    history.forEach(d => paidTotal += Number(d.data().amount));
+
+    // Simple Logic: Total Due = (Admission + Tuition + Addons)
+    // Aap ise monthly expand kar sakte hain bad mein
+    let expected = masterFees.admission + masterFees.tuition + masterFees.development;
+    if(student.hostel === 'Yes') expected += masterFees.hostel;
+    if(student.transport === 'Yes') expected += masterFees.transport;
+
+    pendingBal = expected - paidTotal;
+    updateUI();
 }
 
-function displayData() {
+function updateUI() {
     document.getElementById('studentDisplay').style.display = 'block';
-    document.getElementById('sName').innerText = currentStudent.name;
-    document.getElementById('sClass').innerText = currentStudent.class;
-    document.getElementById('sFather').innerText = currentStudent.father;
-    document.getElementById('sPhoto').src = currentStudent.photo || 'https://via.placeholder.com/100';
-    document.getElementById('sHostel').innerText = currentStudent.hostel;
-    document.getElementById('sTransport').innerText = currentStudent.transport;
+    document.getElementById('sName').innerText = student.name;
+    document.getElementById('sClass').innerText = student.class;
+    document.getElementById('sPhoto').src = student.photo || '';
+    
+    const pDiv = document.getElementById('pendingStatus');
+    if(pendingBal > 0) {
+        pDiv.style.background = "#ffdce0"; pDiv.style.color = "red";
+        pDiv.innerText = "PENDING BALANCE DETECTED: ₹" + pendingBal;
+    } else {
+        pDiv.style.background = "#d4edda"; pDiv.style.color = "green";
+        pDiv.innerText = "NO DUES - ACCOUNT CLEAR";
+    }
 
-    // Calculation Logic
-    let tuition = currentFees.tuition || 0;
-    let admission = currentFees.admission || 0; // Ideally only for new students
-    let hostel = currentStudent.hostel === 'Yes' ? currentFees.hostel : 0;
-    let transport = currentStudent.transport === 'Yes' ? currentFees.transport : 0;
-    let total = tuition + admission + hostel + transport;
-
-    document.getElementById('fTuition').innerText = tuition;
-    document.getElementById('fAdmission').innerText = admission;
-    document.getElementById('fHostel').innerText = hostel;
-    document.getElementById('fTransport').innerText = transport;
-    document.getElementById('fTotal').innerText = total;
+    document.getElementById('fTuition').innerText = masterFees.tuition;
+    document.getElementById('fPrev').innerText = "₹" + (pendingBal > 0 ? pendingBal : 0);
+    document.getElementById('fTotal').innerText = pendingBal > 0 ? pendingBal : masterFees.tuition;
 }
 
-async function payAndPrint() {
-    const total = document.getElementById('fTotal').innerText;
-    
-    // 1. Save Transaction in Firebase
-    const transID = "REC-" + Date.now();
-    await db.collection('fee_transactions').add({
-        studentID: currentStudent.uniqueID,
-        studentName: currentStudent.name,
-        amount: total,
+async function processPayment() {
+    const amount = Number(document.getElementById('payAmount').value);
+    if(amount <= 0) return alert("Please enter valid amount");
+
+    const tID = "TRX" + Date.now();
+    await db.collection('fee_transactions').doc(tID).set({
+        studentID: student.uniqueID,
+        amount: amount,
         date: new Date().toLocaleDateString(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // 2. Fill Receipt Template
-    document.getElementById('rNo').innerText = transID;
+    // Print Logic
+    document.getElementById('rNo').innerText = tID;
     document.getElementById('rDate').innerText = new Date().toLocaleDateString();
-    document.getElementById('rName').innerText = currentStudent.name;
-    document.getElementById('rID').innerText = currentStudent.uniqueID;
-    document.getElementById('rClass').innerText = currentStudent.class;
-    document.getElementById('rt').innerText = document.getElementById('fTuition').innerText;
-    document.getElementById('ro').innerText = Number(document.getElementById('fHostel').innerText) + Number(document.getElementById('fTransport').innerText);
-    document.getElementById('rp').innerText = total;
+    document.getElementById('rName').innerText = student.name;
+    document.getElementById('rID').innerText = student.uniqueID;
+    document.getElementById('rClass').innerText = student.class;
+    document.getElementById('rp').innerText = amount;
+    document.getElementById('rb').innerText = pendingBal - amount;
 
-    // 3. Trigger Print
     window.print();
+    location.reload();
 }
 </script>
 </body>
