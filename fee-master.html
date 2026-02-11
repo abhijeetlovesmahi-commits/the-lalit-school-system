@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lalit - Fee Master System</title>
+    <style>
+        :root {
+            --royal-blue: #002366;
+            --gold: #D4AF37;
+            --deep-gold: #aa8a2e;
+            --light-gold: #FDFBF0;
+            --white: #ffffff;
+        }
+
+        body {
+            background: var(--light-gold);
+            margin: 0;
+            padding: 40px 20px;
+            font-family: 'Georgia', serif;
+            color: var(--royal-blue);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 5px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 1px solid var(--gold);
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px double var(--gold);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            padding: 20px;
+            background: #fff;
+            position: relative;
+        }
+
+        .section-title {
+            position: absolute;
+            top: -12px; left: 20px;
+            background: white;
+            padding: 0 10px;
+            font-weight: bold;
+            color: var(--deep-gold);
+            font-size: 0.8rem;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-bottom: 2px solid var(--gold);
+            outline: none;
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--royal-blue);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .main-btn:hover { background: #001a4d; }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th {
+            background: var(--royal-blue);
+            color: var(--gold);
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--gold);
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            background: #e1f5fe;
+            color: #01579b;
+            border-radius: 3px;
+        }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Fee Master Dashboard</h1>
+        <p style="letter-spacing: 3px; font-size: 0.7rem; color: var(--deep-gold);">MANAGE SCHOOL FEE STRUCTURE</p>
+    </div>
+
+    <section class="form-section">
+        <span class="section-title">Step 1: Set Class Rates</span>
+        <div class="input-grid">
+            <select id="mClass" required>
+                <option value="">Select Class</option>
+                <option value="Nursery">Nursery</option>
+                <option value="LKG">LKG</option>
+                <option value="UKG">UKG</option>
+                <option value="1">Class 1</option>
+                <option value="2">Class 2</option>
+                <option value="3">Class 3</option>
+                <option value="4">Class 4</option>
+                <option value="5">Class 5</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
+                <option value="11">Class 11</option>
+                <option value="12">Class 12</option>
+            </select>
+            <input type="number" id="mTuition" placeholder="Monthly Tuition">
+            <input type="number" id="mAdmission" placeholder="Admission Fee">
+            <input type="number" id="mDev" placeholder="Development Fee">
+            <input type="number" id="mExam" placeholder="Exam Fee">
+            <input type="number" id="mBooks" placeholder="Books/Stationery">
+        </div>
+    </section>
+
+    <section class="form-section">
+        <span class="section-title">Step 2: Additional Services (Monthly)</span>
+        <div class="input-grid">
+            <input type="number" id="mHostel" placeholder="Hostel Fee">
+            <input type="number" id="mTransport" placeholder="Transport Fee">
+        </div>
+        <button onclick="saveFeeMaster()" class="main-btn" id="saveBtn">UPDATE MASTER DATABASE</button>
+    </section>
+
+    <div style="overflow-x:auto;">
+        <h3 style="text-align: center; color: var(--deep-gold);">Current Fee Structure</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Tuition</th>
+                    <th>Admission</th>
+                    <th>Dev. Fee</th>
+                    <th>Exam</th>
+                    <th>Hostel</th>
+                    <th>Transport</th>
+                </tr>
+            </thead>
+            <tbody id="masterFeeBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Firebase Configuration (Aapki purani config)
+const firebaseConfig = {
+  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
+  authDomain: "the-lalit-d7472.firebaseapp.com",
+  projectId: "the-lalit-d7472",
+  appId: "1:479237084229:web:31078825739b3c5712ff2c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 1. SAVE DATA TO FIREBASE
+async function saveFeeMaster() {
+    const cls = document.getElementById('mClass').value;
+    if(!cls) { alert("Pehle Class select karein!"); return; }
+
+    const btn = document.getElementById('saveBtn');
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    const feeData = {
+        className: cls,
+        tuition: Number(document.getElementById('mTuition').value) || 0,
+        admission: Number(document.getElementById('mAdmission').value) || 0,
+        development: Number(document.getElementById('mDev').value) || 0,
+        exam: Number(document.getElementById('mExam').value) || 0,
+        books: Number(document.getElementById('mBooks').value) || 0,
+        hostel: Number(document.getElementById('mHostel').value) || 0,
+        transport: Number(document.getElementById('mTransport').value) || 0,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        // Document ID ko class name hi rakh rahe hain taaki duplicate na ho
+        await db.collection('fee_master').doc(cls).set(feeData);
+        alert("Success! " + cls + " ki fees update ho gayi hai.");
+        loadMasterFees(); // Table refresh karein
+        resetFields();
+    } catch (error) {
+        alert("Error: " + error.message);
+    } finally {
+        btn.innerText = "UPDATE MASTER DATABASE";
+        btn.disabled = false;
+    }
+}
+
+// 2. LOAD DATA FROM FIREBASE TO TABLE
+async function loadMasterFees() {
+    const tableBody = document.getElementById('masterFeeBody');
+    tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Loading fees...</td></tr>";
+
+    try {
+        const snapshot = await db.collection('fee_master').get();
+        tableBody.innerHTML = "";
+        
+        if(snapshot.empty) {
+            tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No records found. Add some!</td></tr>";
+            return;
+        }
+
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            const row = `
+                <tr>
+                    <td><b>${d.className}</b></td>
+                    <td>₹${d.tuition}</td>
+                    <td>₹${d.admission}</td>
+                    <td>₹${d.development}</td>
+                    <td>₹${d.exam}</td>
+                    <td>₹${d.hostel}</td>
+                    <td>₹${d.transport}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error("Error loading table:", error);
+    }
+}
+
+function resetFields() {
+    document.getElementById('mClass').value = "";
+    document.getElementById('mTuition').value = "";
+    document.getElementById('mAdmission').value = "";
+    document.getElementById('mDev').value = "";
+    document.getElementById('mExam').value = "";
+    document.getElementById('mBooks').value = "";
+    document.getElementById('mHostel').value = "";
+    document.getElementById('mTransport').value = "";
+}
+
+// Page load hote hi data fetch karein
+loadMasterFees();
+
+</script>
+</body>
+</html>
