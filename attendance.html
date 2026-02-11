@@ -1,65 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Lalit Sir AI Test - Fixed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lalit - Attendance System</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px; background: #fdfbf0; }
-        .card { border: 2px solid #D4AF37; padding: 30px; display: inline-block; background: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-width: 400px; }
-        h2 { color: #002366; }
-        input { padding: 12px; width: 80%; border: 1px solid #D4AF37; border-radius: 5px; margin-bottom: 10px; }
-        button { padding: 12px 25px; background: #002366; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        #output { margin-top: 20px; color: #333; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 5px; min-height: 40px; line-height: 1.5; }
+        :root { --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0; --white: #ffffff; }
+        body { background: var(--light-gold); margin: 0; padding: 20px; font-family: 'Georgia', serif; color: var(--royal-blue); }
+        .container { max-width: 1000px; margin: 0 auto; background: var(--white); padding: 30px; border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        .header { text-align: center; border-bottom: 3px double var(--gold); margin-bottom: 20px; padding-bottom: 10px; }
+        h1 { text-transform: uppercase; letter-spacing: 3px; font-size: 1.8rem; margin: 10px 0; }
+
+        .filter-bar { display: flex; gap: 10px; background: #f9f9f9; padding: 15px; border: 1px solid #eee; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        select, input[type="date"] { padding: 10px; border: 1px solid var(--gold); outline: none; font-family: 'serif'; }
+        
+        .btn-fetch { background: var(--royal-blue); color: var(--gold); padding: 10px 25px; border: 1px solid var(--gold); cursor: pointer; font-weight: bold; }
+        .btn-save { background: #27ae60; color: white; padding: 15px 40px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold; width: 100%; margin-top: 20px; border-radius: 4px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: var(--royal-blue); color: var(--gold); text-transform: uppercase; font-size: 0.9rem; }
+        tr:nth-child(even) { background: #fcfcfc; }
+
+        .status-switch { display: flex; gap: 10px; }
+        .radio-label { cursor: pointer; font-size: 0.9rem; font-weight: bold; }
+        .p-text { color: green; }
+        .a-text { color: red; }
     </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-    <div class="card">
-        <h2>✨ Lalit AI Test</h2>
-        <input type="text" id="userInput" placeholder="Ask me something (e.g. Hello)">
-        <br>
-        <button onclick="callGemini()">CHECK AI NOW</button>
-        <div id="output">Result yahan dikhega...</div>
+<div class="container">
+    <div class="header">
+        <img src="logo.png" alt="Logo" style="width: 80px;">
+        <h1>Student Attendance Record</h1>
+        <p style="color: var(--gold); letter-spacing: 2px;">DAILY REGISTRY</p>
     </div>
 
+    <div class="filter-bar">
+        <input type="date" id="attDate">
+        <select id="attClass">
+            <option value="">Select Class</option>
+            <option value="1">Class 1</option>
+            <option value="2">Class 2</option>
+            <option value="3">Class 3</option>
+            <option value="4">Class 4</option>
+            <option value="5">Class 5</option>
+            </select>
+        <select id="attSection">
+            <option value="A">Section A</option>
+            <option value="B">Section B</option>
+        </select>
+        <button class="btn-fetch" onclick="loadStudentList()">LOAD STUDENTS</button>
+    </div>
+
+    <div id="attendanceTableWrapper" style="display:none;">
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student Name</th>
+                    <th>Roll No</th>
+                    <th>Status (P / A)</th>
+                </tr>
+            </thead>
+            <tbody id="attListBody"></tbody>
+        </table>
+        <button class="btn-save" onclick="saveAttendance()">SAVE ATTENDANCE</button>
+    </div>
+</div>
+
 <script>
-async function callGemini() {
-    const output = document.getElementById('output');
-    const input = document.getElementById('userInput').value;
-    const key = "AIzaSyD6EgG0jj3_oHrUUYuKBhcFGxO-XoAMJSY";
+const firebaseConfig = {
+  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
+  authDomain: "the-lalit-d7472.firebaseapp.com",
+  projectId: "the-lalit-d7472",
+  appId: "1:479237084229:web:31078825739b3c5712ff2c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Aaj ki date default set karna
+document.getElementById('attDate').valueAsDate = new Date();
+
+async function loadStudentList() {
+    const cls = document.getElementById('attClass').value;
+    const sec = document.getElementById('attSection').value;
     
-    // Yahan humne v1 use kiya hai jo zyada stable hai
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
+    if(!cls) return alert("Please select a class!");
 
-    if(!input) return alert("Kuch type karein!");
-
-    output.innerText = "Soch raha hun... 🧠";
-    output.style.color = "#002366";
+    const tbody = document.getElementById('attListBody');
+    tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Loading Students...</td></tr>";
+    document.getElementById('attendanceTableWrapper').style.display = "block";
 
     try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: input }] }]
-            })
-        });
+        const snap = await db.collection('students')
+            .where("class", "==", cls)
+            .where("section", "==", sec)
+            .get();
 
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0].content) {
-            output.innerText = data.candidates[0].content.parts[0].text;
-            output.style.color = "green";
-        } else {
-            // Agar model nahi milta toh error message yahan dikhega
-            output.innerText = "Error: " + (data.error ? data.error.message : "Response nahi mila");
-            output.style.color = "red";
+        if(snap.empty) {
+            tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No students found in this class.</td></tr>";
+            return;
         }
+
+        tbody.innerHTML = "";
+        snap.forEach(doc => {
+            const s = doc.data();
+            tbody.innerHTML += `
+                <tr data-id="${doc.id}">
+                    <td>${s.uniqueID}</td>
+                    <td><b>${s.name}</b></td>
+                    <td>${s.rollNo || '-'}</td>
+                    <td>
+                        <div class="status-switch">
+                            <label class="radio-label p-text"><input type="radio" name="st_${doc.id}" value="Present" checked> P</label>
+                            <label class="radio-label a-text"><input type="radio" name="st_${doc.id}" value="Absent"> A</label>
+                        </div>
+                    </td>
+                </tr>`;
+        });
     } catch (err) {
-        output.innerText = "Network Error: GitHub se Google tak connection nahi ho paya.";
-        output.style.color = "orange";
+        alert("Error: " + err.message);
+    }
+}
+
+async function saveAttendance() {
+    const date = document.getElementById('attDate').value;
+    const rows = document.querySelectorAll('#attListBody tr');
+    const batch = db.batch();
+
+    if(rows.length === 0) return;
+
+    for(let row of rows) {
+        const studentId = row.getAttribute('data-id');
+        const status = row.querySelector(`input[name="st_${studentId}"]:checked`).value;
+        
+        // Attendance collection mein save karna
+        const attRef = db.collection('attendance').doc(`${date}_${studentId}`);
+        batch.set(attRef, {
+            date: date,
+            studentId: studentId,
+            status: status,
+            timestamp: Date.now()
+        });
+    }
+
+    try {
+        await batch.commit();
+        alert("Attendance marked successfully for " + date);
+    } catch (err) {
+        alert("Failed to save: " + err.message);
     }
 }
 </script>
-
+<script src="menu.js"></script>
 </body>
 </html>
+
