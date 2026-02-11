@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lalit - Fee Collection & Receipt</title>
+    <style>
+        :root {
+            --royal-blue: #002366;
+            --gold: #D4AF37;
+            --deep-gold: #aa8a2e;
+            --light-gold: #FDFBF0;
+            --white: #ffffff;
+            --success: #27ae60;
+        }
+
+        body {
+            background: var(--light-gold);
+            margin: 0;
+            padding: 20px;
+            font-family: 'Georgia', serif;
+            color: var(--royal-blue);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 30px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px double var(--gold);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-bottom: 2px solid var(--gold);
+            outline: none;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: var(--royal-blue);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .student-info-card {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #fff;
+        }
+
+        .fee-calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .total-box {
+            background: var(--royal-blue);
+            color: var(--gold);
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+
+        /* Receipt Styles (Print Only) */
+        #receipt-print { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-print, #receipt-print * { visibility: visible; }
+            #receipt-print { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>FEE COLLECTION</h1>
+        <p>THE LALIT INTERNATIONAL SCHOOL</p>
+    </div>
+
+    <div class="search-box">
+        <input type="number" id="searchID" placeholder="Enter Student ID (e.g. 1001)">
+        <button class="btn" onclick="fetchStudent()">SEARCH STUDENT</button>
+    </div>
+
+    <div id="studentDisplay" style="display:none;">
+        <div class="student-info-card">
+            <img id="sPhoto" src="" style="width:100px; height:120px; border:2px solid var(--gold); object-fit:cover;">
+            <div>
+                <h2 id="sName" style="margin:0;">-</h2>
+                <p><b>Class:</b> <span id="sClass">-</span> | <b>Father:</b> <span id="sFather">-</span></p>
+                <p><b>Hostel:</b> <span id="sHostel">-</span> | <b>Transport:</b> <span id="sTransport">-</span></p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Fee Breakdown (From Master)</h3>
+            <div class="fee-calc-grid">
+                <div>Tuition Fee: <b id="fTuition">0</b></div>
+                <div>Admission Fee: <b id="fAdmission">0</b></div>
+                <div>Hostel Fee: <b id="fHostel">0</b></div>
+                <div>Transport Fee: <b id="fTransport">0</b></div>
+            </div>
+            
+            <div class="total-box">
+                PAYABLE AMOUNT: ₹<span id="fTotal">0</span>
+            </div>
+
+            <button class="btn" style="width:100%; margin-top:20px; background:var(--success); color:white; border:none;" onclick="payAndPrint()">PAY & GENERATE RECEIPT</button>
+        </div>
+    </div>
+</div>
+
+<div id="receipt-print">
+    <div style="text-align:center; border:2px solid #000; padding:20px;">
+        <h2>THE LALIT INTERNATIONAL SCHOOL</h2>
+        <p>Official Fee Receipt</p>
+        <hr>
+        <div style="text-align:left;">
+            <p><b>Receipt No:</b> <span id="rNo"></span> | <b>Date:</b> <span id="rDate"></span></p>
+            <p><b>Student:</b> <span id="rName"></span> (ID: <span id="rID"></span>)</p>
+            <p><b>Class:</b> <span id="rClass"></span></p>
+            <hr>
+            <p>Tuition Fee: <span id="rt"></span></p>
+            <p>Other Charges: <span id="ro"></span></p>
+            <h3>Total Paid: ₹<span id="rp"></span></h3>
+        </div>
+        <p style="margin-top:40px;">Authorized Signatory</p>
+    </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
+  authDomain: "the-lalit-d7472.firebaseapp.com",
+  projectId: "the-lalit-d7472",
+  appId: "1:479237084229:web:31078825739b3c5712ff2c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let currentStudent = null;
+let currentFees = null;
+
+async function fetchStudent() {
+    const id = document.getElementById('searchID').value;
+    if(!id) return alert("ID daliye!");
+
+    // 1. Get Student Info
+    const sDoc = await db.collection('students').doc(id).get();
+    if(!sDoc.exists) return alert("Student nahi mila!");
+    
+    currentStudent = sDoc.data();
+    
+    // 2. Get Fee Master for this Class
+    const fDoc = await db.collection('fee_master').doc(currentStudent.class).get();
+    if(!fDoc.exists) return alert("Pehle is Class ki fees 'Master Page' par set karein!");
+
+    currentFees = fDoc.data();
+    displayData();
+}
+
+function displayData() {
+    document.getElementById('studentDisplay').style.display = 'block';
+    document.getElementById('sName').innerText = currentStudent.name;
+    document.getElementById('sClass').innerText = currentStudent.class;
+    document.getElementById('sFather').innerText = currentStudent.father;
+    document.getElementById('sPhoto').src = currentStudent.photo || 'https://via.placeholder.com/100';
+    document.getElementById('sHostel').innerText = currentStudent.hostel;
+    document.getElementById('sTransport').innerText = currentStudent.transport;
+
+    // Calculation Logic
+    let tuition = currentFees.tuition || 0;
+    let admission = currentFees.admission || 0; // Ideally only for new students
+    let hostel = currentStudent.hostel === 'Yes' ? currentFees.hostel : 0;
+    let transport = currentStudent.transport === 'Yes' ? currentFees.transport : 0;
+    let total = tuition + admission + hostel + transport;
+
+    document.getElementById('fTuition').innerText = tuition;
+    document.getElementById('fAdmission').innerText = admission;
+    document.getElementById('fHostel').innerText = hostel;
+    document.getElementById('fTransport').innerText = transport;
+    document.getElementById('fTotal').innerText = total;
+}
+
+async function payAndPrint() {
+    const total = document.getElementById('fTotal').innerText;
+    
+    // 1. Save Transaction in Firebase
+    const transID = "REC-" + Date.now();
+    await db.collection('fee_transactions').add({
+        studentID: currentStudent.uniqueID,
+        studentName: currentStudent.name,
+        amount: total,
+        date: new Date().toLocaleDateString(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // 2. Fill Receipt Template
+    document.getElementById('rNo').innerText = transID;
+    document.getElementById('rDate').innerText = new Date().toLocaleDateString();
+    document.getElementById('rName').innerText = currentStudent.name;
+    document.getElementById('rID').innerText = currentStudent.uniqueID;
+    document.getElementById('rClass').innerText = currentStudent.class;
+    document.getElementById('rt').innerText = document.getElementById('fTuition').innerText;
+    document.getElementById('ro').innerText = Number(document.getElementById('fHostel').innerText) + Number(document.getElementById('fTransport').innerText);
+    document.getElementById('rp').innerText = total;
+
+    // 3. Trigger Print
+    window.print();
+}
+</script>
+</body>
+</html>
