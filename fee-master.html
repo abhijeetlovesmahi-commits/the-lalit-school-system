@@ -22,7 +22,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             background: var(--white);
             padding: 40px;
@@ -30,6 +30,22 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             border: 1px solid var(--gold);
             position: relative;
+        }
+
+        /* LOGO STYLING */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .main-logo {
+            width: 80px; /* Aap size yahan se adjust kar sakte hain */
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            padding: 5px;
+            background: white;
         }
 
         .header {
@@ -43,7 +59,7 @@
             text-transform: uppercase;
             letter-spacing: 3px;
             font-size: 2rem;
-            margin: 0;
+            margin: 10px 0 0 0;
         }
 
         .form-section {
@@ -92,7 +108,19 @@
 
         .main-btn:hover { background: #001a4d; }
 
-        /* Table Styling */
+        .edit-btn {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        .edit-btn:hover { background: var(--deep-gold); }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -114,14 +142,6 @@
         }
 
         tr:nth-child(even) { background-color: #f9f9f9; }
-        
-        .status-badge {
-            font-size: 0.7rem;
-            padding: 2px 5px;
-            background: #e1f5fe;
-            color: #01579b;
-            border-radius: 3px;
-        }
     </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -130,6 +150,10 @@
 <body>
 
 <div class="container">
+    <div class="logo-container">
+        <img src="logo.png" alt="The Lalit Logo" class="main-logo">
+    </div>
+    
     <div class="header">
         <h1>Fee Master Dashboard</h1>
         <p style="letter-spacing: 3px; font-size: 0.7rem; color: var(--deep-gold);">MANAGE SCHOOL FEE STRUCTURE</p>
@@ -140,6 +164,7 @@
         <div class="input-grid">
             <select id="mClass" required>
                 <option value="">Select Class</option>
+                <option value="Pre-Nursery">Pre-Nursery</option>
                 <option value="Nursery">Nursery</option>
                 <option value="LKG">LKG</option>
                 <option value="UKG">UKG</option>
@@ -185,16 +210,16 @@
                     <th>Exam</th>
                     <th>Hostel</th>
                     <th>Transport</th>
+                    <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="masterFeeBody">
-                </tbody>
+            <tbody id="masterFeeBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-// Firebase Configuration (Aapki purani config)
+// Firebase aur Functions purane code jaise hi rahenge
 const firebaseConfig = {
   apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
   authDomain: "the-lalit-d7472.firebaseapp.com",
@@ -205,11 +230,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 1. SAVE DATA TO FIREBASE
 async function saveFeeMaster() {
     const cls = document.getElementById('mClass').value;
     if(!cls) { alert("Pehle Class select karein!"); return; }
-
     const btn = document.getElementById('saveBtn');
     btn.innerText = "Saving...";
     btn.disabled = true;
@@ -227,67 +250,52 @@ async function saveFeeMaster() {
     };
 
     try {
-        // Document ID ko class name hi rakh rahe hain taaki duplicate na ho
         await db.collection('fee_master').doc(cls).set(feeData);
-        alert("Success! " + cls + " ki fees update ho gayi hai.");
-        loadMasterFees(); // Table refresh karein
+        alert("Success!");
+        loadMasterFees();
         resetFields();
-    } catch (error) {
-        alert("Error: " + error.message);
-    } finally {
-        btn.innerText = "UPDATE MASTER DATABASE";
-        btn.disabled = false;
-    }
+    } catch (e) { alert(e.message); }
+    finally { btn.innerText = "UPDATE MASTER DATABASE"; btn.disabled = false; }
 }
 
-// 2. LOAD DATA FROM FIREBASE TO TABLE
 async function loadMasterFees() {
     const tableBody = document.getElementById('masterFeeBody');
-    tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Loading fees...</td></tr>";
+    tableBody.innerHTML = "";
+    const snapshot = await db.collection('fee_master').get();
+    snapshot.forEach(doc => {
+        const d = doc.data();
+        const row = `<tr>
+            <td><b>${d.className}</b></td>
+            <td>₹${d.tuition}</td>
+            <td>₹${d.admission}</td>
+            <td>₹${d.development}</td>
+            <td>₹${d.exam}</td>
+            <td>₹${d.hostel}</td>
+            <td>₹${d.transport}</td>
+            <td><button class="edit-btn" onclick='editFee(${JSON.stringify(d)})'>Edit</button></td>
+        </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
 
-    try {
-        const snapshot = await db.collection('fee_master').get();
-        tableBody.innerHTML = "";
-        
-        if(snapshot.empty) {
-            tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No records found. Add some!</td></tr>";
-            return;
-        }
-
-        snapshot.forEach(doc => {
-            const d = doc.data();
-            const row = `
-                <tr>
-                    <td><b>${d.className}</b></td>
-                    <td>₹${d.tuition}</td>
-                    <td>₹${d.admission}</td>
-                    <td>₹${d.development}</td>
-                    <td>₹${d.exam}</td>
-                    <td>₹${d.hostel}</td>
-                    <td>₹${d.transport}</td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    } catch (error) {
-        console.error("Error loading table:", error);
-    }
+function editFee(data) {
+    document.getElementById('mClass').value = data.className;
+    document.getElementById('mTuition').value = data.tuition;
+    document.getElementById('mAdmission').value = data.admission;
+    document.getElementById('mDev').value = data.development;
+    document.getElementById('mExam').value = data.exam;
+    document.getElementById('mBooks').value = data.books || 0;
+    document.getElementById('mHostel').value = data.hostel;
+    document.getElementById('mTransport').value = data.transport;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function resetFields() {
-    document.getElementById('mClass').value = "";
-    document.getElementById('mTuition').value = "";
-    document.getElementById('mAdmission').value = "";
-    document.getElementById('mDev').value = "";
-    document.getElementById('mExam').value = "";
-    document.getElementById('mBooks').value = "";
-    document.getElementById('mHostel').value = "";
-    document.getElementById('mTransport').value = "";
+    const ids = ['mClass','mTuition','mAdmission','mDev','mExam','mBooks','mHostel','mTransport'];
+    ids.forEach(id => document.getElementById(id).value = "");
 }
 
-// Page load hote hi data fetch karein
 loadMasterFees();
-
 </script>
 </body>
 </html>
