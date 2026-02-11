@@ -290,9 +290,21 @@
                     <option value="No">Opt for Hostel? (No)</option>
                     <option value="Yes">Yes (Hosteller)</option>
                 </select>
-                <select id="sTransport">
+                <select id="sTransport" onchange="toggleTransportDistance()">
                     <option value="No">Use School Transport? (No)</option>
                     <option value="Yes">Yes (Bus/Van)</option>
+                </select>
+                <select id="sTransportDistance" style="display:none;">
+                    <option value="">Select Distance</option>
+                    <option value="0-3km">0 - 3 km</option>
+                    <option value="3-6km">3 - 6 km</option>
+                    <option value="6-9km">6 - 9 km</option>
+                    <option value="9-12km">9 - 12 km</option>
+                    <option value="12-15km">12 - 15 km</option>
+                    <option value="15-18km">15 - 18 km</option>
+                    <option value="18-21km">18 - 21 km</option>
+                    <option value="21-25km">21 - 25 km</option>
+                    <option value="25km+">Above 25 km</option>
                 </select>
             </div>
         </section>
@@ -384,6 +396,20 @@ function syncAddress() {
     if(document.getElementById('sameAddr').checked) document.getElementById('permAddr').value = document.getElementById('currAddr').value;
 }
 
+// Distance toggle logic
+function toggleTransportDistance() {
+    const transportVal = document.getElementById('sTransport').value;
+    const distanceSelect = document.getElementById('sTransportDistance');
+    if(transportVal === 'Yes') {
+        distanceSelect.style.display = 'block';
+        distanceSelect.required = true;
+    } else {
+        distanceSelect.style.display = 'none';
+        distanceSelect.required = false;
+        distanceSelect.value = ""; 
+    }
+}
+
 document.getElementById('admissionForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -408,9 +434,12 @@ document.getElementById('admissionForm').addEventListener('submit', async (e) =>
             gender: document.getElementById('sGender').value,
             blood: document.getElementById('sBlood').value,
             aadhar: document.getElementById('sAadhar').value,
-            class: sClass, section: sSection, house: document.getElementById('sHouse').value,
+            class: sClass, 
+            section: sSection, 
+            house: document.getElementById('sHouse').value,
             hostel: document.getElementById('sHostel').value,
             transport: document.getElementById('sTransport').value,
+            transportDistance: document.getElementById('sTransportDistance').value,
             father: document.getElementById('pFather').value,
             mother: document.getElementById('pMother').value,
             contact: document.getElementById('pContact').value,
@@ -478,13 +507,18 @@ function showDetails(data) {
     document.getElementById('modalName').innerText = data.name;
     document.getElementById('modalPhoto').src = data.photo || 'https://via.placeholder.com/150';
     
+    let transportTxt = data.transport;
+    if(data.transport === 'Yes' && data.transportDistance) {
+        transportTxt += ` (${data.transportDistance})`;
+    }
+
     document.getElementById('modalDetails').innerHTML = `
         <p><b>ID:</b> ${data.uniqueID}</p>
         <p><b>DOB:</b> ${data.dob}</p>
         <p><b>Class:</b> ${data.class} (${data.section})</p>
         <p><b>House:</b> ${data.house}</p>
         <p><b>Hostel:</b> <span style="color:${data.hostel==='Yes'?'green':'red'}">${data.hostel}</span></p>
-        <p><b>Transport:</b> <span style="color:${data.transport==='Yes'?'green':'red'}">${data.transport}</span></p>
+        <p><b>Transport:</b> <span style="color:${data.transport==='Yes'?'green':'red'}">${transportTxt}</span></p>
         <p><b>Father:</b> ${data.father}</p>
         <p><b>Mother:</b> ${data.mother}</p>
         <p><b>Contact:</b> ${data.contact}</p>
@@ -514,7 +548,14 @@ function startEdit(data) {
     document.getElementById('sSection').value = data.section;
     document.getElementById('sHouse').value = data.house;
     document.getElementById('sHostel').value = data.hostel;
+    
+    // Transport Edit logic
     document.getElementById('sTransport').value = data.transport;
+    toggleTransportDistance();
+    if(data.transport === 'Yes') {
+        document.getElementById('sTransportDistance').value = data.transportDistance || "";
+    }
+
     document.getElementById('pFather').value = data.father;
     document.getElementById('pMother').value = data.mother;
     document.getElementById('pContact').value = data.contact;
