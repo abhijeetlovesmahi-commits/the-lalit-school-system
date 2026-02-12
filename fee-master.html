@@ -8,6 +8,7 @@
         :root {
             --royal-blue: #002366; --gold: #D4AF37; --deep-gold: #aa8a2e;
             --light-gold: #FDFBF0; --white: #ffffff; --accent-purple: #8e44ad;
+            --danger-red: #e74c3c;
         }
 
         body { background: var(--light-gold); margin: 0; padding: 20px; font-family: 'Georgia', serif; color: var(--royal-blue); }
@@ -35,10 +36,12 @@
         th { background: var(--royal-blue); color: var(--gold); padding: 12px; border: 1px solid var(--gold); }
         td { padding: 10px; border: 1px solid #ddd; text-align: center; }
         
-        .tag-mo { color: #2ecc71; font-weight: bold; } /* Monthly */
-        .tag-an { color: #e67e22; font-weight: bold; } /* Annual */
+        .tag-mo { color: #2ecc71; font-weight: bold; }
+        .tag-an { color: #e67e22; font-weight: bold; }
         
-        .edit-btn { background: var(--gold); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        .edit-btn { background: var(--gold); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; margin-right: 5px; }
+        .del-btn { background: var(--danger-red); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        
         tr:nth-child(even) { background: #f9f9f9; }
     </style>
     
@@ -54,7 +57,7 @@
         <p>THE LALIT INTERNATIONAL SCHOOL - CONFIGURATION PANEL</p>
     </div>
 
-    <section class="form-section">
+    <section class="form-section" id="academic-form">
         <span class="section-title">Academic Fee Structure (Class-wise)</span>
         <div class="input-grid">
             <div class="field-group">
@@ -77,7 +80,7 @@
         <button onclick="saveFeeMaster()" class="main-btn" id="saveBtn">Update Academic Structure</button>
     </section>
 
-    <section class="form-section transport-section">
+    <section class="form-section transport-section" id="transport-form">
         <span class="section-title" style="color: var(--accent-purple);">Transport Logistics (Slab-wise)</span>
         <div class="input-grid">
             <div class="field-group">
@@ -160,8 +163,15 @@ async function saveFeeMaster() {
     };
 
     await db.collection('fee_master').doc(cls).set(data);
-    alert("Updated " + cls);
+    alert("Updated Academic Fee for " + cls);
     loadData();
+}
+
+async function deleteAcademic(id) {
+    if(confirm("Delete fee structure for " + id + "?")) {
+        await db.collection('fee_master').doc(id).delete();
+        loadData();
+    }
 }
 
 // --- Transport Logic ---
@@ -173,6 +183,13 @@ async function saveTransportFee() {
     await db.collection('transport_master').doc(slab).set({ amount: Number(amt) });
     alert("Transport Updated!");
     loadData();
+}
+
+async function deleteTransport(id) {
+    if(confirm("Delete transport slab: " + id + "?")) {
+        await db.collection('transport_master').doc(id).delete();
+        loadData();
+    }
 }
 
 async function loadData() {
@@ -189,7 +206,10 @@ async function loadData() {
             <td>₹${d.development}</td>
             <td>₹${d.exam}</td>
             <td class="tag-mo">₹${d.hostel}</td>
-            <td><button class="edit-btn" onclick="editA('${doc.id}', ${d.admission}, ${d.tuition}, ${d.development}, ${d.exam}, ${d.hostel})">Edit</button></td>
+            <td>
+                <button class="edit-btn" onclick="editA('${doc.id}', ${d.admission}, ${d.tuition}, ${d.development}, ${d.exam}, ${d.hostel})">Edit</button>
+                <button class="del-btn" onclick="deleteAcademic('${doc.id}')">Del</button>
+            </td>
         </tr>`;
     });
 
@@ -201,8 +221,11 @@ async function loadData() {
         const d = doc.data();
         tBody.innerHTML += `<tr>
             <td><b>${doc.id}</b></td>
-            <td class="tag-tr">₹${d.amount}</td>
-            <td><button class="edit-btn" onclick="editT('${doc.id}', ${d.amount})">Edit</button></td>
+            <td class="tag-mo">₹${d.amount}</td>
+            <td>
+                <button class="edit-btn" onclick="editT('${doc.id}', ${d.amount})">Edit</button>
+                <button class="del-btn" onclick="deleteTransport('${doc.id}')">Del</button>
+            </td>
         </tr>`;
     });
 }
@@ -214,12 +237,13 @@ function editA(cls, adm, tui, dev, exm, hos) {
     document.getElementById('mDev').value = dev;
     document.getElementById('mExam').value = exm;
     document.getElementById('mHostel').value = hos;
-    window.scrollTo(0,0);
+    document.getElementById('academic-form').scrollIntoView({behavior: 'smooth'});
 }
 
 function editT(slab, amt) {
     document.getElementById('tSlab').value = slab;
     document.getElementById('tAmount').value = amt;
+    document.getElementById('transport-form').scrollIntoView({behavior: 'smooth'});
 }
 
 window.onload = loadData;
