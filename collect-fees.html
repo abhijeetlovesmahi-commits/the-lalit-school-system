@@ -3,98 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Royal Fee System</title>
+    <title>Collect Fees - The Lalit International</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0;
-            --white: #ffffff; --success: #27ae60; --danger: #e74c3c;
-        }
-        body { background: var(--light-gold); margin: 0; padding: 20px; font-family: 'Georgia', serif; color: var(--royal-blue); }
-        .container { max-width: 900px; margin: 0 auto; background: var(--white); padding: 30px; border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 3px double var(--gold); margin-bottom: 20px; padding-bottom: 10px; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 30px; background: #f1f1f1; padding: 15px; }
-        input { padding: 12px; border: 1px solid #ccc; border-bottom: 2px solid var(--gold); outline: none; width: 100%; }
-        .btn { padding: 12px 25px; background: var(--royal-blue); color: var(--gold); border: 1px solid var(--gold); font-weight: bold; cursor: pointer; }
-        .student-info-card { display: grid; grid-template-columns: 120px 1fr; gap: 20px; border: 1px solid #eee; padding: 15px; margin-bottom: 20px; background: #fff; }
-        .balance-alert { padding: 15px; text-align: center; font-weight: bold; margin-bottom: 20px; border-radius: 5px; }
-        .fee-calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .total-box { background: var(--royal-blue); color: var(--gold); padding: 20px; text-align: center; font-size: 1.5rem; margin-top: 20px; }
+        :root { --royal-blue: #002366; --gold: #C5A021; --success: #27ae60; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+
+        /* UI Controls */
+        .collection-card { max-width: 900px; margin: 30px auto; background: white; border-radius: 15px; border-top: 6px solid var(--royal-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; }
+        .due-badge { background: #fff5f5; color: #c0392b; border: 1px solid #c0392b; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; }
         
-        #receipt-print { display: none; }
+        #searchSuggestions { background: white; border: 1px solid #ddd; position: absolute; width: 95%; z-index: 1000; max-height: 200px; overflow-y: auto; display: none; }
+        .suggestion-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .suggestion-item:hover { background: #f8f9fa; color: var(--royal-blue); }
+
+        /* Receipt Design (A5 Portrait) */
+        #receiptArea { display: none; }
+        .receipt-card {
+            width: 148mm; height: 210mm; background: white; border: 4px double var(--gold); padding: 20px;
+            margin: 20px auto; position: relative; font-family: 'Playfair Display', serif;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+        .receipt-header { text-align: center; border-bottom: 2px solid var(--royal-blue); padding-bottom: 10px; margin-bottom: 15px; }
+        .receipt-table { width: 100%; margin-top: 15px; }
+        .receipt-table th, .receipt-table td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+        .receipt-table th { background: var(--royal-blue); color: var(--gold); }
+
+        .btn-pay { background: var(--royal-blue); color: white; padding: 12px; font-weight: bold; border-radius: 50px; width: 100%; transition: 0.3s; }
+        .btn-pay:hover { background: #001a4d; transform: scale(1.02); }
+
         @media print {
-            body * { visibility: hidden; }
-            #receipt-print, #receipt-print * { visibility: visible; }
-            #receipt-print { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            body { background: white; }
+            #receiptArea { display: block !important; }
+            .receipt-card { margin: 0; border: 2px solid #000; width: 100%; }
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>FEE COLLECTION PORTAL</h1>
-        <p style="letter-spacing: 3px;">THE LALIT INTERNATIONAL SCHOOL</p>
+<div class="collection-card no-print">
+    <div class="text-center mb-4">
+        <img src="logo.png" style="width: 70px;">
+        <h2 style="font-family: 'Cinzel'; color: var(--royal-blue);">Collect Student Fees</h2>
     </div>
 
-    <div class="search-box">
-        <input type="number" id="searchID" placeholder="Enter Student ID (e.g. 1001)">
-        <button class="btn" onclick="fetchStudentData()">LOAD ACCOUNT</button>
-    </div>
-
-    <div id="studentDisplay" style="display:none;">
-        <div id="pendingStatus" class="balance-alert"></div>
-
-        <div class="student-info-card">
-            <img id="sPhoto" src="" style="width:100px; height:120px; border:2px solid var(--gold); object-fit:cover;">
-            <div>
-                <h2 id="sName" style="margin:0; text-transform: uppercase;">-</h2>
-                <p><b>Class:</b> <span id="sClass">-</span> | <b>Father:</b> <span id="sFather">-</span></p>
-                <p><b>Hostel:</b> <span id="sHostel">-</span> | <b>Transport:</b> <span id="sTransport">-</span></p>
+    <div class="row g-3">
+        <div class="col-md-6 position-relative">
+            <label class="fw-bold mb-1">Search Student (Name/ID)</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="studentSearch" class="form-control" placeholder="Type name..." oninput="liveSearch()">
             </div>
+            <div id="searchSuggestions" class="shadow"></div>
         </div>
 
-        <div style="background:#f9f9f9; padding:20px; border:1px solid #ddd;">
-            <h3>Fee Breakdown</h3>
-            <div class="fee-calc-grid">
-                <div>Monthly Tuition: ₹<b id="fTuition">0</b></div>
-                <div>Add-ons (Bus/Hostel): ₹<b id="fAddons">0</b></div>
-                <div>Admission Charges: ₹<b id="fAdmission">0</b></div>
-                <div>Current Due: <b id="fPrev" style="color:red;">₹0</b></div>
-            </div>
-            
-            <div class="total-box">
-                TOTAL PAYABLE: ₹<span id="fTotal">0</span>
-            </div>
-
-            <div style="margin-top:20px;">
-                <input type="number" id="payAmount" placeholder="Enter Payment Amount" style="font-size:1.2rem; margin-bottom:10px;">
-                <button class="btn" style="width:100%; background:var(--success); color:white; border:none;" onclick="processPayment()">SUBMIT PAYMENT & PRINT RECEIPT</button>
-            </div>
+        <div class="col-md-6">
+            <label class="fw-bold mb-1">Current Outstanding Balance</label>
+            <div id="dueAmount" class="due-badge">₹ 0.00</div>
         </div>
-    </div>
-</div>
 
-<div id="receipt-print">
-    <div style="text-align:center; border:5px double #000; padding:30px; margin:20px; font-family: serif;">
-        <h1 style="margin:0;">THE LALIT INTERNATIONAL SCHOOL</h1>
-        <p>Official Fee Receipt - School Copy</p>
         <hr>
-        <div style="text-align:left; line-height:2;">
-            <p><b>Receipt No:</b> <span id="rNo"></span> <span style="float:right;"><b>Date:</b> <span id="rDate"></span></span></p>
-            <p><b>Student Name:</b> <span id="rName"></span> (ID: <span id="rID"></span>)</p>
-            <p><b>Class-Section:</b> <span id="rClass"></span></p>
-            <hr>
-            <h2 style="text-align:center;">AMOUNT PAID: ₹<span id="rp"></span></h2>
-            <p style="text-align:center;">Dues Remaining: ₹<span id="rb"></span></p>
+
+        <div class="col-md-4">
+            <label class="fw-bold">Amount Paying</label>
+            <input type="number" id="payAmt" class="form-control form-control-lg border-primary" placeholder="Enter Amount">
         </div>
-        <div style="margin-top:70px; display:flex; justify-content: space-between;">
-            <p>Admin Signature</p>
-            <p>Parent/Guardian Signature</p>
+        <div class="col-md-4">
+            <label class="fw-bold">Payment Month</label>
+            <select id="payMonth" class="form-select form-select-lg">
+                <option value="April">April</option><option value="May">May</option><option value="June">June</option>
+                <option value="July">July</option><option value="August">August</option><option value="September">September</option>
+                <option value="October">October</option><option value="November">November</option><option value="December">December</option>
+                <option value="January">January</option><option value="February">February</option><option value="March">March</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="fw-bold">Mode</label>
+            <select id="payMode" class="form-select form-select-lg">
+                <option value="Cash">Cash</option>
+                <option value="Online (UPI/Card)">Online</option>
+                <option value="Cheque">Cheque</option>
+            </select>
+        </div>
+
+        <div class="col-12 mt-4">
+            <button class="btn btn-pay" onclick="submitPayment()">
+                <i class="fas fa-check-circle me-2"></i> SUBMIT PAYMENT & GENERATE RECEIPT
+            </button>
         </div>
     </div>
 </div>
+
+<div id="receiptArea"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -106,100 +113,131 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let studentData = null;
-let currentDues = 0;
+let activeStudent = null;
+let currentBalance = 0;
 
-async function fetchStudentData() {
-    const id = document.getElementById('searchID').value;
-    if(!id) return alert("Please enter a Student ID");
+async function liveSearch() {
+    const val = document.getElementById('studentSearch').value.toLowerCase();
+    const sugg = document.getElementById('searchSuggestions');
+    if(val.length < 2) { sugg.style.display='none'; return; }
 
-    try {
-        // Find student by uniqueID field
-        const sSnap = await db.collection('students').where('uniqueID', '==', Number(id)).get();
-        if(sSnap.empty) return alert("Student not found!");
-        
-        studentData = sSnap.docs[0].data();
-        
-        // Fetch Class Fees
-        const mDoc = await db.collection('fee_master').doc(studentData.class).get();
-        if(!mDoc.exists) return alert("Fee Master not set for Class " + studentData.class);
-        const fees = mDoc.data();
-
-        // Calculate History
-        const transactions = await db.collection('fee_transactions').where('studentID', '==', Number(id)).get();
-        let alreadyPaid = 0;
-        transactions.forEach(t => alreadyPaid += Number(t.data().amount));
-
-        // Logic: Tuition + Admission + Extras
-        let totalExpected = Number(fees.tuition) + Number(fees.admission || 0);
-        if(studentData.hostel === 'Yes') totalExpected += Number(fees.hostel || 0);
-        if(studentData.transport === 'Yes') totalExpected += Number(fees.transport || 0);
-
-        currentDues = totalExpected - alreadyPaid;
-        
-        updateUI(fees);
-    } catch (e) { alert("Error: " + e.message); }
+    const snap = await db.collection('students').get();
+    let html = '';
+    snap.forEach(doc => {
+        const d = doc.data();
+        if(d.name.toLowerCase().includes(val) || d.uniqueID.toString().includes(val)) {
+            html += `<div class="suggestion-item" onclick='selectStudent(${JSON.stringify(d)})'>
+                        <b>${d.name}</b> (${d.uniqueID}) - Class ${d.class}
+                     </div>`;
+        }
+    });
+    sugg.innerHTML = html;
+    sugg.style.display = html ? 'block' : 'none';
 }
 
-function updateUI(fees) {
-    document.getElementById('studentDisplay').style.display = 'block';
-    document.getElementById('sName').innerText = studentData.name;
-    document.getElementById('sClass').innerText = studentData.class;
-    document.getElementById('sFather').innerText = studentData.father;
-    document.getElementById('sHostel').innerText = studentData.hostel;
-    document.getElementById('sTransport').innerText = studentData.transport;
-    document.getElementById('sPhoto').src = studentData.photo || 'https://via.placeholder.com/100';
+async function selectStudent(s) {
+    activeStudent = s;
+    document.getElementById('studentSearch').value = s.name;
+    document.getElementById('searchSuggestions').style.display = 'none';
     
-    document.getElementById('fTuition').innerText = fees.tuition;
-    document.getElementById('fAdmission').innerText = fees.admission || 0;
+    // Calculate Balance
+    const mDoc = await db.collection('fee_master').doc(s.class).get();
+    const tSnap = await db.collection('fee_transactions').where('studentID', '==', String(s.uniqueID)).get();
     
-    let extras = 0;
-    if(studentData.hostel === 'Yes') extras += Number(fees.hostel || 0);
-    if(studentData.transport === 'Yes') extras += Number(fees.transport || 0);
-    document.getElementById('fAddons').innerText = extras;
+    const fm = mDoc.data();
+    let paid = 0; tSnap.forEach(d => paid += Number(d.data().amount));
+    
+    // Estimate expected dues till current month
+    const curMonthIdx = new Date().getMonth(); // 0 is Jan, so needs mapping to Apr cycle
+    const mList = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
+    const monthName = new Date().toLocaleString('en-us', {month:'long'});
+    const mIdx = mList.indexOf(monthName) === -1 ? 11 : mList.indexOf(monthName);
 
-    const pDiv = document.getElementById('pendingStatus');
-    document.getElementById('fPrev').innerText = "₹" + currentDues;
-    document.getElementById('fTotal').innerText = currentDues;
-
-    if(currentDues > 0) {
-        pDiv.className = "balance-alert"; pDiv.style.background = "#ffdce0"; pDiv.style.color = "red";
-        pDiv.innerText = "DUE BALANCE: ₹" + currentDues;
-    } else {
-        pDiv.className = "balance-alert"; pDiv.style.background = "#d4edda"; pDiv.style.color = "green";
-        pDiv.innerText = "ACCOUNT SETTLED / NO DUES";
-    }
+    const monthly = Number(fm.tuition||0) + (s.hostel==='Yes'?Number(fm.hostel||0):0) + (s.transport==='Yes'?500:0);
+    const annual = Number(fm.admission||0) + Number(fm.development||0) + Number(fm.exam||0);
+    
+    const expected = annual + (monthly * (mIdx + 1));
+    currentBalance = expected - paid;
+    
+    document.getElementById('dueAmount').innerText = `₹ ${currentBalance.toFixed(2)}`;
 }
 
-async function processPayment() {
-    const payAmt = Number(document.getElementById('payAmount').value);
-    if(payAmt <= 0) return alert("Enter a valid amount to pay");
-
-    const receiptID = "LALIT-" + Date.now();
+async function submitPayment() {
+    if(!activeStudent) return alert("Please select a student!");
+    const amt = document.getElementById('payAmt').value;
+    const month = document.getElementById('payMonth').value;
+    const mode = document.getElementById('payMode').value;
     
-    try {
-        await db.collection('fee_transactions').add({
-            studentID: studentData.uniqueID,
-            studentName: studentData.name,
-            amount: payAmt,
-            date: new Date().toLocaleDateString(),
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    if(!amt || amt <= 0) return alert("Enter valid amount!");
 
-        // Fill Print Data
-        document.getElementById('rNo').innerText = receiptID;
-        document.getElementById('rDate').innerText = new Date().toLocaleDateString();
-        document.getElementById('rName').innerText = studentData.name;
-        document.getElementById('rID').innerText = studentData.uniqueID;
-        document.getElementById('rClass').innerText = studentData.class;
-        document.getElementById('rp').innerText = payAmt;
-        document.getElementById('rb').innerText = currentDues - payAmt;
+    const transID = "TXN" + Date.now();
+    const paymentData = {
+        studentID: String(activeStudent.uniqueID),
+        name: activeStudent.name,
+        amount: Number(amt),
+        month: month,
+        mode: mode,
+        date: new Date().toLocaleDateString('en-GB'),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-        window.print();
-        location.reload();
-    } catch(e) { alert("Payment Failed: " + e.message); }
+    await db.collection('fee_transactions').add(paymentData);
+    
+    generateReceipt(paymentData, activeStudent);
+    alert("Payment Successful! Receipt Generated.");
+    document.getElementById('payAmt').value = "";
+}
+
+function generateReceipt(p, s) {
+    const receipt = `
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <img src="logo.png" style="width: 50px;">
+            <h2 style="font-family:'Cinzel'; color:var(--royal-blue); margin:0;">THE LALIT INTERNATIONAL SCHOOL</h2>
+            <p style="font-size:12px; margin:0;">Official Fee Receipt | Session 2025-26</p>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3" style="font-size:13px;">
+            <span><b>Receipt No:</b> REC-${Date.now().toString().slice(-6)}</span>
+            <span><b>Date:</b> ${p.date}</span>
+        </div>
+
+        <table class="receipt-table">
+            <tr><td><b>Student Name</b></td><td>${s.name.toUpperCase()}</td></tr>
+            <tr><td><b>Admission ID</b></td><td>${s.uniqueID}</td></tr>
+            <tr><td><b>Class & Section</b></td><td>${s.class} - ${s.section || 'A'}</td></tr>
+            <tr><td><b>Father's Name</b></td><td>${s.father}</td></tr>
+            <tr><td><b>Payment Month</b></td><td>${p.month}</td></tr>
+            <tr><td><b>Payment Mode</b></td><td>${p.mode}</td></tr>
+        </table>
+
+        <div class="mt-4 p-3" style="background:var(--royal-blue); color:var(--gold); display:flex; justify-content:space-between; border-radius:8px;">
+            <h4 class="mb-0">AMOUNT RECEIVED:</h4>
+            <h4 class="mb-0">₹ ${p.amount}</h4>
+        </div>
+
+        <p class="mt-3 small"><b>Balance Remaining:</b> ₹ ${(currentBalance - p.amount).toFixed(2)}</p>
+
+        <div class="mt-5 d-flex justify-content-between" style="font-size:12px;">
+            <div class="text-center" style="border-top:1px solid #000; width:120px; padding-top:5px;">Depositor Sign</div>
+            <div class="text-center" style="border-top:1px solid #000; width:120px; padding-top:5px;">Office Seal/Sign</div>
+        </div>
+
+        <div class="text-center no-print mt-4">
+            <button class="btn btn-dark btn-sm me-2" onclick="window.print()">Print Receipt</button>
+            <button class="btn btn-success btn-sm" onclick="shareReceiptWhatsApp('${s.phone}', '${s.name}', '${p.amount}', '${p.month}')">Share on WhatsApp</button>
+        </div>
+    </div>`;
+    
+    document.getElementById('receiptArea').innerHTML = receipt;
+    document.getElementById('receiptArea').style.display = 'block';
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+function shareReceiptWhatsApp(phone, name, amt, month) {
+    const msg = `*THE LALIT INTERNATIONAL SCHOOL*%0A*FEE RECEIPT*%0A%0AHello, We have successfully received *₹${amt}* for *${name}* (Month: ${month}).%0A%0A_Thank you for your payment!_`;
+    window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
 }
 </script>
-<script src="menu.js"></script>
 </body>
 </html>
