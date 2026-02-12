@@ -3,80 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Ledger - The Lalit Intl.</title>
+    <title>Master Ledger - The Lalit International</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0; }
-        body { background-color: var(--light-gold); font-family: 'Poppins', sans-serif; }
-        .main-content { padding: 20px; max-width: 1300px; margin: auto; }
+        /* Logo Matching Colors */
+        :root { --royal-blue: #002366; --gold: #C5A021; --soft-bg: #fdfbf0; }
         
-        #searchSuggestions { background: white; border: 1px solid var(--gold); position: absolute; width: 100%; z-index: 1000; display: none; max-height: 250px; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 0 0 10px 10px; }
-        .suggestion-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; }
-        .suggestion-item:hover { background: #fdf6e3; }
-        .suggestion-item img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; border: 1px solid var(--gold); object-fit: cover; }
+        body { background-color: var(--soft-bg); font-family: 'Times New Roman', serif; color: var(--royal-blue); margin: 0; }
 
-        .rate-card { background: #fff; border-top: 4px solid var(--gold); padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        /* Stylish Main UI Header */
+        .main-header { background: white; padding: 20px; border-bottom: 4px solid var(--gold); text-align: center; }
+        .school-title-main { font-family: 'Georgia', serif; font-weight: 900; letter-spacing: 2px; color: var(--royal-blue); font-size: 2rem; }
         
-        .ledger-container { display: none; background: white; padding: 20px; border-radius: 15px; border: 1px solid #ddd; }
-        .table-ledger { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .table-ledger th { background: var(--royal-blue); color: var(--gold); padding: 10px; font-size: 0.75rem; border: 1px solid #001a4d; text-align: center; }
-        .table-ledger td { padding: 10px; border: 1px solid #eee; font-size: 0.85rem; text-align: center; }
-        
-        .month-name { font-weight: bold; color: var(--royal-blue); text-align: left !important; background: #f8f9fa; }
-        .text-paid { color: #28a745; font-weight: bold; }
-        .text-due { color: #dc3545; font-weight: bold; }
-        .bg-master { background: #fff9e6; font-weight: bold; color: #856404; }
-        .bg-total { background: #eee; font-weight: bold; }
+        .content-wrap { max-width: 1050px; margin: auto; padding: 20px; }
 
-        @media print { .no-print { display: none; } .ledger-container { box-shadow: none; border: 1px solid #000; } }
+        /* Official Ledger Container */
+        #ledgerArea { 
+            display: none; background: white; border: 2px solid #000; 
+            padding: 15px; box-sizing: border-box; position: relative;
+        }
+
+        /* Stylish Header for Print */
+        .print-header { border-bottom: 3px double var(--gold); padding-bottom: 10px; margin-bottom: 10px; }
+        .school-name-print { font-family: 'Georgia', serif; font-weight: 900; color: var(--royal-blue); font-size: 24px; margin: 0; }
+
+        /* Student ID Card Look */
+        .student-strip { display: flex; align-items: center; border: 1px solid #000; padding: 8px; background: #fffcf0; margin-bottom: 10px; gap: 15px; }
+        .student-strip img { width: 70px; height: 90px; border: 1.5px solid var(--royal-blue); object-fit: cover; }
+        .student-details-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; font-size: 13px; }
+
+        /* Horizontal Breakdown */
+        .breakdown-row { display: flex; border: 1px solid #000; margin-bottom: 10px; background: #f2f2f2; font-size: 11px; }
+        .break-item { flex: 1; padding: 6px; text-align: center; border-right: 1px solid #000; }
+        .break-item:last-child { border-right: none; background: var(--royal-blue); color: var(--gold); font-weight: bold; }
+
+        /* Full Page Table Logic */
+        .table-ledger { width: 100%; border-collapse: collapse; border: 1.5px solid #000; table-layout: fixed; }
+        .table-ledger th { background: var(--royal-blue) !important; color: var(--gold) !important; font-size: 11px; padding: 8px; border: 1px solid #000; text-align: center; }
+        .table-ledger td { border: 1px solid #000; padding: 0 5px; font-size: 13px; text-align: center; font-weight: 600; color: #000; }
+        .month-name { text-align: left !important; background: #f9f9f9 !important; padding-left: 10px !important; }
+
+        /* PRINT SETTINGS - AUTO STRETCH */
+        @media print {
+            @page { size: A4 portrait; margin: 8mm; }
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            #ledgerArea { display: flex !important; flex-direction: column; height: 275mm; border: none; padding: 0; }
+            
+            .table-ledger { flex-grow: 1; height: 100%; } /* This makes the table fill the page */
+            .table-ledger tr { height: auto; }
+            .table-ledger td { height: 45px; } /* Minimum height to ensure it fills the page */
+            
+            .student-strip { background: #fff !important; }
+            .breakdown-row { background: #fff !important; }
+        }
     </style>
 </head>
 <body>
 
-<div class="main-content">
-    <h3 class="text-center mb-4 no-print" style="color: var(--royal-blue); font-family: 'Cinzel';">Imperial Detailed Ledger</h3>
+<div class="main-header no-print">
+    <img src="logo.png" style="width: 70px;">
+    <h1 class="school-title-main">THE LALIT INTERNATIONAL SCHOOL</h1>
+    <p class="text-muted small">Financial Ledger Archive Portal</p>
+</div>
 
-    <div class="position-relative no-print mb-4">
-        <div class="input-group">
-            <span class="input-group-text bg-white border-gold text-gold"><i class="fas fa-search"></i></span>
-            <input type="text" id="searchID" class="form-control border-gold" placeholder="Type Student Name or ID..." oninput="liveSearch()">
+<div class="content-wrap">
+    <div class="card no-print p-4 mb-4 border-gold shadow-sm">
+        <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white"><i class="fas fa-search text-gold"></i></span>
+            <input type="text" id="searchID" class="form-control" placeholder="Search Student Name or Admission ID..." oninput="liveSearch()">
         </div>
-        <div id="searchSuggestions"></div>
+        <div id="searchSuggestions" class="list-group position-absolute w-100" style="z-index:100; display:none;"></div>
     </div>
 
-    <div id="profileResult" style="display:none;" class="card border-0 shadow-sm p-3 mb-4">
-        <div class="d-flex align-items-center">
-            <img id="resPhoto" src="" style="width:90px; height:90px; border: 2px solid var(--gold); border-radius: 8px; object-fit:cover;">
-            <div class="ms-4">
-                <h4 id="resName" class="mb-1 fw-bold"></h4>
-                <p class="mb-2 text-muted small">ID: <b id="resID"></b> | Class: <b id="resClass"></b> | Father: <b id="resFather"></b></p>
-                <button class="btn btn-primary btn-sm" onclick="generateLedger()">GENERATE FINANCIAL LEDGER</button>
+    <div id="ledgerArea">
+        <div class="print-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <img src="logo.png" style="width: 55px; margin-right: 12px;">
+                <div>
+                    <h2 class="school-name-print">THE LALIT INTERNATIONAL SCHOOL</h2>
+                    <span class="small fw-bold">Academic Session 2025-26 | Ledger Statement</span>
+                </div>
+            </div>
+            <div class="text-end small"><b>Date:</b> <span id="pDate"></span></div>
+        </div>
+
+        <div class="student-strip">
+            <img id="lPhoto" src="" alt="Student">
+            <div class="student-details-grid">
+                <div>NAME: <b id="lName"></b></div>
+                <div>ID: <b id="lID"></b></div>
+                <div>CLASS: <b id="lClass"></b></div>
+                <div>FATHER: <b id="lFather"></b></div>
+                <div>TRANSPORT: <b id="lTrans"></b></div>
+                <div>STATUS: <b class="text-success">ACTIVE</b></div>
             </div>
         </div>
-    </div>
 
-    <div id="ledgerArea" class="ledger-container">
-        <div class="table-responsive">
-            <table class="table-ledger">
-                <thead>
-                    <tr>
-                        <th>Month / Head</th>
-                        <th>Tuition Fee</th>
-                        <th>Hostel Fee</th>
-                        <th>Transport</th>
-                        <th>Annual/Books</th>
-                        <th>Total Payable</th>
-                        <th>Total Paid</th>
-                        <th>Balance Due</th>
-                    </tr>
-                </thead>
-                <tbody id="ledgerTableBody"></tbody>
-                <tfoot id="ledgerFooter"></tfoot>
-            </table>
-        </div>
-        <div class="text-end mt-3 no-print">
-            <button class="btn btn-dark" onclick="window.print()"><i class="fas fa-print me-2"></i>PRINT REPORT</button>
+        <div class="breakdown-row" id="lBreakdown"></div>
+
+        <table class="table-ledger">
+            <thead>
+                <tr>
+                    <th style="width: 18%;">PARTICULARS</th>
+                    <th>TUITION</th>
+                    <th>HOSTEL</th>
+                    <th>TRANS.</th>
+                    <th>ANNUAL</th>
+                    <th>PAYABLE</th>
+                    <th>PAID</th>
+                    <th>BALANCE</th>
+                </tr>
+            </thead>
+            <tbody id="lBody"></tbody>
+            <tfoot>
+                <tr style="background: var(--royal-blue); color: var(--gold); font-weight: bold; font-size: 14px;">
+                    <td colspan="5" class="text-end px-3">SESSION GRAND TOTAL</td>
+                    <td id="totalPay"></td>
+                    <td id="totalPaid"></td>
+                    <td id="totalDue"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-3 text-end no-print">
+            <button class="btn btn-dark px-5 fw-bold" onclick="window.print()">PRINT OFFICIAL LEDGER</button>
         </div>
     </div>
 </div>
@@ -92,109 +144,80 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    let selectedStudent = null;
     const months = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
 
     async function liveSearch() {
-        const input = document.getElementById('searchID').value.trim().toLowerCase();
-        const suggBox = document.getElementById('searchSuggestions');
-        if (input.length < 2) { suggBox.style.display = 'none'; return; }
+        const val = document.getElementById('searchID').value.toLowerCase();
+        const sugg = document.getElementById('searchSuggestions');
+        if(val.length < 2) { sugg.style.display='none'; return; }
         const snap = await db.collection('students').get();
-        let matches = [];
+        let html = '';
         snap.forEach(doc => {
             const d = doc.data();
-            if (d.name.toLowerCase().includes(input) || d.uniqueID.toString().includes(input)) matches.push(d);
+            if(d.name.toLowerCase().includes(val) || d.uniqueID.toString().includes(val)) {
+                html += `<button class="list-group-item list-group-item-action" onclick='loadLedger(${JSON.stringify(d)})'>${d.name} (${d.uniqueID})</button>`;
+            }
         });
-        if (matches.length > 0) {
-            suggBox.innerHTML = matches.slice(0,5).map(s => `
-                <div class="suggestion-item" onclick='selectStudent(${JSON.stringify(s)})'>
-                    <img src="${s.photo || 'https://via.placeholder.com/45'}">
-                    <div><b>${s.name}</b><br><small>ID: ${s.uniqueID} | Class: ${s.class}</small></div>
-                </div>`).join('');
-            suggBox.style.display = 'block';
-        } else suggBox.style.display = 'none';
+        sugg.innerHTML = html; sugg.style.display='block';
     }
 
-    function selectStudent(student) {
-        selectedStudent = student;
-        document.getElementById('searchSuggestions').style.display = 'none';
-        document.getElementById('resName').innerText = student.name;
-        document.getElementById('resID').innerText = student.uniqueID;
-        document.getElementById('resClass').innerText = student.class;
-        document.getElementById('resFather').innerText = student.father || 'N/A';
-        document.getElementById('resPhoto').src = student.photo || 'https://via.placeholder.com/100';
-        document.getElementById('profileResult').style.display = 'block';
-        document.getElementById('ledgerArea').style.display = 'none';
-    }
+    async function loadLedger(s) {
+        document.getElementById('searchSuggestions').style.display='none';
+        document.getElementById('ledgerArea').style.display='block';
+        document.getElementById('pDate').innerText = new Date().toLocaleDateString('en-GB');
+        
+        document.getElementById('lName').innerText = s.name.toUpperCase();
+        document.getElementById('lID').innerText = s.uniqueID;
+        document.getElementById('lClass').innerText = s.class;
+        document.getElementById('lFather').innerText = s.father || "N/A";
+        document.getElementById('lTrans').innerText = s.transportDistance || "NONE";
+        document.getElementById('lPhoto').src = s.photo || '';
 
-    async function generateLedger() {
-        const tbody = document.getElementById('ledgerTableBody');
-        document.getElementById('ledgerArea').style.display = 'block';
-        tbody.innerHTML = "<tr><td colspan='8'>Syncing Monthly Accounts...</td></tr>";
+        const mDoc = await db.collection('fee_master').doc(s.class).get();
+        const fm = mDoc.exists ? mDoc.data() : {};
+        
+        let tRate = 0;
+        if(s.transport === 'Yes') {
+            const tSnap = await db.collection('transport_master').get();
+            const bSlab = (s.transportDistance || "").trim().replace(/\s+/g, '').toLowerCase();
+            tSnap.forEach(d => { if(d.id.trim().replace(/\s+/g, '').toLowerCase() === bSlab) tRate = Number(d.data().amount || 0); });
+        }
 
-        try {
-            // 1. Fee Master & Transport Rates
-            const mDoc = await db.collection('fee_master').doc(selectedStudent.class).get();
-            const fm = mDoc.exists ? mDoc.data() : {};
-            
-            const transPolicy = await db.collection('transport_policy').get();
-            let transRate = 0;
-            transPolicy.forEach(doc => {
-                if(doc.id === selectedStudent.transportSlab) transRate = Number(doc.data().monthlyFee || 0);
-            });
+        const transSnap = await db.collection('fee_transactions').get();
+        let payData = [];
+        transSnap.forEach(d => { if(String(d.data().studentID) === String(s.uniqueID)) payData.push(d.data()); });
 
-            // 2. Payments
-            const tSnap = await db.collection('fee_transactions').where('studentID', '==', selectedStudent.uniqueID.toString()).get();
-            let payments = []; tSnap.forEach(doc => payments.push(doc.data()));
+        const annualTotal = Number(fm.admission||0) + Number(fm.development||0) + Number(fm.exam||0) + Number(fm.books||0) + Number(fm.misc||0);
+        document.getElementById('lBreakdown').innerHTML = `
+            <div class="break-item">Adm: ₹${fm.admission||0}</div>
+            <div class="break-item">Dev: ₹${fm.development||0}</div>
+            <div class="break-item">Exam: ₹${fm.exam||0}</div>
+            <div class="break-item">Books: ₹${fm.books||0}</div>
+            <div class="break-item">ANNUAL TOTAL: ₹${annualTotal}</div>
+        `;
 
-            let html = '';
-            let gPayable = 0, gPaid = 0;
+        let html = '', gPay = 0, gPaid = 0;
+        const mT = Number(fm.tuition||0), mH = (s.hostel==='Yes'?Number(fm.hostel||0):0), mTr = tRate;
 
-            // --- MASTER RATE ROW (Shows what is applicable) ---
-            const mTuition = Number(fm.tuition || fm.monthly || 0);
-            const mHostel = (selectedStudent.hostel === 'Yes' || selectedStudent.useHostel === 'Yes') ? Number(fm.hostel || 0) : 0;
-            const mTrans = (selectedStudent.transport === 'Yes' || selectedStudent.useTransport === 'Yes') ? transRate : 0;
-            
-            html += `<tr class="bg-master">
-                <td class="month-name">MASTER RATE (Monthly)</td>
-                <td>₹${mTuition}</td>
-                <td>₹${mHostel}</td>
-                <td>₹${mTrans}</td>
-                <td>-</td>
-                <td colspan="3" class="text-center small">Rates as per Class Structure</td>
-            </tr>`;
+        // Registration Row
+        const aPaid = payData.filter(p => ["Admission", "Exam", "Books", "Annual", "Development"].includes(p.month)).reduce((sum, p) => sum + Number(p.amount), 0);
+        html += `<tr><td class="month-name">REGISTRATION</td><td>-</td><td>-</td><td>-</td><td>₹${annualTotal}</td><td>₹${annualTotal}</td><td>₹${aPaid}</td><td>₹${annualTotal-aPaid}</td></tr>`;
+        gPay += annualTotal; gPaid += aPaid;
 
-            // --- ANNUAL CHARGES ROW ---
-            const annualPay = Number(fm.admission||0) + Number(fm.development||0) + Number(fm.examFee||0) + Number(fm.bookCost||0) + Number(fm.misc||0);
-            const annualPaid = payments.filter(p => ["Admission", "Exam", "Books", "Annual", "Development"].includes(p.month)).reduce((s, p) => s + Number(p.amount), 0);
-            html += `<tr><td class="month-name">Registration & Books</td><td>-</td><td>-</td><td>-</td><td>₹${annualPay}</td><td>₹${annualPay}</td><td class="text-paid">₹${annualPaid}</td><td class="text-due">₹${annualPay-annualPaid}</td></tr>`;
-            gPayable += annualPay; gPaid += annualPaid;
+        months.forEach(m => {
+            const total = mT + mH + mTr;
+            const paid = payData.filter(p => p.month === m).reduce((sum, p) => sum + Number(sum, p.amount), 0); // Simplified paid calculation
+            const monthPaid = payData.filter(p => p.month === m).reduce((acc, curr) => acc + Number(curr.amount), 0);
+            html += `<tr><td class="month-name">${m.toUpperCase()}</td><td>₹${mT}</td><td>${mH>0?'₹'+mH:'-'}</td><td>${mTr>0?'₹'+mTr:'-'}</td><td>-</td><td>₹${total}</td><td>₹${monthPaid}</td><td>₹${total-monthPaid}</td></tr>`;
+            gPay += total; gPaid += monthPaid;
+        });
 
-            // --- MONTHLY LEDGER ---
-            months.forEach(m => {
-                const monthTotal = mTuition + mHostel + mTrans;
-                const mPaid = payments.filter(p => p.month === m).reduce((s, p) => s + Number(p.amount), 0);
-                const mBal = monthTotal - mPaid;
-
-                html += `<tr>
-                    <td class="month-name">${m}</td>
-                    <td>₹${mTuition}</td>
-                    <td>${mHostel > 0 ? '₹'+mHostel : '-'}</td>
-                    <td>${mTrans > 0 ? '₹'+mTrans : '-'}</td>
-                    <td>-</td>
-                    <td>₹${monthTotal}</td>
-                    <td class="text-paid">₹${mPaid}</td>
-                    <td class="${mBal>0?'text-due':''}">₹${mBal}</td>
-                </tr>`;
-                gPayable += monthTotal; gPaid += mPaid;
-            });
-
-            tbody.innerHTML = html;
-            document.getElementById('ledgerFooter').innerHTML = `<tr class="bg-total"><td colspan="5">SESSION GRAND TOTAL</td><td>₹${gPayable}</td><td class="text-paid">₹${gPaid}</td><td class="text-due">₹${gPayable-gPaid}</td></tr>`;
-
-        } catch (e) { console.error(e); }
+        document.getElementById('lBody').innerHTML = html;
+        document.getElementById('totalPay').innerText = `₹${gPay}`;
+        document.getElementById('totalPaid').innerText = `₹${gPaid}`;
+        document.getElementById('totalDue').innerText = `₹${gPay-gPaid}`;
     }
 </script>
+<script src="menu.js"></script>
 </body>
 </html>
