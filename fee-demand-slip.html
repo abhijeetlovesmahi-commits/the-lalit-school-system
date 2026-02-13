@@ -3,71 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Royal Fee Demand</title>
+    <title>The Lalit - Royal A5 Slips</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root { --royal-blue: #002366; --gold: #C5A021; --whatsapp-green: #25D366; }
-        body { background: #f0f2f5; font-family: 'Playfair Display', serif; }
+        :root { --royal-blue: #002366; --gold-foil: #a67c00; --soft-gold: #f4e4bc; }
+        body { background: #d1d4d9; font-family: 'Montserrat', sans-serif; margin: 0; }
 
-        /* Admin Controls */
-        .admin-panel { max-width: 1100px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; border-top: 5px solid var(--royal-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .admin-panel { 
+            max-width: 1000px; margin: 20px auto; background: #fff; padding: 20px; 
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-bottom: 5px solid var(--royal-blue);
+        }
         
-        /* The Slip - Premium Royal Look */
+        /* THE ROYAL SLIP - A5 SIZE LOGIC */
         .slip-card {
-            background: #fff; width: 100%; max-width: 750px; margin: 30px auto;
-            border: 6px double var(--gold); padding: 35px; position: relative;
-            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            page-break-after: always;
+            background: #fff; width: 210mm; height: 148mm; /* Half of A4 */
+            padding: 25px 35px; position: relative; overflow: hidden;
+            border-bottom: 1px dashed #aaa; /* Cut line for A4 */
+            box-sizing: border-box;
+            page-break-inside: avoid;
         }
 
-        .royal-crest { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 15px; margin-bottom: 20px; }
-        .school-name { font-family: 'Cinzel', serif; color: var(--royal-blue); font-size: 26px; margin: 5px 0; }
+        /* Micro-Text Watermark */
+        .slip-card::before {
+            content: "THE LALIT INTERNATIONAL SCHOOL ";
+            position: absolute; top: 0; left: 0; width: 200%; height: 200%;
+            font-size: 4px; color: rgba(0,0,0,0.03); line-height: 12px;
+            transform: rotate(-15deg); pointer-events: none; z-index: 0;
+        }
+
+        .header-section { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold-foil); padding-bottom: 10px; margin-bottom: 15px; position: relative; z-index: 2; }
+        .school-name { font-family: 'Cinzel', serif; color: var(--royal-blue); font-size: 22px; margin: 0; }
         
-        .student-info-box { display: flex; gap: 20px; margin-bottom: 15px; border: 1px solid #ddd; padding: 12px; background: rgba(197, 160, 33, 0.05); border-radius: 8px; }
-        .student-photo { width: 85px; height: 105px; border: 2px solid var(--royal-blue); object-fit: cover; border-radius: 4px; }
+        .photo-frame {
+            width: 80px; height: 100px; padding: 4px;
+            background: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2); border-radius: 2px;
+        }
+        .student-photo { width: 100%; height: 100%; object-fit: cover; background: white; }
+
+        .student-info { flex-grow: 1; padding-left: 20px; position: relative; z-index: 2; }
+        .student-info h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--royal-blue); margin-bottom: 2px; }
         
-        /* Table Styling */
-        .fee-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .fee-table th { background: var(--royal-blue); color: var(--gold); padding: 10px; border: 1px solid #000; font-size: 12px; }
-        .fee-table td { padding: 10px; border: 1px solid #000; font-weight: bold; font-size: 14px; }
+        .fee-table { width: 100%; border-collapse: collapse; margin-top: 10px; position: relative; z-index: 2; }
+        .fee-table th { background: var(--royal-blue); color: #fff; padding: 6px; border: 1px solid #000; font-size: 10px; text-transform: uppercase; }
+        .fee-table td { padding: 5px; border: 1px solid #000; font-size: 9px; font-weight: 600; }
 
         .total-banner { 
-            background: linear-gradient(135deg, var(--royal-blue), #001a4d); color: var(--gold); 
-            padding: 15px; margin-top: 15px; display: flex; justify-content: space-between;
-            font-size: 24px; font-weight: bold; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: linear-gradient(to right, var(--royal-blue), #004080); color: #fff; 
+            padding: 10px 20px; margin-top: 15px; display: flex; justify-content: space-between;
+            align-items: center; border-left: 6px solid var(--gold-foil); position: relative; z-index: 2;
         }
-
-        /* Beautiful WhatsApp Button */
-        .btn-whatsapp {
-            background: var(--whatsapp-green); color: white; border: none; padding: 12px 25px;
-            border-radius: 50px; font-weight: 800; font-size: 14px; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: all 0.3s ease;
-            display: inline-flex; align-items: center; gap: 10px; margin-top: 20px;
-        }
-        .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); color: white; }
+        .total-banner span:last-child { font-family: 'Cinzel', serif; font-size: 24px; color: var(--soft-gold); }
 
         @media print {
+            @page { size: A4 portrait; margin: 0; }
             .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .slip-card { margin: 0 auto; border: 3px solid var(--gold); height: 145mm; }
+            body { background: white; }
+            .slip-card { border-bottom: 1px dashed #000; box-shadow: none; }
         }
     </style>
 </head>
 <body>
 
 <div class="admin-panel no-print">
-    <div class="text-center mb-4">
-        <img src="logo.png" style="width: 70px;">
-        <h2 class="school-name">Fee Demand Center</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="school-name">ROYAL FEE DEMAND (A4 - 2 Slips)</h2>
+        <button class="btn btn-dark btn-sm" onclick="window.print()"><i class="fas fa-print"></i> PRINT</button>
     </div>
-    
-    <div class="row g-3 align-items-end">
+    <div class="row g-2">
         <div class="col-md-3">
-            <label class="small fw-bold">Billing Month:</label>
-            <select id="monthSelect" class="form-select border-primary">
+            <select id="monthSelect" class="form-select border-dark">
                 <script>
                     const mList = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
                     mList.forEach(m => document.write(`<option value="${m}">${m}</option>`));
@@ -75,29 +84,23 @@
             </select>
         </div>
         <div class="col-md-2">
-            <label class="small fw-bold">Class:</label>
-            <select id="classSelect" class="form-select border-primary">
+            <select id="classSelect" class="form-select border-dark">
                 <option value="">All Classes</option>
                 <script>for(let i=1; i<=12; i++) document.write(`<option value="${i}">${i}</option>`);</script>
             </select>
         </div>
         <div class="col-md-2">
-            <label class="small fw-bold">Section:</label>
-            <select id="sectionSelect" class="form-select border-primary">
-                <option value="">All</option>
+            <select id="sectionSelect" class="form-select border-dark">
+                <option value="">All Sec</option>
                 <option value="A">A</option><option value="B">B</option><option value="C">C</option>
             </select>
         </div>
         <div class="col-md-3">
-            <label class="small fw-bold">Search Name/ID:</label>
-            <input type="text" id="searchID" class="form-control" placeholder="Type name...">
+            <input type="text" id="searchID" class="form-control border-dark" placeholder="Name/ID">
         </div>
         <div class="col-md-2">
-            <button class="btn btn-primary w-100 fw-bold" onclick="fetchAndGenerate()">LOAD BILLS</button>
+            <button class="btn btn-primary w-100 fw-bold" onclick="fetchAndGenerate()">GENERATE</button>
         </div>
-    </div>
-    <div class="text-center mt-3">
-        <button class="btn btn-dark px-5" onclick="window.print()"><i class="fas fa-print me-2"></i> PRINT ALL GENERATED BILLS</button>
     </div>
 </div>
 
@@ -123,7 +126,7 @@ async function fetchAndGenerate() {
     const targetSec = document.getElementById('sectionSelect').value;
     const searchVal = document.getElementById('searchID').value.toLowerCase();
     
-    area.innerHTML = "<div class='text-center mt-5'><div class='spinner-border text-primary'></div><p>Generating Royal Bills...</p></div>";
+    area.innerHTML = "<h5 class='text-center mt-5'>Generating Slips...</h5>";
 
     const [mSnap, tSnap, sSnap] = await Promise.all([
         db.collection('fee_master').get(),
@@ -133,91 +136,78 @@ async function fetchAndGenerate() {
 
     const masters = {}; mSnap.forEach(d => masters[d.id] = d.data());
     const allTrans = []; tSnap.forEach(d => allTrans.push(d.data()));
-
     let html = "";
+    const targetMonthIdx = mList.indexOf(targetMonth);
+
     sSnap.forEach(doc => {
         const s = doc.data();
-        
-        // Filter Logic
         if (targetClass && s.class != targetClass) return;
         if (targetSec && s.section != targetSec) return;
-        if (searchVal && !s.name.toLowerCase().includes(searchVal) && !String(s.uniqueID).includes(searchVal)) return;
+        if (searchVal && !s.name.toLowerCase().includes(searchVal)) return;
 
         const m = masters[s.class];
         if(!m) return;
 
-        const mT = Number(m.tuition || 0);
-        const mH = s.hostel === 'Yes' ? Number(m.hostel || 0) : 0;
-        const mTr = s.transport === 'Yes' ? 500 : 0; 
-        const annual = Number(m.admission||0) + Number(m.development||0) + Number(m.exam||0);
+        const monthlyFee = Number(m.tuition||0) + (s.hostel==='Yes'?Number(m.hostel||0):0) + (s.transport==='Yes'?500:0);
+        const annualCharge = Number(m.admission||0) + Number(m.development||0) + Number(m.exam||0);
+
+        let totalDemand = annualCharge + (monthlyFee * (targetMonthIdx + 1));
+        let totalPaidOverall = allTrans.filter(t => String(t.studentID) === String(s.uniqueID)).reduce((a, b) => a + Number(b.amount), 0);
         
-        const monthIdx = mList.indexOf(targetMonth);
-        const expected = annual + ((mT + mH + mTr) * (monthIdx + 1));
-        const paid = allTrans.filter(t => String(t.studentID) === String(s.uniqueID)).reduce((a, b) => a + Number(b.amount), 0);
-        const balance = expected - paid;
+        let prevDemand = annualCharge + (monthlyFee * targetMonthIdx);
+        let prevPaid = allTrans.filter(t => String(t.studentID) === String(s.uniqueID) && mList.indexOf(t.month) < targetMonthIdx && t.month !== "Registration").reduce((a, b) => a + Number(b.amount), 0);
+        prevPaid += allTrans.filter(t => String(t.studentID) === String(s.uniqueID) && ["Admission", "Annual", "Registration"].includes(t.month)).reduce((a, b) => a + Number(b.amount), 0);
+        
+        let arrears = prevDemand - prevPaid;
+        let currentMonthPaid = allTrans.filter(t => String(t.studentID) === String(s.uniqueID) && t.month === targetMonth).reduce((a, b) => a + Number(b.amount), 0);
+        let netPayable = totalDemand - totalPaidOverall;
 
-        if(balance > 0) {
-            html += `
-            <div class="slip-card">
-                <div class="royal-crest">
-                    <img src="logo.png" style="width: 65px;">
+        html += `
+        <div class="slip-card">
+            <div class="header-section">
+                <img src="logo.png" style="width: 55px;">
+                <div class="text-end">
                     <h2 class="school-name">THE LALIT INTERNATIONAL SCHOOL</h2>
-                    <div style="background:var(--royal-blue); color:var(--gold); display:inline-block; padding:2px 20px; font-weight:bold; font-size:12px; letter-spacing:3px; border-radius:50px;">FEE DEMAND NOTICE</div>
+                    <div style="font-weight:600; font-size:9px; color:var(--gold-foil); letter-spacing:1px;">FEE DEMAND STATEMENT | UP-TO ${targetMonth.toUpperCase()}</div>
                 </div>
+            </div>
 
-                <div class="student-info-box">
-                    <img src="${s.photo || ''}" class="student-photo">
-                    <div class="w-100">
-                        <div style="color:var(--royal-blue); font-weight:bold; font-size:22px; border-bottom:1.5px solid var(--gold);">${s.name.toUpperCase()}</div>
-                        <div class="row mt-2" style="font-size:14px;">
-                            <div class="col-4"><b>ID:</b> ${s.uniqueID}</div>
-                            <div class="col-4"><b>Class:</b> ${s.class}-${s.section || 'A'}</div>
-                            <div class="col-4 text-end"><b>Date:</b> ${new Date().toLocaleDateString('en-GB')}</div>
-                            <div class="col-12 mt-1"><b>Father's Name:</b> ${s.father}</div>
-                        </div>
+            <div class="d-flex position-relative" style="z-index:2;">
+                <div class="photo-frame"><img src="${s.photo || ''}" class="student-photo"></div>
+                <div class="student-info">
+                    <h3>${s.name.toUpperCase()}</h3>
+                    <div class="row g-0" style="font-size:11px; color:#333;">
+                        <div class="col-4"><b>ID:</b> ${s.uniqueID}</div>
+                        <div class="col-4"><b>Class:</b> ${s.class}-${s.section || 'A'}</div>
+                        <div class="col-4 text-end"><b>Date:</b> ${new Date().toLocaleDateString('en-GB')}</div>
                     </div>
                 </div>
+            </div>
 
-                <table class="fee-table">
-                    <thead>
-                        <tr><th>PARTICULARS</th><th class="text-end">MONTHLY</th><th class="text-end">TOTAL DUE</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Monthly Fees (Tuition + Others)</td><td class="text-end">₹${mT + mH + mTr}</td><td class="text-end">₹${(mT + mH + mTr) * (monthIdx + 1)}</td></tr>
-                        <tr><td>Annual / Admission Charges</td><td class="text-end">-</td><td class="text-end">₹${annual}</td></tr>
-                        <tr style="color:green; background:#f8fff8;">
-                            <td>Less: Total Amount Received</td>
-                            <td colspan="2" class="text-end">- ₹${paid}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <table class="fee-table">
+                <thead>
+                    <tr><th>Description</th><th class="text-end">Balance (INR)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Previous Outstanding Dues</td><td class="text-end">₹${arrears}</td></tr>
+                    <tr><td>Current Month Fees (${targetMonth})</td><td class="text-end">₹${monthlyFee}</td></tr>
+                    <tr style="color:green;"><td>Credits Received (Current Cycle)</td><td class="text-end">- ₹${currentMonthPaid}</td></tr>
+                </tbody>
+            </table>
 
-                <div class="total-banner">
-                    <span>NET PAYABLE</span>
-                    <span>₹${balance}</span>
-                </div>
+            <div class="total-banner">
+                <span>Net Payable Amount</span>
+                <span>₹${netPayable > 0 ? netPayable : 0}</span>
+            </div>
 
-                <div class="text-center no-print">
-                    <button class="btn btn-whatsapp" onclick="shareWhatsApp('${s.phone}', '${s.name}', '${balance}', '${targetMonth}')">
-                        <i class="fab fa-whatsapp fa-lg"></i> Send To Parent
-                    </button>
-                </div>
-
-                <div class="d-flex justify-content-between mt-4" style="font-size:12px; font-weight:bold; border-top:1px dashed #ccc; padding-top:15px;">
-                    <span>Generated by ERP System</span>
-                    <span>Authorized Signatory ________________</span>
-                </div>
-            </div>`;
-        }
+            <div class="mt-3 d-flex justify-content-between align-items-end" style="position:relative; z-index:2;">
+                <div style="font-size:8px; color:#555; width:70%;">* This is a computer generated advisory. Please clear the dues to avoid late penalties.</div>
+                <div class="text-center" style="width:120px; border-top:1px solid #000; font-size:9px; font-weight:bold;">AUTHORISED SIGNATORY</div>
+            </div>
+        </div>`;
     });
-    area.innerHTML = html || "<h3 class='text-center mt-5 text-danger'>No Pending Dues Found For This Selection.</h3>";
-}
-
-function shareWhatsApp(phone, name, amount, month) {
-    const msg = `*THE LALIT INTERNATIONAL SCHOOL*%0A%0AHello, This is a reminder for *${name}*'s pending fees.%0A%0A*Billing Month:* ${month}%0A*Total Balance Due:* ₹${amount}%0A%0AKindly clear the dues at the school office.%0A%0A_Thank You_`;
-    window.open(`https://wa.me/91${phone || ''}?text=${msg}`, '_blank');
+    area.innerHTML = html || "<h4 class='text-center mt-5'>No Pending Records Found.</h4>";
 }
 </script>
-<script src="menu.js"></script>
 </body>
 </html>
