@@ -34,7 +34,7 @@ function loadMenu() {
                 <a href="add-student.html"><i class="fas fa-user-plus"></i> Admission</a>
                 <a href="fee-master.html"><i class="fas fa-cog"></i> Fee Structure</a>
                 <a href="exam-master.html"><i class="fas fa-book-open"></i> Exam Master</a>
-                <a href="exam-master.html"><i class="fas fa-book-open"></i> Exam Master</a>
+                <a href="marks-entry.html"><i class="fas fa-book-open"></i> Marks Entry</a>
                 <a href="collect-fees.html"><i class="fas fa-money-bill-wave"></i> Collect Fees</a>
                 <a href="fee-history.html"><i class="fas fa-history"></i> Fee History</a>
                 <a href="fee-demand-slip.html"><i class="fas fa-file-invoice"></i> Demand Slips</a>
