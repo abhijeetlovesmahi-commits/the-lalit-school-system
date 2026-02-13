@@ -1,4 +1,4 @@
-/* THE LALIT INTERNATIONAL SCHOOL - FINAL MENU (WITH AUTO-ICONS FIX) */
+/* THE LALIT INTERNATIONAL SCHOOL - UPDATED MENU (WITH EXAM MASTER) */
 
 function loadMenu() {
     if (document.getElementById('sidebar-wrapper')) return;
@@ -32,6 +32,10 @@ function loadMenu() {
                 <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
                 <a href="view-students.html"><i class="fas fa-users"></i> Student Registry</a>
                 <a href="add-student.html"><i class="fas fa-user-plus"></i> Admission</a>
+                
+                <a href="exam-master.html" style="border-left: 3px solid #D4AF37; background: rgba(212,175,55,0.05);">
+                    <i class="fas fa-file-signature"></i> Exam Master
+                </a>
                 <a href="fee-master.html"><i class="fas fa-cog"></i> Fee Structure</a>
                 <a href="collect-fees.html"><i class="fas fa-money-bill-wave"></i> Collect Fees</a>
                 <a href="fee-history.html"><i class="fas fa-history"></i> Fee History</a>
@@ -81,7 +85,6 @@ function loadMenu() {
                 text-decoration: none; font-size: 15px; transition: 0.3s;
                 border-radius: 8px; margin-bottom: 5px;
             }
-            /* Icons ko ek jaisa line mein karne ke liye style */
             .nav-links a i { 
                 margin-right: 15px; 
                 width: 25px; 
