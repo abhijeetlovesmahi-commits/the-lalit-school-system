@@ -24,7 +24,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             background: var(--white);
             padding: 40px;
@@ -87,7 +87,6 @@
             box-sizing: border-box;
         }
 
-        /* Highlight Selected Subject Dropdown */
         #sSubject:not([value=""]) {
             background-color: #fffde7;
             border-color: var(--deep-gold);
@@ -104,17 +103,19 @@
             background: var(--royal-blue);
             color: var(--gold);
             padding: 15px;
-            text-align: left;
-            font-size: 0.9rem;
+            text-align: center;
+            font-size: 0.85rem;
             text-transform: uppercase;
         }
 
         .student-table td {
             padding: 12px;
             border-bottom: 1px solid #eee;
+            text-align: center;
         }
 
-        /* Subject Highlight Label */
+        .extra-col { display: none; }
+
         .subject-highlight {
             background: var(--royal-blue);
             color: var(--gold);
@@ -128,7 +129,7 @@
         }
 
         .marks-input {
-            width: 90px !important;
+            width: 70px !important;
             text-align: center;
             font-weight: bold;
             color: var(--royal-blue);
@@ -161,7 +162,8 @@
             padding: 2px 8px;
             border-radius: 3px;
             font-weight: bold;
-            margin-left: 10px;
+            display: block;
+            margin-top: 5px;
         }
 
         .info-bar {
@@ -191,12 +193,12 @@
         <div class="filter-grid">
             <select id="examType" onchange="fetchSubjects()">
                 <option value="">-- Select Exam --</option>
-                <option value="Formative 1st">Formative 1st</option>
-                <option value="Summative 1st">Summative 1st</option>
-                <option value="Half Yearly">Half Yearly</option>
-                <option value="Formative 2nd">Formative 2nd</option>
-                <option value="Summative 2nd">Summative 2nd</option>
-                <option value="Final">Final</option>
+                <option value="Formative Test -I">Formative Test -I</option>
+                <option value="Periodic Test -I">Periodic Test -I</option>
+                <option value="Term -I">Term -I</option>
+                <option value="Formative Test -II">Formative Test -II</option>
+                <option value="Periodic -II">Periodic -II</option>
+                <option value="Term -II">Term -II</option>
             </select>
 
             <select id="sClass" onchange="fetchSubjects()">
@@ -233,10 +235,11 @@
         <table class="student-table">
             <thead>
                 <tr>
-                    <th style="width:80px;">Roll</th>
-                    <th>Student Name</th>
-                    <th>Unique ID</th>
-                    <th>Obtained Marks</th>
+                    <th style="width:50px;">Roll</th>
+                    <th style="text-align:left;">Student Name & ID</th>
+                    <th>Obtained</th>
+                    <th class="extra-col">NB (5)</th>
+                    <th class="extra-col">SEA (5)</th>
                 </tr>
             </thead>
             <tbody id="studentListBody"></tbody>
@@ -323,10 +326,15 @@ async function loadStudents() {
     currentFullMarks = Number(subOption.getAttribute('data-marks'));
 
     document.getElementById('highlightedSubject').innerText = `Subject: ${sub}`;
-    document.getElementById('maxMarksLabel').innerText = `Maximum Marks Allowed: ${currentFullMarks}`;
+    document.getElementById('maxMarksLabel').innerText = `Maximum Theory Marks: ${currentFullMarks}`;
+
+    // Condition for NB & SEA: Only for Term -I and Term -II
+    const isTermExam = (exam === "Term -I" || exam === "Term -II");
+    const extraCols = document.querySelectorAll('.extra-col');
+    extraCols.forEach(col => col.style.display = isTermExam ? 'table-cell' : 'none');
 
     const tbody = document.getElementById('studentListBody');
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Synchronizing with database...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px;">Synchronizing with database...</td></tr>';
     document.getElementById('marksSection').style.display = 'block';
 
     try {
@@ -336,12 +344,12 @@ async function loadStudents() {
         ]);
 
         if(sSnap.empty) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">No students found in the selected category.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">No students found.</td></tr>';
             return;
         }
 
         let existingMarks = {};
-        mSnap.forEach(doc => { existingMarks[doc.data().studentId] = doc.data().obtainedMarks; });
+        mSnap.forEach(doc => { existingMarks[doc.data().studentId] = doc.data(); });
 
         let students = [];
         sSnap.forEach(doc => students.push(doc.data()));
@@ -349,33 +357,43 @@ async function loadStudents() {
 
         tbody.innerHTML = "";
         students.forEach((s, index) => {
+            const mData = existingMarks[s.uniqueID] || {};
             const hasMark = existingMarks[s.uniqueID] !== undefined;
-            const val = hasMark ? existingMarks[s.uniqueID] : 0;
             
             tbody.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>
+                    <td style="text-align:left;">
+                        <small style="color:#666">ID: ${s.uniqueID}</small><br>
                         <b>${s.name}</b> 
                         <span class="status-tag" style="background:${hasMark ? '#e8f5e9':'#ffebee'}; color:${hasMark ? 'green':'red'}">
                             ${hasMark ? '✓ Saved' : '● Pending'}
                         </span>
                     </td>
-                    <td>${s.uniqueID}</td>
                     <td>
-                        <input type="number" class="marks-input" 
+                        <input type="number" class="marks-input m-obtained" 
                                data-id="${s.uniqueID}" data-name="${s.name}"
-                               oninput="validateRealTime(this)"
-                               value="${val}" min="0">
-                        <span style="color:#666"> / ${currentFullMarks}</span>
+                               oninput="validateRealTime(this, ${currentFullMarks})"
+                               value="${mData.obtainedMarks || 0}">
+                        <div style="font-size:0.7rem; color:#666">/ ${currentFullMarks}</div>
+                    </td>
+                    <td class="extra-col" style="display: ${isTermExam ? 'table-cell' : 'none'}">
+                        <input type="number" class="marks-input m-notebook" 
+                               oninput="validateRealTime(this, 5)"
+                               value="${mData.notebookMarks || 0}">
+                    </td>
+                    <td class="extra-col" style="display: ${isTermExam ? 'table-cell' : 'none'}">
+                        <input type="number" class="marks-input m-sea" 
+                               oninput="validateRealTime(this, 5)"
+                               value="${mData.seaMarks || 0}">
                     </td>
                 </tr>`;
         });
     } catch(e) { alert("Error: " + e.message); }
 }
 
-function validateRealTime(input) {
-    if (Number(input.value) > currentFullMarks) {
+function validateRealTime(input, max) {
+    if (Number(input.value) > max) {
         input.classList.add('error');
     } else {
         input.classList.remove('error');
@@ -386,53 +404,74 @@ async function submitMarks() {
     const exam = document.getElementById('examType').value;
     const cls = document.getElementById('sClass').value;
     const sub = document.getElementById('sSubject').value;
-    const inputs = document.querySelectorAll('.marks-input');
+    const rows = document.querySelectorAll('#studentListBody tr');
     const btn = document.getElementById('submitBtn');
+    const isTermExam = (exam === "Term -I" || exam === "Term -II");
 
     let errors = [];
-    inputs.forEach(input => {
-        const val = Number(input.value);
-        if (val > currentFullMarks) {
-            errors.push(`${input.getAttribute('data-name')} (Entered: ${val})`);
-            input.classList.add('error');
+    rows.forEach(row => {
+        const inputOb = row.querySelector('.m-obtained');
+        const name = inputOb.getAttribute('data-name');
+        const ob = Number(inputOb.value);
+        
+        if(ob > currentFullMarks) errors.push(`${name}: Theory (${ob}) exceeds ${currentFullMarks}`);
+        
+        if(isTermExam) {
+            const nb = Number(row.querySelector('.m-notebook').value);
+            const sea = Number(row.querySelector('.m-sea').value);
+            if(nb > 5) errors.push(`${name}: NB (${nb}) exceeds 5`);
+            if(sea > 5) errors.push(`${name}: SEA (${sea}) exceeds 5`);
         }
     });
 
     if (errors.length > 0) {
-        alert("VALIDATION ERROR!\nThe following students have marks exceeding the limit (" + currentFullMarks + "):\n\n" + errors.join("\n") + "\n\nPlease correct them before saving.");
+        alert("VALIDATION ERROR!\n\n" + errors.join("\n"));
         return;
     }
 
-    if(!confirm("Are you sure you want to save the entered marks? Existing records will be updated.")) return;
+    if(!confirm("Save marks to cloud?")) return;
 
     btn.disabled = true;
-    btn.innerText = "Saving data to cloud...";
+    btn.innerText = "Saving...";
 
     const batch = db.batch();
-    inputs.forEach(input => {
-        const sid = input.getAttribute('data-id');
+    rows.forEach(row => {
+        const inputOb = row.querySelector('.m-obtained');
+        const sid = inputOb.getAttribute('data-id');
         const mid = `${sid}_${exam}_${sub}`.replace(/\s+/g, '_');
         const ref = db.collection('marks').doc(mid);
-        batch.set(ref, {
+        
+        let saveObj = {
             studentId: sid,
-            studentName: input.getAttribute('data-name'),
+            studentName: inputOb.getAttribute('data-name'),
             class: cls,
             examType: exam,
             subject: sub,
-            obtainedMarks: Number(input.value),
+            obtainedMarks: Number(inputOb.value),
             fullMarks: currentFullMarks,
             updatedAt: Date.now()
-        }, { merge: true });
+        };
+
+        if(isTermExam) {
+            saveObj.notebookMarks = Number(row.querySelector('.m-notebook').value);
+            saveObj.seaMarks = Number(row.querySelector('.m-sea').value);
+        } else {
+            // Clean up old special fields if switching back to non-term exam
+            saveObj.notebookMarks = 0;
+            saveObj.seaMarks = 0;
+        }
+
+        batch.set(ref, saveObj, { merge: true });
     });
 
     try {
         await batch.commit();
-        alert("SUCCESS!\nMarks have been successfully recorded in the database.");
+        alert("SUCCESS! Marks recorded.");
         btn.disabled = false;
         btn.innerText = "SAVE & SUBMIT MARKS";
         loadStudents();
     } catch(e) {
-        alert("CRITICAL ERROR:\nCould not save marks. " + e.message);
+        alert("CRITICAL ERROR: " + e.message);
         btn.disabled = false;
     }
 }
