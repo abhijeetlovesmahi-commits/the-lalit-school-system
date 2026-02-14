@@ -3,139 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Card Generator - The Lalit</title>
+    <title>The Lalit - Marks Entry Master</title>
     <style>
-        :root { --line-color: #333; }
-        body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
-        
-        /* Control Panel Styles */
-        .controls { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; }
-        .controls div { display: flex; flex-direction: column; gap: 5px; }
-        select, input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        
-        /* Report Card Print Styles */
-        .report-card { width: 210mm; min-height: 297mm; padding: 15mm; background: white; margin: 0 auto; border: 2px solid #000; box-sizing: border-box; position: relative; }
-        
-        .header-section { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
-        .school-name { font-size: 28px; font-weight: bold; margin: 0; }
-        
-        .student-info { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 15px; line-height: 1.8; }
-        
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; }
-        th, td { border: 1px solid #000; padding: 5px; text-align: center; }
-        th { background: #f2f2f2; }
-        .sub-name { text-align: left; padding-left: 10px; font-weight: bold; }
-
-        .co-scholastic { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
-        .sign-box { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
-        .signature-img { width: 120px; height: 50px; object-fit: contain; mix-blend-mode: multiply; display: block; margin: 0 auto; }
-        
-        @media print {
-            .controls, .no-print { display: none; }
-            body { padding: 0; background: none; }
-            .report-card { border: none; margin: 0; }
+        :root {
+            --royal-blue: #002366;
+            --gold: #D4AF37;
+            --deep-gold: #aa8a2e;
+            --light-gold: #FDFBF0;
+            --white: #ffffff;
+            --danger: #e74c3c;
         }
+
+        body {
+            background: var(--light-gold);
+            margin: 0;
+            padding: 20px;
+            font-family: 'Georgia', serif;
+            color: var(--royal-blue);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid var(--gold);
+        }
+
+        /* Logo Header Section */
+        .school-header {
+            text-align: center;
+            border-bottom: 3px double var(--gold);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+        
+        .school-logo { width: 100px; margin-bottom: 10px; }
+
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            background: #fdfaf0;
+            padding: 20px;
+            border: 1px solid var(--gold);
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .subject-highlight {
+            background: #fff8e1;
+            border: 2px solid var(--gold) !important;
+            font-weight: bold;
+        }
+
+        label { font-size: 0.75rem; font-weight: bold; color: var(--deep-gold); text-transform: uppercase; }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-bottom: 2px solid var(--gold);
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--royal-blue);
+            color: var(--gold);
+            padding: 12px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        /* Roll & ID combined styling */
+        .id-badge {
+            font-size: 0.75rem;
+            color: #666;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .roll-no {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--royal-blue);
+        }
+
+        .std-img {
+            width: 50px;
+            height: 60px;
+            object-fit: cover;
+            border: 1px solid var(--gold);
+            background: #f0f0f0;
+        }
+
+        .marks-input {
+            width: 75px;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid #ddd;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .marks-input.error {
+            border-color: var(--danger);
+            background-color: #ffdada;
+            color: var(--danger);
+        }
+
+        .hidden { display: none; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--royal-blue);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 25px;
+        }
+
+        #status { text-align: center; margin-top: 15px; font-weight: bold; }
     </style>
+    
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<div class="controls no-print">
-    <div>
-        <label>Select Student (Unique ID)</label>
-        <input type="text" id="studentID" placeholder="e.g. 101">
-    </div>
-    <div>
-        <label>Term Mode</label>
-        <select id="reportMode">
-            <option value="1">Term-1 Only</option>
-            <option value="2">Full Academic (Term 1 & 2)</option>
-        </select>
-    </div>
-    <div>
-        <label>CT Signature</label>
-        <input type="file" onchange="previewSign(this, 'ctSign')">
-    </div>
-    <div>
-        <label>Principal Signature</label>
-        <input type="file" onchange="previewSign(this, 'pSign')">
-    </div>
-    <button onclick="generateReport()" style="background: #002366; color: gold; padding: 10px 20px; cursor: pointer;">Generate Report</button>
-    <button onclick="window.print()" style="padding: 10px;">Print PDF</button>
-</div>
-
-<div class="report-card" id="printArea">
-    <div class="header-section">
-        <h1 class="school-name">THE LALIT INTERNATIONAL SCHOOL</h1>
-        <p>Affiliated to CBSE, Affiliation No. 223366</p>
-        <h3>Academic Session: 2025-26</h3>
-        <h2 style="text-decoration: underline;">REPORT CARD</h2>
+<div class="container">
+    <div class="school-header">
+        <img src="logo.png" alt="School Logo" class="school-logo" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
+        <h1 style="font-size: 1.8rem; margin: 5px 0;">STUDENT MARKS ENTRY</h1>
+        <p id="currentAction" style="color: var(--danger); font-weight: bold;">Select Subject to Load Full Marks</p>
     </div>
 
-    <div class="student-info" id="studentDetails">
-        <div>Student's Name: <b id="rName">........</b></div>
-        <div>Roll No: <b id="rRoll">........</b></div>
-        <div>Father's Name: <b id="rFather">........</b></div>
-        <div>Class/Section: <b id="rClass">........</b></div>
+    <div class="filter-section">
+        <div>
+            <label>Exam Type</label>
+            <select id="examType" onchange="toggleTermFields(); fetchSubjects();">
+                <option value="">-- Select --</option>
+                <option value="Formative Test -I">Formative Test -I</option>
+                <option value="Periodic Test -I">Periodic Test -I</option>
+                <option value="Term -I">Term -I</option>
+                <option value="Formative Test -II">Formative Test -II</option>
+                <option value="Periodic -II">Periodic -II</option>
+                <option value="Term -II">Term -II</option>
+            </select>
+        </div>
+        <div>
+            <label>Class</label>
+            <select id="examClass" onchange="fetchSubjects(); fetchStudents();">
+                <option value="">-- Select --</option>
+                <option value="Pre-Nursery">Pre-Nursery</option>
+                <option value="Nursery">Nursery</option>
+                <option value="LKG">LKG</option>
+                <option value="UKG">UKG</option>
+                <script>for(let i=1; i<=12; i++) document.write(`<option value="${i}">Class ${i}</option>`);</script>
+            </select>
+        </div>
+        <div>
+            <label>Section</label>
+            <select id="sSection" onchange="fetchStudents();">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+            </select>
+        </div>
+        <div>
+            <label>Subject</label>
+            <select id="subjectSelect" class="subject-highlight" onchange="updateMaxMarks()">
+                <option value="">-- Select Subject --</option>
+            </select>
+        </div>
     </div>
 
     <table>
         <thead>
-            <tr id="tableHeaderMain">
-                <th rowspan="2">Scholastic Areas</th>
-                <th colspan="6" id="t1Header">Term-1 (100 Marks)</th>
-                <th colspan="6" class="t2-ui">Term-2 (100 Marks)</th>
-            </tr>
             <tr>
-                <th>Per. Test (10)</th><th>NB (5)</th><th>SEA (5)</th><th>Half Yearly (80)</th><th>Total</th><th>Grade</th>
-                <th class="t2-ui">Per. Test (10)</th><th class="t2-ui">NB (5)</th><th class="t2-ui">SEA (5)</th><th class="t2-ui">Yearly (80)</th><th class="t2-ui">Total</th><th class="t2-ui">Grade</th>
+                <th>Roll & ID</th>
+                <th>Photo</th>
+                <th style="text-align: left;">Student Name</th>
+                <th id="headerMarks">Obtained Marks</th>
+                <th class="term-only hidden">Notebook (5)</th>
+                <th class="term-only hidden">SEA (5)</th>
             </tr>
         </thead>
-        <tbody id="marksBody">
-            </tbody>
+        <tbody id="studentBody">
+            <tr><td colspan="6">Waiting for selection...</td></tr>
+        </tbody>
     </table>
 
-    <div class="co-scholastic">
-        <div>
-            <table style="height: 100px;">
-                <tr><th colspan="2">Co-Scholastic Areas: Term-1</th></tr>
-                <tr><td class="sub-name">Art Education</td><td contenteditable="true">A</td></tr>
-                <tr><td class="sub-name">Health & Physical Ed.</td><td contenteditable="true">A</td></tr>
-            </table>
-        </div>
-        <div class="t2-ui">
-            <table style="height: 100px;">
-                <tr><th colspan="2">Co-Scholastic Areas: Term-2</th></tr>
-                <tr><td class="sub-name">Art Education</td><td contenteditable="true">A</td></tr>
-                <tr><td class="sub-name">Health & Physical Ed.</td><td contenteditable="true">A</td></tr>
-            </table>
-        </div>
-    </div>
-
-    <div style="margin-top: 10px; border: 1px solid #000; padding: 10px;">
-        <b>Class Teacher's Remarks:</b> <span id="autoRemarks" contenteditable="true">Excellent performance.</span>
-    </div>
-
-    <div class="sign-box">
-        <div>
-            <img id="ctSign" class="signature-img">
-            <p>Class Teacher</p>
-        </div>
-        <div>
-            <p id="rDate">Date: 14-02-2026</p>
-            <p>Place: School Campus</p>
-        </div>
-        <div>
-            <img id="pSign" class="signature-img">
-            <p>Principal</p>
-        </div>
-    </div>
+    <button class="submit-btn" onclick="saveMarks()">SAVE ALL MARKS</button>
+    <div id="status"></div>
 </div>
 
 <script>
-// Firebase Init (Use your config)
 const firebaseConfig = {
   apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
   authDomain: "the-lalit-d7472.firebaseapp.com",
@@ -145,92 +222,113 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function previewSign(input, targetID) {
-    if (input.files && input.files[0]) {
-        let reader = new FileReader();
-        reader.onload = e => document.getElementById(targetID).src = e.target.result;
-        reader.readAsDataURL(input.files[0]);
+let currentMax = 100;
+
+function toggleTermFields() {
+    const isTerm = document.getElementById('examType').value.includes("Term");
+    document.querySelectorAll('.term-only').forEach(el => isTerm ? el.classList.remove('hidden') : el.classList.add('hidden'));
+}
+
+async function fetchSubjects() {
+    const eClass = document.getElementById('examClass').value;
+    const eType = document.getElementById('examType').value;
+    if(!eClass || !eType) return;
+
+    const docId = `${eClass}_${eType}`.replace(/\s+/g, '');
+    const doc = await db.collection('exam_settings').doc(docId).get();
+
+    const subSelect = document.getElementById('subjectSelect');
+    subSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+    if(doc.exists) {
+        doc.data().subjects.forEach(sub => {
+            subSelect.innerHTML += `<option value="${sub.subjectName}" data-max="${sub.fullMarks}">${sub.subjectName}</option>`;
+        });
     }
 }
 
-async function generateReport() {
-    const sid = document.getElementById('studentID').value;
-    const mode = document.getElementById('reportMode').value;
-    
-    // UI Toggle for Term 2
-    document.querySelectorAll('.t2-ui').forEach(el => el.style.display = (mode === "2" ? "" : "none"));
-    if(mode === "1") document.getElementById('t1Header').setAttribute('colspan', '6');
-    else document.getElementById('t1Header').setAttribute('colspan', '6');
-
-    try {
-        // 1. Fetch Student Info
-        const sDoc = await db.collection('students').where('uniqueID', '==', sid).get();
-        if(sDoc.empty) { alert("Student not found!"); return; }
-        const sData = sDoc.docs[0].data();
-        document.getElementById('rName').innerText = sData.name;
-        document.getElementById('rRoll').innerText = sData.uniqueID;
-        document.getElementById('rClass').innerText = sData.class + " " + sData.section;
-
-        // 2. Fetch All Marks
-        const mSnap = await db.collection('marks').where('studentId', '==', sid).get();
-        let marksMap = {};
-        mSnap.forEach(doc => {
-            const d = doc.data();
-            const key = `${d.subject}_${d.examType}`;
-            marksMap[key] = d;
-        });
-
-        // 3. Render Table
-        const subjects = ["English", "Hindi", "Mathematics", "Science", "Social Science"];
-        const tbody = document.getElementById('marksBody');
-        tbody.innerHTML = "";
-        
-        let grandTotal = 0;
-
-        subjects.forEach(sub => {
-            // Term 1 Data
-            const t1PT = marksMap[`${sub}_Periodic Test -I`]?.obtainedMarks || 0;
-            const t1NB = marksMap[`${sub}_Term -I`]?.notebookMarks || 0;
-            const t1SEA = marksMap[`${sub}_Term -I`]?.seaMarks || 0;
-            const t1Half = marksMap[`${sub}_Term -I`]?.obtainedMarks || 0;
-            const t1Total = Math.round((t1PT/4) + t1NB + t1SEA + t1Half); // Assuming PT is of 40, reduced to 10
-            
-            // Term 2 Data
-            const t2PT = marksMap[`${sub}_Periodic -II`]?.obtainedMarks || 0;
-            const t2NB = marksMap[`${sub}_Term -II`]?.notebookMarks || 0;
-            const t2SEA = marksMap[`${sub}_Term -II`]?.seaMarks || 0;
-            const t2Yearly = marksMap[`${sub}_Term -II`]?.obtainedMarks || 0;
-            const t2Total = Math.round((t2PT/4) + t2NB + t2SEA + t2Yearly);
-
-            let row = `<tr><td class="sub-name">${sub}</td>
-                <td>${t1PT}</td><td>${t1NB}</td><td>${t1SEA}</td><td>${t1Half}</td><td>${t1Total}</td><td>${calculateGrade(t1Total)}</td>`;
-            
-            if(mode === "2") {
-                row += `<td class="t2-ui">${t2PT}</td><td class="t2-ui">${t2NB}</td><td class="t2-ui">${t2SEA}</td><td class="t2-ui">${t2Yearly}</td><td class="t2-ui">${t2Total}</td><td class="t2-ui">${calculateGrade(t2Total)}</td>`;
-            }
-            row += `</tr>`;
-            tbody.innerHTML += row;
-            grandTotal += (mode === "2" ? (t1Total + t2Total)/2 : t1Total);
-        });
-
-        // 4. Remarks Logic
-        const avg = grandTotal / subjects.length;
-        let remark = "Needs Improvement";
-        if(avg > 90) remark = "Outstanding Performance! Keep it up.";
-        else if(avg > 75) remark = "Very Good. Hardworking student.";
-        else if(avg > 50) remark = "Good, but can do better in Mathematics.";
-        document.getElementById('autoRemarks').innerText = remark;
-
-    } catch (e) { console.error(e); }
+function updateMaxMarks() {
+    const sel = document.getElementById('subjectSelect');
+    const opt = sel.options[sel.selectedIndex];
+    if(sel.value) {
+        currentMax = Number(opt.getAttribute('data-max'));
+        document.getElementById('headerMarks').innerText = `Marks (Max: ${currentMax})`;
+        document.getElementById('currentAction').innerHTML = `Entry for: ${sel.value} | Max Marks: ${currentMax}`;
+        validateAll();
+    }
 }
 
-function calculateGrade(m) {
-    if(m >= 91) return 'A1'; if(m >= 81) return 'A2';
-    if(m >= 71) return 'B1'; if(m >= 61) return 'B2';
-    if(m >= 51) return 'C1'; if(m >= 41) return 'C2';
-    if(m >= 33) return 'D'; return 'E';
+function validateAll() {
+    document.querySelectorAll('.main-m').forEach(input => {
+        if(Number(input.value) > currentMax) input.classList.add('error');
+        else input.classList.remove('error');
+    });
+}
+
+async function fetchStudents() {
+    const sClass = document.getElementById('examClass').value;
+    const sSection = document.getElementById('sSection').value;
+    if(!sClass || !sSection) return;
+
+    const tbody = document.getElementById('studentBody');
+    tbody.innerHTML = "<tr><td colspan='6'>Loading Students...</td></tr>";
+
+    try {
+        const snap = await db.collection('students').where('class', '==', sClass).where('section', '==', sSection).get();
+        let students = [];
+        snap.forEach(doc => students.push(doc.data()));
+        
+        // Sorting by uniqueID (Assuming it's your Roll No)
+        students.sort((a, b) => a.uniqueID - b.uniqueID);
+
+        tbody.innerHTML = "";
+        students.forEach(s => {
+            const isTerm = document.getElementById('examType').value.includes("Term");
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <span class="roll-no">${s.uniqueID - 1000}</span>
+                    <span class="id-badge">ID: ${s.uniqueID}</span>
+                </td>
+                <td><img src="${s.photo || 'https://via.placeholder.com/50'}" class="std-img"></td>
+                <td style="text-align: left;"><b>${s.name}</b></td>
+                <td><input type="number" class="marks-input main-m" data-id="${s.uniqueID}" oninput="validateAll()"></td>
+                <td class="term-only ${isTerm ? '' : 'hidden'}"><input type="number" class="marks-input note-m" max="5"></td>
+                <td class="term-only ${isTerm ? '' : 'hidden'}"><input type="number" class="marks-input sea-m" max="5"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) { alert(e.message); }
+}
+
+async function saveMarks() {
+    const subject = document.getElementById('subjectSelect').value;
+    if(!subject) { alert("Select Subject First"); return; }
+    if(document.querySelectorAll('.error').length > 0) { alert("Marks cannot be more than " + currentMax); return; }
+
+    const batch = db.batch();
+    const rows = document.querySelectorAll('#studentBody tr');
+    const exam = document.getElementById('examType').value;
+    const cls = document.getElementById('examClass').value;
+    const sec = document.getElementById('sSection').value;
+
+    rows.forEach(row => {
+        const uID = row.querySelector('.main-m').getAttribute('data-id');
+        const m = row.querySelector('.main-m').value;
+        const n = row.querySelector('.note-m')?.value || 0;
+        const s = row.querySelector('.sea-m')?.value || 0;
+
+        const docId = `${cls}_${sec}_${exam}_${subject}_${uID}`.replace(/\s+/g, '');
+        batch.set(db.collection('marks_entry').doc(docId), {
+            uID, class: cls, section: sec, exam, subject, marks: Number(m), notebook: Number(n), sea: Number(s), timestamp: Date.now()
+        });
+    });
+
+    try {
+        await batch.commit();
+        document.getElementById('status').innerHTML = "<span style='color:green;'>✓ Saved Successfully!</span>";
+        document.querySelectorAll('.marks-input').forEach(i => i.value = "");
+    } catch (e) { alert(e.message); }
 }
 </script>
 </body>
 </html>
-
