@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lalit - Marks Entry</title>
+    <title>The Lalit - Professional Marks Entry</title>
     <style>
         :root {
             --royal-blue: #002366;
@@ -11,13 +11,14 @@
             --deep-gold: #aa8a2e;
             --light-gold: #FDFBF0;
             --white: #ffffff;
-            --danger: #c0392b;
+            --danger: #e74c3c;
+            --success: #27ae60;
         }
 
         body {
             background: var(--light-gold);
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
             font-family: 'Georgia', serif;
             color: var(--royal-blue);
         }
@@ -26,41 +27,32 @@
             max-width: 1100px;
             margin: 0 auto;
             background: var(--white);
-            padding: 50px;
+            padding: 40px;
             border-radius: 5px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             border: 1px solid var(--gold);
             position: relative;
         }
 
-        .container::before {
-            content: "";
-            position: absolute;
-            top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border: 1px solid var(--gold);
-            pointer-events: none;
-            opacity: 0.5;
-        }
-
         .header {
             text-align: center;
             border-bottom: 3px double var(--gold);
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding-bottom: 20px;
         }
 
-        .school-logo { width: 110px; margin-bottom: 10px; }
+        .school-logo { width: 100px; margin-bottom: 10px; }
 
         h1 {
             text-transform: uppercase;
             letter-spacing: 4px;
-            font-size: 2.2rem;
+            font-size: 2rem;
             margin: 10px 0;
             color: var(--royal-blue);
         }
 
         .form-section {
-            margin-bottom: 35px;
+            margin-bottom: 30px;
             border: 1px solid #eee;
             padding: 25px;
             background: #fff;
@@ -75,12 +67,12 @@
             font-weight: bold;
             color: var(--deep-gold);
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
         }
 
@@ -93,6 +85,13 @@
             outline: none;
             width: 100%;
             box-sizing: border-box;
+        }
+
+        /* Highlight Selected Subject Dropdown */
+        #sSubject:not([value=""]) {
+            background-color: #fffde7;
+            border-color: var(--deep-gold);
+            font-weight: bold;
         }
 
         .student-table {
@@ -115,12 +114,30 @@
             border-bottom: 1px solid #eee;
         }
 
+        /* Subject Highlight Label */
+        .subject-highlight {
+            background: var(--royal-blue);
+            color: var(--gold);
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .marks-input {
-            width: 80px !important;
+            width: 90px !important;
             text-align: center;
             font-weight: bold;
             color: var(--royal-blue);
             border: 1px solid var(--gold) !important;
+        }
+
+        .marks-input.error {
+            border: 2px solid var(--danger) !important;
+            background: #fdf2f2;
         }
 
         .main-btn {
@@ -139,25 +156,23 @@
 
         .main-btn:hover { background: #001a4d; }
 
+        .status-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
         .info-bar {
             background: var(--light-gold);
-            padding: 15px;
-            margin-bottom: 20px;
+            padding: 10px;
+            margin-bottom: 15px;
             border: 1px solid var(--gold);
             font-weight: bold;
             display: none;
             text-align: center;
-            color: var(--royal-blue);
         }
-
-        .status-tag {
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 3px;
-            background: #eee;
-            margin-left: 10px;
-        }
-
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
@@ -172,7 +187,7 @@
     </div>
 
     <section class="form-section">
-        <span class="section-title">Step 1: Select Class & Exam</span>
+        <span class="section-title">Step 1: Exam & Class Selection</span>
         <div class="filter-grid">
             <select id="examType" onchange="fetchSubjects()">
                 <option value="">-- Select Exam --</option>
@@ -183,6 +198,7 @@
                 <option value="Summative 2nd">Summative 2nd</option>
                 <option value="Final">Final</option>
             </select>
+
             <select id="sClass" onchange="fetchSubjects()">
                 <option value="">-- Select Class --</option>
                 <option value="Pre-Nursery">Pre-Nursery</option>
@@ -191,27 +207,33 @@
                 <option value="UKG">UKG</option>
                 <script>for(let i=1; i<=12; i++) document.write(`<option value="${i}">Class ${i}</option>`);</script>
             </select>
-            <select id="sSection">
+
+            <select id="sSection" onchange="loadStudents()">
                 <option value="A">Section A</option>
                 <option value="B">Section B</option>
                 <option value="C">Section C</option>
                 <option value="D">Section D</option>
             </select>
-            <select id="sSubject">
+
+            <select id="sSubject" onchange="loadStudents()">
                 <option value="">-- Select Subject --</option>
             </select>
-            <button style="background:var(--royal-blue); color:var(--gold); font-weight:bold; cursor:pointer; border:1px solid var(--gold);" onclick="loadStudents()">LOAD STUDENTS</button>
         </div>
     </section>
 
     <div id="examInfo" class="info-bar"></div>
 
     <section class="form-section" id="marksSection" style="display:none;">
-        <span class="section-title" id="tableTitle">Student List</span>
+        <span class="section-title">Step 2: Marks Sheet</span>
+        <div id="tableHeaderArea">
+             <div class="subject-highlight" id="highlightedSubject">Subject: None</div>
+             <p id="maxMarksLabel" style="font-weight:bold; color:var(--danger); font-size:0.9rem; margin-top:0;">Max Marks Allowed: 0</p>
+        </div>
+        
         <table class="student-table">
             <thead>
                 <tr>
-                    <th style="width:80px;">Roll No</th>
+                    <th style="width:80px;">Roll</th>
                     <th>Student Name</th>
                     <th>Unique ID</th>
                     <th>Obtained Marks</th>
@@ -221,8 +243,6 @@
         </table>
         <button class="main-btn" id="submitBtn" onclick="submitMarks()">SAVE & SUBMIT MARKS</button>
     </section>
-
-    <div id="status" style="text-align:center; margin-top:15px; font-weight:bold;"></div>
 </div>
 
 <script>
@@ -237,11 +257,32 @@ const db = firebase.firestore();
 
 let currentFullMarks = 0;
 
-async function fetchSubjects() {
+window.onload = function() {
+    const savedExam = localStorage.getItem('lastExam');
+    const savedClass = localStorage.getItem('lastClass');
+    const savedSec = localStorage.getItem('lastSec');
+    const savedSub = localStorage.getItem('lastSub');
+
+    if(savedExam) document.getElementById('examType').value = savedExam;
+    if(savedClass) document.getElementById('sClass').value = savedClass;
+    if(savedSec) document.getElementById('sSection').value = savedSec;
+
+    if(savedExam && savedClass) fetchSubjects(savedSub, true); 
+};
+
+function saveConfig() {
+    localStorage.setItem('lastExam', document.getElementById('examType').value);
+    localStorage.setItem('lastClass', document.getElementById('sClass').value);
+    localStorage.setItem('lastSec', document.getElementById('sSection').value);
+    localStorage.setItem('lastSub', document.getElementById('sSubject').value);
+}
+
+async function fetchSubjects(reSelectSub = null, autoLoad = false) {
     const exam = document.getElementById('examType').value;
     const cls = document.getElementById('sClass').value;
     const subSelect = document.getElementById('sSubject');
     
+    saveConfig();
     if(!exam || !cls) return;
 
     subSelect.innerHTML = '<option value="">Loading...</option>';
@@ -255,63 +296,90 @@ async function fetchSubjects() {
             data.subjects.forEach(s => {
                 subSelect.innerHTML += `<option value="${s.subjectName}" data-marks="${s.fullMarks}">${s.subjectName} (Max: ${s.fullMarks})</option>`;
             });
+            if(reSelectSub) subSelect.value = reSelectSub;
             document.getElementById('examInfo').style.display = 'block';
-            document.getElementById('examInfo').innerHTML = `Exam Configuration Found: <b>${exam}</b> for <b>Class ${cls}</b> (Date: ${data.examDate})`;
+            document.getElementById('examInfo').innerHTML = `Exam: ${exam} | Class: ${cls}`;
+            if(autoLoad && subSelect.value) loadStudents();
         } else {
-            subSelect.innerHTML = '<option value="">No Subjects</option>';
-            alert("No settings found! Pehle Exam Master page par jaakar subjects aur marks set karein.");
+            subSelect.innerHTML = '<option value="">No Settings Found</option>';
         }
     } catch(e) { console.error(e); }
 }
 
 async function loadStudents() {
+    const exam = document.getElementById('examType').value;
     const cls = document.getElementById('sClass').value;
     const sec = document.getElementById('sSection').value;
     const sub = document.getElementById('sSubject').value;
     
-    if(!cls || !sub) { alert("Please select Class and Subject first!"); return; }
+    saveConfig();
+
+    if(!cls || !sub || !exam) {
+        document.getElementById('marksSection').style.display = 'none';
+        return;
+    }
 
     const subOption = document.getElementById('sSubject').selectedOptions[0];
-    currentFullMarks = subOption.getAttribute('data-marks');
+    currentFullMarks = Number(subOption.getAttribute('data-marks'));
+
+    document.getElementById('highlightedSubject').innerText = `Subject: ${sub}`;
+    document.getElementById('maxMarksLabel').innerText = `Maximum Marks Allowed: ${currentFullMarks}`;
 
     const tbody = document.getElementById('studentListBody');
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Loading Student Database...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Synchronizing with database...</td></tr>';
     document.getElementById('marksSection').style.display = 'block';
 
     try {
-        const snap = await db.collection('students')
-            .where('class', '==', cls)
-            .where('section', '==', sec)
-            .get();
+        const [sSnap, mSnap] = await Promise.all([
+            db.collection('students').where('class', '==', cls).where('section', '==', sec).get(),
+            db.collection('marks').where('class', '==', cls).where('examType', '==', exam).where('subject', '==', sub).get()
+        ]);
 
-        if(snap.empty) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:30px;">No students found in Class '+cls+' Section '+sec+'</td></tr>';
+        if(sSnap.empty) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">No students found in the selected category.</td></tr>';
             return;
         }
 
+        let existingMarks = {};
+        mSnap.forEach(doc => { existingMarks[doc.data().studentId] = doc.data().obtainedMarks; });
+
         let students = [];
-        snap.forEach(doc => students.push(doc.data()));
-        students.sort((a,b) => a.uniqueID - b.uniqueID); 
+        sSnap.forEach(doc => students.push(doc.data()));
+        students.sort((a,b) => a.uniqueID - b.uniqueID);
 
         tbody.innerHTML = "";
         students.forEach((s, index) => {
+            const hasMark = existingMarks[s.uniqueID] !== undefined;
+            const val = hasMark ? existingMarks[s.uniqueID] : 0;
+            
             tbody.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>
-                    <td><b style="color:var(--royal-blue)">${s.name}</b></td>
+                    <td>
+                        <b>${s.name}</b> 
+                        <span class="status-tag" style="background:${hasMark ? '#e8f5e9':'#ffebee'}; color:${hasMark ? 'green':'red'}">
+                            ${hasMark ? '✓ Saved' : '● Pending'}
+                        </span>
+                    </td>
                     <td>${s.uniqueID}</td>
                     <td>
                         <input type="number" class="marks-input" 
-                               data-id="${s.uniqueID}" 
-                               data-name="${s.name}"
-                               value="0" min="0" max="${currentFullMarks}">
-                        <span style="color:#666; font-size:0.9rem;"> / ${currentFullMarks}</span>
+                               data-id="${s.uniqueID}" data-name="${s.name}"
+                               oninput="validateRealTime(this)"
+                               value="${val}" min="0">
+                        <span style="color:#666"> / ${currentFullMarks}</span>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
-        document.getElementById('tableTitle').innerText = `Subject: ${sub} | Maximum Marks: ${currentFullMarks}`;
-    } catch(e) { alert(e.message); }
+    } catch(e) { alert("Error: " + e.message); }
+}
+
+function validateRealTime(input) {
+    if (Number(input.value) > currentFullMarks) {
+        input.classList.add('error');
+    } else {
+        input.classList.remove('error');
+    }
 }
 
 async function submitMarks() {
@@ -321,44 +389,53 @@ async function submitMarks() {
     const inputs = document.querySelectorAll('.marks-input');
     const btn = document.getElementById('submitBtn');
 
-    if(!confirm("Kya aap marks save karna chahte hain?")) return;
+    let errors = [];
+    inputs.forEach(input => {
+        const val = Number(input.value);
+        if (val > currentFullMarks) {
+            errors.push(`${input.getAttribute('data-name')} (Entered: ${val})`);
+            input.classList.add('error');
+        }
+    });
+
+    if (errors.length > 0) {
+        alert("VALIDATION ERROR!\nThe following students have marks exceeding the limit (" + currentFullMarks + "):\n\n" + errors.join("\n") + "\n\nPlease correct them before saving.");
+        return;
+    }
+
+    if(!confirm("Are you sure you want to save the entered marks? Existing records will be updated.")) return;
 
     btn.disabled = true;
-    btn.innerText = "Saving to Database...";
+    btn.innerText = "Saving data to cloud...";
 
     const batch = db.batch();
-
     inputs.forEach(input => {
-        const studentId = input.getAttribute('data-id');
-        const obtained = Number(input.value);
-        
-        // Storage ID: StudentID_ExamName_SubjectName
-        const marksId = `${studentId}_${exam}_${sub}`.replace(/\s+/g, '_');
-        const ref = db.collection('marks').doc(marksId);
-        
+        const sid = input.getAttribute('data-id');
+        const mid = `${sid}_${exam}_${sub}`.replace(/\s+/g, '_');
+        const ref = db.collection('marks').doc(mid);
         batch.set(ref, {
-            studentId: studentId,
+            studentId: sid,
             studentName: input.getAttribute('data-name'),
             class: cls,
             examType: exam,
             subject: sub,
-            obtainedMarks: obtained,
-            fullMarks: Number(currentFullMarks),
-            timestamp: Date.now()
-        });
+            obtainedMarks: Number(input.value),
+            fullMarks: currentFullMarks,
+            updatedAt: Date.now()
+        }, { merge: true });
     });
 
     try {
         await batch.commit();
-        alert("Success! Marks have been recorded.");
-        location.reload();
-    } catch(e) {
-        alert("Error: " + e.message);
+        alert("SUCCESS!\nMarks have been successfully recorded in the database.");
         btn.disabled = false;
         btn.innerText = "SAVE & SUBMIT MARKS";
+        loadStudents();
+    } catch(e) {
+        alert("CRITICAL ERROR:\nCould not save marks. " + e.message);
+        btn.disabled = false;
     }
 }
 </script>
-<script src="menu.js"></script>
 </body>
 </html>
