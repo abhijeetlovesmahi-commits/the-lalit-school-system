@@ -31,6 +31,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
 </head>
 <body>
 
@@ -75,15 +77,6 @@
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-  authDomain: "the-lalit-d7472.firebaseapp.com",
-  projectId: "the-lalit-d7472",
-  appId: "1:479237084229:web:31078825739b3c5712ff2c"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 // Aaj ki date default set karna
 document.getElementById('attDate').valueAsDate = new Date();
 
@@ -161,4 +154,3 @@ async function saveAttendance() {
 <script src="menu.js"></script>
 </body>
 </html>
-
