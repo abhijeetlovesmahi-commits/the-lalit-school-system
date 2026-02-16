@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imperial Login - The Lalit Intl.</title>
+    <title>Imperial Portal - The Lalit Intl.</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0; }
         
@@ -15,41 +16,30 @@
         }
 
         .login-card { 
-            background: white; padding: 50px 40px; border-radius: 8px; 
+            background: white; padding: 40px; border-radius: 12px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 100%; 
-            max-width: 420px; text-align: center; border: 2px solid var(--gold);
+            max-width: 400px; text-align: center; border: 2px solid var(--gold);
         }
 
-        .logo-img { width: 120px; margin-bottom: 25px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
-        
-        h4 { color: var(--royal-blue); letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
-        
-        .form-control { 
-            border: none; border-bottom: 2px solid #eee; border-radius: 0; padding: 12px;
-            transition: 0.3s; text-align: center;
-        }
-
-        .form-control:focus { 
-            box-shadow: none; border-color: var(--gold); background: var(--light-gold);
-        }
+        .form-control { border: none; border-bottom: 2px solid #eee; border-radius: 0; padding: 12px; text-align: center; }
+        .form-control:focus { box-shadow: none; border-color: var(--gold); background: var(--light-gold); }
 
         .btn-royal { 
             background: var(--royal-blue); color: var(--gold); border: 1px solid var(--gold);
-            padding: 12px; font-weight: bold; letter-spacing: 1px; transition: 0.3s;
-            margin-top: 20px;
+            padding: 12px; font-weight: bold; letter-spacing: 1px; transition: 0.3s; margin-top: 20px;
         }
-
         .btn-royal:hover { background: var(--gold); color: var(--royal-blue); }
         
         #msg { height: 25px; margin-top: 15px; font-weight: bold; font-size: 0.85rem; }
+        .back-link { display: block; margin-top: 20px; color: #666; text-decoration: none; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="login-card">
-    <img src="logo.png" class="logo-img" alt="School Seal">
-    <h4>Admin Access</h4>
-    <p class="text-muted small mb-4">The Lalit International School Registry</p>
+    <img src="logo.png" width="100" class="mb-3" alt="Logo" onerror="this.src='https://via.placeholder.com/100'">
+    <h4 class="fw-bold text-royal">PORTAL ACCESS</h4>
+    <p class="text-muted small mb-4">Staff & Student Authentication</p>
     
     <div class="mb-3">
         <input type="email" id="email" class="form-control" placeholder="Institutional Email">
@@ -58,50 +48,70 @@
         <input type="password" id="pass" class="form-control" placeholder="Security Key">
     </div>
     
-    <button class="btn btn-royal w-100 mb-2" id="loginBtn" onclick="signIn()">AUTHENTICATE</button>
+    <button class="btn btn-royal w-100" id="loginBtn" onclick="signIn()">AUTHENTICATE</button>
     <div id="msg" class="text-danger"></div>
+
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left me-1"></i> Back to Website</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
 <script src="firebase-config.js"></script>
 
 <script>
-    // Security Guard: Check if user is already logged in
+    // Agar pehle se login hai toh sahi dashboard pe bhejo
     auth.onAuthStateChanged((user) => {
-        if (user) { 
-            // Redirect to Dashboard if already authenticated
-            window.location.href = "index.html"; 
-        }
+        if (user) { redirectByRole(user.email); }
     });
 
-    function signIn() {
+    async function signIn() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('pass').value;
         const btn = document.getElementById('loginBtn');
         const msg = document.getElementById('msg');
 
         if(!email || !pass) {
-            msg.innerText = "Security Alert: Provide all credentials.";
+            msg.innerText = "Please provide all credentials.";
             return;
         }
 
         btn.innerText = "VERIFYING...";
         btn.disabled = true;
-        msg.innerText = "";
         
-        // Using 'auth' object from central config
-        auth.signInWithEmailAndPassword(email, pass)
-        .then(() => {
-            // Success: onAuthStateChanged will handle redirect
-        })
-        .catch((error) => {
+        try {
+            await auth.signInWithEmailAndPassword(email, pass);
+            // Redirection logic onAuthStateChanged handle karega
+        } catch (error) {
             btn.innerText = "AUTHENTICATE";
             btn.disabled = false;
-            msg.innerText = "Access Denied: Invalid Security Key.";
-            console.error(error.message);
-        });
+            msg.innerText = "Access Denied: Invalid Credentials.";
+        }
+    }
+
+    async function redirectByRole(email) {
+        try {
+            const snap = await db.collection('users').where('email', '==', email).get();
+            
+            if(!snap.empty) {
+                const role = snap.docs[0].data().role;
+                
+                // Roles ke hisaab se redirect
+                if(role === 'admin') window.location.href = "dashboard.html";
+                else if(role === 'accountant') window.location.href = "collect-fees.html";
+                else if(role === 'teacher') window.location.href = "attendance.html";
+                else {
+                    alert("Unauthorized: No specific role assigned.");
+                    auth.signOut();
+                }
+            } else {
+                alert("Identity not found in Registry.");
+                auth.signOut();
+            }
+        } catch (e) {
+            console.error("Redirection Error:", e);
+        }
     }
 </script>
 </body>
