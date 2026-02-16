@@ -6,137 +6,65 @@
     <title>The Lalit - Marks Entry Master</title>
     <style>
         :root {
-            --royal-blue: #002366;
-            --gold: #D4AF37;
-            --deep-gold: #aa8a2e;
-            --light-gold: #FDFBF0;
-            --white: #ffffff;
-            --danger: #e74c3c;
+            --royal-blue: #002366; --gold: #D4AF37; --deep-gold: #aa8a2e;
+            --light-gold: #FDFBF0; --white: #ffffff; --danger: #e74c3c;
         }
 
         body {
-            background: var(--light-gold);
-            margin: 0;
-            padding: 20px;
-            font-family: 'Georgia', serif;
-            color: var(--royal-blue);
+            background: var(--light-gold); margin: 0; padding: 20px;
+            font-family: 'Georgia', serif; color: var(--royal-blue);
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--white);
-            padding: 30px;
-            border-radius: 5px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 1200px; margin: 0 auto; background: var(--white);
+            padding: 30px; border-radius: 5px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             border: 1px solid var(--gold);
         }
 
-        /* Logo Header Section */
         .school-header {
-            text-align: center;
-            border-bottom: 3px double var(--gold);
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            text-align: center; border-bottom: 3px double var(--gold);
+            margin-bottom: 20px; padding-bottom: 15px;
         }
         
         .school-logo { width: 100px; margin-bottom: 10px; }
 
         .filter-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            background: #fdfaf0;
-            padding: 20px;
-            border: 1px solid var(--gold);
-            margin-bottom: 20px;
-            border-radius: 8px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; background: #fdfaf0; padding: 20px;
+            border: 1px solid var(--gold); margin-bottom: 20px; border-radius: 8px;
         }
 
         .subject-highlight {
-            background: #fff8e1;
-            border: 2px solid var(--gold) !important;
-            font-weight: bold;
+            background: #fff8e1; border: 2px solid var(--gold) !important; font-weight: bold;
         }
 
         label { font-size: 0.75rem; font-weight: bold; color: var(--deep-gold); text-transform: uppercase; }
         
         select, input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-bottom: 2px solid var(--gold);
-            outline: none;
+            width: 100%; padding: 10px; border: 1px solid #ccc;
+            border-bottom: 2px solid var(--gold); outline: none;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--royal-blue); color: var(--gold); padding: 12px; font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; }
 
-        th {
-            background: var(--royal-blue);
-            color: var(--gold);
-            padding: 12px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
+        .id-badge { font-size: 0.75rem; color: #666; display: block; margin-top: 2px; }
+        .roll-no { font-size: 1.1rem; font-weight: bold; color: var(--royal-blue); }
 
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            text-align: center;
-        }
-
-        /* Roll & ID combined styling */
-        .id-badge {
-            font-size: 0.75rem;
-            color: #666;
-            display: block;
-            margin-top: 2px;
-        }
-
-        .roll-no {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--royal-blue);
-        }
-
-        .std-img {
-            width: 50px;
-            height: 60px;
-            object-fit: cover;
-            border: 1px solid var(--gold);
-            background: #f0f0f0;
-        }
+        .std-img { width: 50px; height: 60px; object-fit: cover; border: 1px solid var(--gold); background: #f0f0f0; }
 
         .marks-input {
-            width: 75px;
-            padding: 8px;
-            text-align: center;
-            border: 2px solid #ddd;
-            font-weight: bold;
-            font-size: 1.1rem;
+            width: 75px; padding: 8px; text-align: center; border: 2px solid #ddd;
+            font-weight: bold; font-size: 1.1rem;
         }
 
-        .marks-input.error {
-            border-color: var(--danger);
-            background-color: #ffdada;
-            color: var(--danger);
-        }
-
+        .marks-input.error { border-color: var(--danger); background-color: #ffdada; color: var(--danger); }
         .hidden { display: none; }
 
         .submit-btn {
-            width: 100%;
-            padding: 20px;
-            background: var(--royal-blue);
-            color: var(--gold);
-            border: 1px solid var(--gold);
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 25px;
+            width: 100%; padding: 20px; background: var(--royal-blue); color: var(--gold);
+            border: 1px solid var(--gold); font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 25px;
         }
 
         #status { text-align: center; margin-top: 15px; font-weight: bold; }
@@ -144,6 +72,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
 </head>
 <body>
 
@@ -213,15 +143,6 @@
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-  authDomain: "the-lalit-d7472.firebaseapp.com",
-  projectId: "the-lalit-d7472",
-  appId: "1:479237084229:web:31078825739b3c5712ff2c"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 let currentMax = 100;
 
 function toggleTermFields() {
@@ -297,7 +218,6 @@ async function fetchStudents() {
             tbody.appendChild(tr);
         });
         
-        // After loading students, if subject is already selected, load marks
         if(document.getElementById('subjectSelect').value) {
             loadExistingMarks();
         }
@@ -305,7 +225,6 @@ async function fetchStudents() {
     } catch (e) { alert(e.message); }
 }
 
-// NEW FUNCTION: Loads existing marks from database
 async function loadExistingMarks() {
     const exam = document.getElementById('examType').value;
     const cls = document.getElementById('examClass').value;
@@ -337,7 +256,6 @@ async function loadExistingMarks() {
             });
             document.getElementById('status').innerHTML = "<span style='color:blue;'>✓ Existing marks loaded for editing.</span>";
         } else {
-            // Clear inputs if no marks found (for fresh entry)
             document.querySelectorAll('.marks-input').forEach(i => i.value = "");
             document.getElementById('status').innerHTML = "No previous marks found. Ready for new entry.";
         }
