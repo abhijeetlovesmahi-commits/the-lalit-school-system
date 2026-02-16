@@ -27,15 +27,13 @@
         .edit-input { display: none; }
         .data-label { font-size: 0.8rem; color: #666; margin-bottom: 2px; }
         .data-value { font-weight: bold; color: #333; margin-bottom: 15px; }
+        .text-velvet { color: var(--royal-blue); }
     </style>
-
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="main-content container py-5">
-    <button onclick="window.history.back()" class="btn btn-outline-dark mb-4">
+    <button onclick="window.history.back()" class="btn btn-outline-dark mb-4 shadow-sm">
         <i class="fas fa-arrow-left"></i> Back to List
     </button>
     
@@ -44,7 +42,8 @@
             <div class="col-md-4 text-center border-end">
                 <img id="pPhoto" src="https://via.placeholder.com/150" class="p-photo mb-3">
                 <h4 id="pNameDisp" class="text-uppercase fw-bold text-velvet">---</h4>
-                <div class="badge bg-dark text-gold p-2 fs-6" id="pIdDisp">ID: --</div>
+                <div class="badge bg-dark text-gold p-2 fs-6 mb-3" id="pIdDisp">ID: --</div>
+                <div class="small text-muted" id="timestampDisp"></div>
             </div>
 
             <div class="col-md-8 ps-md-5">
@@ -53,18 +52,19 @@
                 <div class="row">
                     <div class="col-6">
                         <p class="data-label">Father's Name</p>
-                        <div id="pFatherDisp" class="data-value fw-bold">--</div>
-                        <input type="text" id="editFather" class="form-control edit-input mb-3">
+                        <div id="pFatherDisp" class="data-value">--</div>
+                        <input type="text" id="editFather" class="form-control edit-input mb-3 border-gold">
                     </div>
                     <div class="col-6">
                         <p class="data-label">Mobile Number</p>
-                        <div id="pMobileDisp" class="data-value fw-bold">--</div>
-                        <input type="tel" id="editMobile" class="form-control edit-input mb-3">
+                        <div id="pMobileDisp" class="data-value">--</div>
+                        <input type="tel" id="editMobile" class="form-control edit-input mb-3 border-gold">
                     </div>
                     <div class="col-6">
                         <p class="data-label">Current Class</p>
-                        <div id="pClassDisp" class="data-value fw-bold">--</div>
-                        <select id="editClass" class="form-control edit-input mb-3">
+                        <div id="pClassDisp" class="data-value">--</div>
+                        <select id="editClass" class="form-control edit-input mb-3 border-gold">
+                            <option value="Pre-Nursery">Pre-Nursery</option>
                             <option value="Nursery">Nursery</option>
                             <option value="LKG">LKG</option>
                             <option value="UKG">UKG</option>
@@ -73,8 +73,8 @@
                     </div>
                     <div class="col-6">
                         <p class="data-label">Date of Birth</p>
-                        <div id="pDobDisp" class="data-value fw-bold">--</div>
-                        <input type="date" id="editDob" class="form-control edit-input mb-3">
+                        <div id="pDobDisp" class="data-value">--</div>
+                        <input type="date" id="editDob" class="form-control edit-input mb-3 border-gold">
                     </div>
                 </div>
 
@@ -82,7 +82,7 @@
                     <button id="btnEdit" onclick="toggleEdit(true)" class="btn btn-warning px-4 fw-bold">
                         <i class="fas fa-edit"></i> EDIT PROFILE
                     </button>
-                    <button id="btnSave" onclick="saveData()" class="btn btn-success edit-input px-4 fw-bold">
+                    <button id="btnSave" onclick="saveData()" class="btn btn-success edit-input px-4 fw-bold shadow">
                         <i class="fas fa-save"></i> SAVE CHANGES
                     </button>
                     <button id="btnCancel" onclick="toggleEdit(false)" class="btn btn-secondary edit-input ms-2">Cancel</button>
@@ -96,32 +96,30 @@
     </div>
 </div>
 
-<script>
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs", 
-        authDomain: "the-lalit-d7472.firebaseapp.com", 
-        projectId: "the-lalit-d7472", 
-        appId: "1:479237084229:web:31078825739b3c5712ff2c" 
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
-    // Get Student uniqueID from URL
+<script src="firebase-config.js"></script>
+
+<script>
+    // URL se Student Unique ID uthana
     const urlParams = new URLSearchParams(window.location.search);
     const studentUID = urlParams.get('id'); 
-    let docRefId = null; // Store Firestore Document ID
+    let docRefId = null; 
 
     async function loadData() {
-        if(!studentUID) return;
+        if(!studentUID) return alert("No Student ID provided!");
 
         try {
+            // Firestore query based on Unique ID
             const q = await db.collection('students').where('uniqueID', '==', Number(studentUID)).get();
             
             if(!q.empty) {
                 const doc = q.docs[0];
-                docRefId = doc.id; // Store for updates
+                docRefId = doc.id; 
                 const s = doc.data();
 
+                // UI update karna
                 document.getElementById('pPhoto').src = s.photo || 'https://via.placeholder.com/150';
                 document.getElementById('pNameDisp').innerText = s.name;
                 document.getElementById('pIdDisp').innerText = "ID: " + s.uniqueID;
@@ -130,15 +128,19 @@
                 document.getElementById('pClassDisp').innerText = s.class;
                 document.getElementById('pDobDisp').innerText = s.dob;
 
-                // Fill Edit Inputs
+                // Edit inputs mein purana data bharna
                 document.getElementById('editFather').value = s.father;
                 document.getElementById('editMobile').value = s.mobile;
                 document.getElementById('editClass').value = s.class;
                 document.getElementById('editDob').value = s.dob;
+                
+                if(s.timestamp) {
+                    document.getElementById('timestampDisp').innerText = "Reg. Date: " + s.timestamp.toDate().toLocaleDateString();
+                }
             } else {
-                alert("Student Record Not Found!");
+                alert("Student Record Not Found in Imperial Registry!");
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Load Error:", e); }
     }
 
     function toggleEdit(isEditing) {
@@ -167,11 +169,11 @@
     }
 
     async function deleteStudent() {
-        if(confirm("WARNING: This will permanently erase the student from the Registry. Proceed?")) {
+        if(confirm("DANGER: This action will permanently erase the student from the Registry. Proceed?")) {
             try {
                 await db.collection('students').doc(docRefId).delete();
                 alert("Record Erased.");
-                window.location.href = 'index.html';
+                window.location.href = 'view-students.html';
             } catch (e) { alert("Delete failed: " + e.message); }
         }
     }
