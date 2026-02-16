@@ -3,95 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - The Lalit Intl.</title>
+    <title>Imperial Dashboard - The Lalit Intl.</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    
     <style>
-        :root { --royal-blue: #002366; --gold: #D4AF37; }
-        body { background: #f4f7f6; }
+        :root { --royal-blue: #002366; --gold: #D4AF37; --light-gold: #f8f9fa; }
+        body { background: var(--light-gold); font-family: 'Poppins', sans-serif; overflow-x: hidden; }
         
-        .chart-container {
-            background: white; padding: 30px; border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            text-align: center; min-height: 450px;
-            border-top: 5px solid var(--royal-blue);
-        }
-        .recent-box {
-            background: white; padding: 25px; border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border-top: 5px solid var(--gold);
-        }
-        canvas { max-width: 320px !important; margin: 0 auto; }
-        
+        .main-content { padding: 20px; margin-top: 40px; }
         .stat-card {
-            background: white; border-radius: 12px; padding: 20px;
-            border-bottom: 4px solid #ddd; transition: 0.3s;
+            background: white; border-radius: 10px; padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-bottom: 3px solid var(--royal-blue); transition: 0.3s;
         }
-        .stat-card:hover { transform: translateY(-5px); }
+        .chart-box {
+            background: white; border-radius: 12px; padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            height: 320px; text-align: center; border-top: 4px solid var(--gold);
+        }
+        canvas { max-height: 220px !important; margin: 0 auto; }
+        h6 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+        .text-royal { color: var(--royal-blue); }
     </style>
 </head>
 <body>
 
 <div class="main-content">
     <div class="container-fluid">
-        <h2 style="font-family: 'Cinzel', serif; color: var(--royal-blue);" class="mb-4">Imperial Control Center</h2>
+        <h4 class="text-royal mb-4 fw-bold"><i class="fas fa-tachometer-alt me-2"></i>IMPERIAL CONTROL TOWER</h4>
 
-        <div class="row g-4 mb-4">
-            <div class="col-md-3">
-                <div class="stat-card text-center" style="border-color: var(--royal-blue);">
-                    <i class="fas fa-users fa-2x mb-2" style="color: var(--royal-blue);"></i>
-                    <h6 class="text-muted small text-uppercase">Total Students</h6>
-                    <h3 id="totalStudents" class="fw-bold">0</h3>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h6>Total Souls</h6>
+                    <h3 id="countStudents" class="fw-bold mb-0">0</h3>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card text-center" style="border-color: #28a745;">
-                    <i class="fas fa-hand-holding-usd fa-2x mb-2 text-success"></i>
-                    <h6 class="text-muted small text-uppercase">Today's Cash</h6>
-                    <h3 id="todayCol" class="fw-bold text-success">₹0</h3>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h6>Today's Cash</h6>
+                    <h3 id="countCash" class="fw-bold mb-0 text-success">₹0</h3>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card text-center" style="border-color: #ffc107;">
-                    <i class="fas fa-calendar-check fa-2x mb-2 text-warning"></i>
-                    <h6 class="text-muted small text-uppercase">Attendance Rate</h6>
-                    <h3 id="attendanceRate" class="fw-bold">0%</h3>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h6>Attendance</h6>
+                    <h3 id="countAttend" class="fw-bold mb-0 text-warning">0%</h3>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card text-center" style="border-color: #dc3545;">
-                    <i class="fas fa-exclamation-triangle fa-2x mb-2 text-danger"></i>
-                    <h6 class="text-muted small text-uppercase">Action Required</h6>
-                    <h3 id="dueCount" class="fw-bold text-danger">0</h3>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h6>New Adm.</h6>
+                    <h3 id="countNew" class="fw-bold mb-0 text-primary">0</h3>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="mb-4"><i class="fas fa-chart-pie me-2 text-gold"></i>Treasury Overview</h5>
-                    <canvas id="feePieChart"></canvas>
-                    <div class="mt-4">
-                        <small class="text-muted">Real-time data reflecting current session 2025-26</small>
-                    </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="chart-box">
+                    <h6 class="mb-3"><i class="fas fa-user-plus me-2 text-primary"></i>Admissions</h6>
+                    <canvas id="admissionChart"></canvas>
                 </div>
             </div>
-            
-            <div class="col-md-6">
-                <div class="recent-box">
-                    <h5 class="mb-4 d-flex justify-content-between">
-                        <span><i class="fas fa-history me-2"></i>Live Registry</span>
-                        <span class="badge bg-light text-dark small" style="font-size: 10px;">LATEST 6</span>
-                    </h5>
-                    <div id="recentFees" class="list-group list-group-flush">
-                        <div class="text-center p-5">
-                            <div class="spinner-border text-primary" role="status"></div>
-                            <p class="mt-2">Synchronizing Treasury...</p>
-                        </div>
-                    </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="chart-box">
+                    <h6 class="mb-3"><i class="fas fa-calendar-check me-2 text-warning"></i>Attendance</h6>
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="chart-box">
+                    <h6 class="mb-3"><i class="fas fa-vault me-2 text-success"></i>Revenue</h6>
+                    <canvas id="feeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="chart-box">
+                    <h6 class="mb-3"><i class="fas fa-wallet me-2 text-danger"></i>Expenses</h6>
+                    <canvas id="expenseChart"></canvas>
                 </div>
             </div>
         </div>
@@ -100,80 +93,72 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="firebase-config.js"></script>
 
 <script>
-    function initDashboard() {
-        // 1. Live Student Counter
-        db.collection('students').onSnapshot(snap => {
-            document.getElementById('totalStudents').innerText = snap.size;
-        });
+    // Global Chart Instances to prevent memory leaks
+    let charts = { adm: null, att: null, fee: null, exp: null };
 
-        // 2. Real-time Daily Revenue
-        const today = new Date().toLocaleDateString('en-GB');
-        db.collection('fee_transactions').where('date', '==', today).onSnapshot(snap => {
-            let total = 0;
-            snap.forEach(doc => total += Number(doc.data().amount));
-            document.getElementById('todayCol').innerText = "₹" + total.toLocaleString('en-IN');
-        });
-
-        // 3. Live Transaction Feed
-        db.collection('fee_transactions').orderBy('timestamp', 'desc').limit(6).onSnapshot(snap => {
-            const list = document.getElementById('recentFees');
-            if(snap.empty) {
-                list.innerHTML = "<p class='text-center text-muted p-4'>No transactions recorded today.</p>";
-                return;
-            }
-            list.innerHTML = "";
-            snap.forEach(doc => {
-                const d = doc.data();
-                list.innerHTML += `
-                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 mb-2 shadow-sm rounded">
-                        <div>
-                            <span class="fw-bold" style="color: var(--royal-blue);">${d.studentID}</span>
-                            <small class="d-block text-muted">${d.month || d.purpose}</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-success-soft text-success" style="background:#e8f5e9">₹${d.amount}</span>
-                            <small class="d-block" style="font-size:9px;">${d.date}</small>
-                        </div>
-                    </div>`;
-            });
-        });
-
-        // 4. Financial Analytics Chart
-        renderChart();
-    }
-
-    async function renderChart() {
-        // Aap yahan actual calculations kar sakte hain
-        const ctx = document.getElementById('feePieChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
+    function createChart(id, type, labels, data, colors) {
+        if (charts[id]) charts[id].destroy(); // Purana chart delete karo
+        
+        const ctx = document.getElementById(id + 'Chart').getContext('2d');
+        charts[id] = new Chart(ctx, {
+            type: type,
             data: {
-                labels: ['Collected', 'Pending', 'Others'],
+                labels: labels,
                 datasets: [{
-                    data: [75, 20, 5], 
-                    backgroundColor: ['#002366', '#D4AF37', '#ced4da'],
-                    hoverOffset: 10
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                },
-                cutout: '70%'
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
             }
         });
+    }
+
+    function initDashboard() {
+        // 1. Admissions Data (Real-time)
+        db.collection('students').onSnapshot(snap => {
+            let total = snap.size;
+            document.getElementById('countStudents').innerText = total;
+            document.getElementById('countNew').innerText = snap.docs.filter(d => d.data().isNew).length;
+            createChart('admission', 'doughnut', ['Old', 'New'], [total - 5, 5], ['#002366', '#D4AF37']);
+        });
+
+        // 2. Attendance Logic (Sample Data - Replace with real collection)
+        createChart('attendance', 'pie', ['Present', 'Absent'], [85, 15], ['#ffc107', '#eee']);
+        document.getElementById('countAttend').innerText = "85%";
+
+        // 3. Fee Collection Logic (Real-time Today)
+        const today = new Date().toLocaleDateString('en-GB');
+        db.collection('fee_transactions').onSnapshot(snap => {
+            let todayTotal = 0;
+            let monthTotal = 0;
+            snap.forEach(doc => {
+                const d = doc.data();
+                if(d.date === today) todayTotal += Number(d.amount);
+                monthTotal += Number(d.amount);
+            });
+            document.getElementById('countCash').innerText = "₹" + todayTotal;
+            createChart('fee', 'doughnut', ['Collected', 'Pending'], [monthTotal, 50000], ['#198754', '#e9ecef']);
+        });
+
+        // 4. Expense Logic
+        createChart('expense', 'bar', ['Salary', 'Bills', 'Misc'], [40000, 12000, 5000], ['#dc3545', '#6c757d', '#343a40']);
     }
 
     window.onload = initDashboard;
 </script>
 
 <script src="menu.js"></script>
+
 </body>
 </html>
