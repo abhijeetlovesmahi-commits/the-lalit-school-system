@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lalit International School | Excellence in Education</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0; }
+        
+        body { font-family: 'Georgia', serif; color: #333; margin: 0; }
+        
+        /* Navigation */
+        .navbar { background: white; border-bottom: 3px solid var(--gold); padding: 15px 0; }
+        .navbar-brand { font-weight: bold; color: var(--royal-blue) !important; font-size: 1.5rem; }
+        
+        /* Hero Section */
+        .hero { 
+            background: linear-gradient(rgba(0,35,102,0.8), rgba(0,35,102,0.8)), url('https://images.unsplash.com/photo-1523050335102-c325091d53fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover; background-position: center;
+            height: 80vh; display: flex; align-items: center; text-align: center; color: white;
+        }
+        .hero h1 { font-size: 3.5rem; font-weight: bold; color: var(--gold); }
+        
+        /* Portal Buttons */
+        .btn-portal { 
+            padding: 12px 30px; border-radius: 50px; font-weight: bold; 
+            text-transform: uppercase; transition: 0.3s; margin: 10px;
+        }
+        .btn-staff { background: var(--gold); color: var(--royal-blue); border: none; }
+        .btn-student { background: transparent; color: white; border: 2px solid white; }
+        .btn-portal:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: white; }
+
+        /* Notice Board */
+        .notice-section { background: var(--light-gold); padding: 60px 0; }
+        .notice-card { background: white; border-radius: 10px; border-left: 5px solid var(--royal-blue); padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        footer { background: var(--royal-blue); color: white; padding: 40px 0; text-align: center; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="fas fa-university me-2"></i>THE LALIT INTL.</a>
+        <div class="ms-auto">
+            <a href="login.html" class="btn btn-outline-primary btn-sm fw-bold">PORTAL LOGIN</a>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container">
+        <img src="logo.png" width="120" class="mb-4" alt="School Logo" onerror="this.src='https://via.placeholder.com/120'">
+        <h1>Nurturing Global Citizens</h1>
+        <p class="fs-4 mb-5">Welcome to The Lalit International School, where heritage meets innovation.</p>
+        <div>
+            <a href="login.html" class="btn btn-portal btn-staff"><i class="fas fa-user-tie me-2"></i>Staff Portal</a>
+            <a href="#" class="btn btn-portal btn-student"><i class="fas fa-user-graduate me-2"></i>Student Portal</a>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <i class="fas fa-chalkboard-teacher fa-3x text-royal mb-3"></i>
+            <h3>Expert Faculty</h3>
+            <p>Our educators are mentors dedicated to individual growth.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="fas fa-microscope fa-3x text-royal mb-3"></i>
+            <h3>Modern Labs</h3>
+            <p>State-of-the-art facilities for science and technology.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="fas fa-trophy fa-3x text-royal mb-3"></i>
+            <h3>Sports Excellence</h3>
+            <p>Holistic development through professional sports training.</p>
+        </div>
+    </div>
+</div>
+
+<section class="notice-section">
+    <div class="container">
+        <h2 class="text-center mb-5 fw-bold" style="color: var(--royal-blue);">OFFICIAL ANNOUNCEMENTS</h2>
+        <div id="noticeContainer">
+            <div class="notice-card">
+                <h5><i class="fas fa-bullhorn me-2 text-danger"></i> Admissions Open for Session 2026-27</h5>
+                <p class="text-muted small">Posted on: Feb 15, 2026</p>
+                <p>Forms are available at the school reception from 9:00 AM to 2:00 PM.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p class="mb-0">&copy; 2026 The Lalit International School. All Rights Reserved.</p>
+        <div class="mt-2">
+            <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
