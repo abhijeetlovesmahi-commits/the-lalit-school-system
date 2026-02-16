@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management - The Lalit Intl.</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root { --royal-blue: #002366; --gold: #D4AF37; }
+        body { background: #f4f7f6; font-family: 'Poppins', sans-serif; }
+        .main-content { padding: 30px; margin-top: 40px; }
+        .user-card { 
+            background: white; border-radius: 12px; padding: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-top: 5px solid var(--royal-blue);
+        }
+        .role-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: bold; text-transform: uppercase; }
+        .role-admin { background: #ffebee; color: #c62828; }
+        .role-teacher { background: #e3f2fd; color: #1565c0; }
+        .role-accountant { background: #e8f5e9; color: #2e7d32; }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="user-card">
+                    <h5 class="mb-4 text-royal"><i class="fas fa-user-shield me-2"></i>Create Staff Identity</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Full Name</label>
+                        <input type="text" id="uName" class="form-control" placeholder="e.g. Rahul Sharma">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Official Email</label>
+                        <input type="email" id="uEmail" class="form-control" placeholder="staff@thelalit.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Assign Role</label>
+                        <select id="uRole" class="form-select">
+                            <option value="teacher">Teacher (Attendance/Marks)</option>
+                            <option value="accountant">Accountant (Fees/Ledger)</option>
+                            <option value="admin">Administrator (Full Access)</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="small fw-bold">Initial Password</label>
+                        <input type="text" id="uPass" class="form-control" value="Lalit@123">
+                        <small class="text-muted">Staff can change this later.</small>
+                    </div>
+                    <button class="btn btn-dark w-100" style="background: var(--royal-blue);" onclick="createUser()">
+                        <i class="fas fa-plus-circle me-1"></i> AUTHORIZE STAFF
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="user-card">
+                    <h5 class="mb-4 d-flex justify-content-between">
+                        <span><i class="fas fa-users-cog me-2"></i>Active Staff Registry</span>
+                        <span id="staffCount" class="badge bg-secondary">0 Members</span>
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Staff Name</th>
+                                    <th>Role</th>
+                                    <th>Permissions</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffList">
+                                <tr><td colspan="4" class="text-center p-4">Syncing with Cloud Registry...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+    // 1. Load All Staff Members
+    function loadStaff() {
+        db.collection('users').onSnapshot(snap => {
+            const list = document.getElementById('staffList');
+            document.getElementById('staffCount').innerText = `${snap.size} Members`;
+            list.innerHTML = "";
+            
+            snap.forEach(doc => {
+                const u = doc.data();
+                const roleClass = `role-${u.role}`;
+                const permissions = u.role === 'admin' ? 'All Access' : 
+                                  (u.role === 'teacher' ? 'Attendance, Marks' : 'Fees, Expenses');
+
+                list.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="fw-bold">${u.name}</div>
+                            <div class="small text-muted">${u.email}</div>
+                        </td>
+                        <td><span class="role-badge ${roleClass}">${u.role}</span></td>
+                        <td><small class="text-muted">${permissions}</small></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        });
+    }
+
+    // 2. Create User in Firebase Auth & Firestore
+    async function createUser() {
+        const name = document.getElementById('uName').value;
+        const email = document.getElementById('uEmail').value;
+        const role = document.getElementById('uRole').value;
+        const pass = document.getElementById('uPass').value;
+
+        if(!name || !email) return alert("Fill all fields!");
+
+        try {
+            // Note: Creating user in Auth requires special handling if you're already logged in as Admin.
+            // For now, we save details in Firestore. Manual Auth entry may be needed or Firebase Functions.
+            await db.collection('users').add({
+                name: name,
+                email: email,
+                role: role,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            alert("Staff " + name + " has been registered as " + role);
+            // Form Reset
+            document.getElementById('uName').value = "";
+            document.getElementById('uEmail').value = "";
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    }
+
+    async function deleteUser(id) {
+        if(confirm("Remove this staff member from the Registry?")) {
+            await db.collection('users').doc(id).delete();
+        }
+    }
+
+    window.onload = loadStaff;
+</script>
+<script src="menu.js"></script>
+</body>
+</html>
