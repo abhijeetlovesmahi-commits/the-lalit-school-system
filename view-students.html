@@ -4,79 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Registry - The Lalit Intl.</title>
-    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --royal-blue: #002366; --gold: #D4AF37; }
-        .main-content { padding-top: 60px; } /* Sidebar toggle space */
+        :root { --royal-blue: #002366; --gold: #D4AF37; --light-gold: #FDFBF0; }
+        body { background: var(--light-gold); font-family: 'Georgia', serif; }
+        
+        .main-content { padding-top: 40px; } 
         
         .registry-container { 
             background: white; border: 1px solid var(--gold); 
-            padding: 20px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            padding: 25px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 50px;
         }
 
-        /* Filter Bar Styles */
         .filter-bar { 
             display: flex; gap: 10px; background: #f8f9fa; 
             padding: 15px; border-radius: 5px; margin-bottom: 20px;
             border-left: 5px solid var(--royal-blue); flex-wrap: wrap;
+            align-items: center;
         }
         
         .search-input { flex: 2; min-width: 200px; border: 1px solid #ddd !important; border-bottom: 2px solid var(--gold) !important; }
         
-        /* Table Aesthetics */
         table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
-        th { background: var(--royal-blue); color: var(--gold); padding: 12px 8px; font-size: 13px; text-transform: uppercase; }
-        td { padding: 8px; border: 1px solid #eee; font-size: 13px; vertical-align: middle; }
+        th { background: var(--royal-blue); color: var(--gold); padding: 12px 8px; font-size: 13px; text-transform: uppercase; border: 1px solid #001a4d; }
+        td { padding: 10px 8px; border: 1px solid #eee; font-size: 13px; vertical-align: middle; }
         tr:hover { background: #fffdf0; }
 
-        .st-photo-mini { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid var(--gold); }
-        .btn-action { padding: 4px 10px; font-size: 11px; border-radius: 3px; font-weight: bold; }
-        
+        .st-photo-mini { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
         .student-link { color: var(--royal-blue); text-decoration: none; font-weight: bold; cursor: pointer; }
         .student-link:hover { color: var(--gold); text-decoration: underline; }
 
+        .stats-badge { background: var(--royal-blue); color: var(--gold); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; }
+
         @media print {
-            .no-print, .menu-toggle, .sidebar { display: none !important; }
-            .main-content { padding: 0; }
-            .registry-container { border: none; box-shadow: none; }
-            th { background: #eee !important; color: black !important; }
+            .no-print, #menu-trigger, .sidebar, #sidebar-overlay { display: none !important; }
+            body { background: white; padding: 0; }
+            .registry-container { border: none; box-shadow: none; margin: 0; padding: 0; }
+            .main-content { padding: 0 !important; }
+            th { background: #002366 !important; color: #D4AF37 !important; -webkit-print-color-adjust: exact; }
         }
     </style>
-
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="main-content container-fluid px-4">
     <div class="registry-container mt-3">
-        <h3 class="text-center mb-4" style="font-family: 'Cinzel', serif; color: var(--royal-blue);">
-            <i class="fas fa-address-book me-2"></i>Imperial Student Registry
-        </h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 style="font-family: 'Cinzel', serif; color: var(--royal-blue); margin: 0;">
+                <i class="fas fa-university me-2"></i>Imperial Student Registry
+            </h3>
+            <div id="statsBar" class="stats-badge shadow-sm">Total Students: 0</div>
+        </div>
 
-        <div class="filter-bar no-print">
-            <input type="text" id="masterSearch" class="form-control search-input" placeholder="Search by Name, Father or ID...">
+        <div class="filter-bar no-print shadow-sm">
+            <div class="input-group" style="flex: 2; min-width: 250px;">
+                <span class="input-group-text bg-white border-gold text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" id="masterSearch" class="form-control search-input border-gold" placeholder="Search by Name, Father or ID...">
+            </div>
             
-            <select id="fClass" class="form-select" style="width: 120px;">
+            <select id="fClass" class="form-select border-gold" style="width: 150px;">
                 <option value="">All Classes</option>
+                <option value="Pre-Nursery">Pre-Nursery</option>
                 <option value="Nursery">Nursery</option>
-                <option value="LKG">LKG</option><option value="UKG">UKG</option>
+                <option value="LKG">LKG</option>
+                <option value="UKG">UKG</option>
                 <script>for(let i=1; i<=12; i++) document.write(`<option value="${i}">${i}</option>`);</script>
             </select>
 
-            <button class="btn btn-primary" onclick="applyFilters()" style="background: var(--royal-blue); border: none;">
-                <i class="fas fa-filter"></i> Apply
+            <button class="btn btn-dark" onclick="applyFilters()" style="background: var(--royal-blue);">
+                <i class="fas fa-filter me-1"></i> Apply
             </button>
             
             <div class="ms-auto d-flex gap-2">
-                <button class="btn btn-outline-dark" onclick="window.print()"><i class="fas fa-print"></i> Print List</button>
-                <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn btn-outline-secondary" onclick="window.print()"><i class="fas fa-print"></i></button>
+                <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel me-1"></i> Export CSV</button>
             </div>
         </div>
-
-        <div class="stats-bar mb-2 fw-bold text-muted" id="statsBar">Total Students Found: 0</div>
 
         <div class="table-responsive">
             <table class="table table-hover">
@@ -85,32 +91,27 @@
                         <th>S.N</th>
                         <th>Photo</th>
                         <th>Student Name</th>
-                        <th>ID/Roll</th>
+                        <th>ID / Roll No.</th>
                         <th>Class-Sec</th>
-                        <th>Father's Name</th>
+                        <th>Guardian</th>
                         <th>Contact</th>
                         <th class="no-print">Action</th>
                     </tr>
                 </thead>
                 <tbody id="listBody">
-                    <tr><td colspan="8" class="text-center">Loading Imperial Records...</td></tr>
+                    <tr><td colspan="8" class="text-center p-5 text-muted">Awaiting access to the Imperial Archives...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-  authDomain: "the-lalit-d7472.firebaseapp.com",
-  projectId: "the-lalit-d7472",
-  appId: "1:479237084229:web:31078825739b3c5712ff2c"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
-// Apply Filters & Load Data
+<script src="firebase-config.js"></script>
+
+<script>
 async function applyFilters() {
     let query = db.collection('students');
     const cls = document.getElementById('fClass').value;
@@ -127,7 +128,8 @@ function renderTable(snap) {
     let count = 0;
 
     if(snap.empty) {
-        tbody.innerHTML = "<tr><td colspan='8' class='text-center'>No records found.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='8' class='text-center p-4'>No records found in the selected category.</td></tr>";
+        document.getElementById('statsBar').innerText = `Total Students: 0`;
         return;
     }
 
@@ -136,60 +138,66 @@ function renderTable(snap) {
         const d = doc.data();
         tbody.innerHTML += `
             <tr>
-                <td>${count}</td>
-                <td><img src="${d.photo || 'https://via.placeholder.com/40'}" class="st-photo-mini"></td>
-                <td>
-                    <a href="profile.html?id=${d.uniqueID}" class="student-link">${d.name}</a>
+                <td class="text-center fw-bold text-muted">${count}</td>
+                <td class="text-center">
+                    <img src="${d.photo || 'https://via.placeholder.com/40'}" class="st-photo-mini shadow-sm">
                 </td>
-                <td style="font-size: 11px;">ID: ${d.uniqueID}<br>R: ${d.rollNo}</td>
-                <td>${d.class}-${d.section || 'A'}</td>
+                <td>
+                    <a href="student-profile.html?id=${d.uniqueID}" class="student-link">${d.name.toUpperCase()}</a>
+                </td>
+                <td style="font-size: 11px;">
+                    <span class="text-primary fw-bold">ID: ${d.uniqueID}</span><br>
+                    <span class="text-muted">Roll: ${d.rollNo || 'N/A'}</span>
+                </td>
+                <td><span class="badge bg-light text-dark border">${d.class}-${d.section || 'A'}</span></td>
                 <td>${d.father}</td>
-                <td>${d.mobile || d.contact || '-'}</td>
+                <td><i class="fas fa-phone-alt me-1 text-muted small"></i> ${d.mobile || d.contact || '-'}</td>
                 <td class="no-print">
-                    <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='profile.html?id=${d.uniqueID}'">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-success" onclick="window.location.href='fees.html?id=${d.uniqueID}'">
-                        <i class="fas fa-coins"></i>
-                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='student-profile.html?id=${d.uniqueID}'" title="View Profile">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="window.location.href='collect-fees.html?id=${d.uniqueID}'" title="Collect Fee">
+                            <i class="fas fa-coins"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>`;
     });
-    document.getElementById('statsBar').innerText = `Total Students Found: ${count}`;
+    document.getElementById('statsBar').innerText = `Total Students: ${count}`;
 }
 
-// Global Search (Real-time)
+// Live Search logic
 document.getElementById('masterSearch').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     const rows = document.querySelectorAll('#listBody tr');
     let visibleCount = 0;
+    
     rows.forEach(row => {
         const text = row.innerText.toLowerCase();
         const show = text.includes(term);
         row.style.display = show ? '' : 'none';
         if(show) visibleCount++;
     });
-    document.getElementById('statsBar').innerText = `Total Students Found: ${visibleCount}`;
+    document.getElementById('statsBar').innerText = `Total Students: ${visibleCount}`;
 });
 
-// Initial Load
 window.onload = applyFilters;
 
-// Excel Export (Simple CSV)
 function exportToExcel() {
-    let csv = "S.N,Name,ID,Class,Father,Contact\n";
+    let csv = "S.N,Student Name,ID,Class,Father,Contact\n";
     const rows = document.querySelectorAll("#listBody tr");
     rows.forEach((row, index) => {
         const cols = row.querySelectorAll("td");
-        if(cols.length > 0) {
-            csv += `${index+1},${cols[2].innerText},${cols[3].innerText.replace('\n',' ')},${cols[4].innerText},${cols[5].innerText},${cols[6].innerText}\n`;
+        if(cols.length > 2) {
+            csv += `${cols[0].innerText},${cols[2].innerText},${cols[3].innerText.replace('\n',' ')},${cols[4].innerText},${cols[5].innerText},${cols[6].innerText}\n`;
         }
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('href', url);
-    a.setAttribute('download', 'Student_List.csv');
+    a.setAttribute('download', `Lalit_Students_List_${new Date().toLocaleDateString()}.csv`);
     a.click();
 }
 </script>
