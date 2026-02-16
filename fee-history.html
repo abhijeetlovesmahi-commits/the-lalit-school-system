@@ -7,54 +7,43 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Logo Matching Colors */
         :root { --royal-blue: #002366; --gold: #C5A021; --soft-bg: #fdfbf0; }
         
         body { background-color: var(--soft-bg); font-family: 'Times New Roman', serif; color: var(--royal-blue); margin: 0; }
 
-        /* Stylish Main UI Header */
         .main-header { background: white; padding: 20px; border-bottom: 4px solid var(--gold); text-align: center; }
         .school-title-main { font-family: 'Georgia', serif; font-weight: 900; letter-spacing: 2px; color: var(--royal-blue); font-size: 2rem; }
         
         .content-wrap { max-width: 1050px; margin: auto; padding: 20px; }
 
-        /* Official Ledger Container */
         #ledgerArea { 
             display: none; background: white; border: 2px solid #000; 
             padding: 15px; box-sizing: border-box; position: relative;
         }
 
-        /* Stylish Header for Print */
         .print-header { border-bottom: 3px double var(--gold); padding-bottom: 10px; margin-bottom: 10px; }
         .school-name-print { font-family: 'Georgia', serif; font-weight: 900; color: var(--royal-blue); font-size: 24px; margin: 0; }
 
-        /* Student ID Card Look */
         .student-strip { display: flex; align-items: center; border: 1px solid #000; padding: 8px; background: #fffcf0; margin-bottom: 10px; gap: 15px; }
         .student-strip img { width: 70px; height: 90px; border: 1.5px solid var(--royal-blue); object-fit: cover; }
         .student-details-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; font-size: 13px; }
 
-        /* Horizontal Breakdown */
         .breakdown-row { display: flex; border: 1px solid #000; margin-bottom: 10px; background: #f2f2f2; font-size: 11px; }
         .break-item { flex: 1; padding: 6px; text-align: center; border-right: 1px solid #000; }
         .break-item:last-child { border-right: none; background: var(--royal-blue); color: var(--gold); font-weight: bold; }
 
-        /* Full Page Table Logic */
         .table-ledger { width: 100%; border-collapse: collapse; border: 1.5px solid #000; table-layout: fixed; }
         .table-ledger th { background: var(--royal-blue) !important; color: var(--gold) !important; font-size: 11px; padding: 8px; border: 1px solid #000; text-align: center; }
         .table-ledger td { border: 1px solid #000; padding: 0 5px; font-size: 13px; text-align: center; font-weight: 600; color: #000; }
         .month-name { text-align: left !important; background: #f9f9f9 !important; padding-left: 10px !important; }
 
-        /* PRINT SETTINGS - AUTO STRETCH */
         @media print {
             @page { size: A4 portrait; margin: 8mm; }
             .no-print { display: none !important; }
             body { background: white; padding: 0; }
             #ledgerArea { display: flex !important; flex-direction: column; height: 275mm; border: none; padding: 0; }
-            
             .table-ledger { flex-grow: 1; height: 100%; }
-            .table-ledger tr { height: auto; }
             .table-ledger td { height: 45px; }
-            
             .student-strip { background: #fff !important; }
             .breakdown-row { background: #fff !important; }
         }
@@ -135,15 +124,10 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+<script src="firebase-config.js"></script>
+
 <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-      authDomain: "the-lalit-d7472.firebaseapp.com",
-      projectId: "the-lalit-d7472",
-      appId: "1:479237084229:web:31078825739b3c5712ff2c"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
     const months = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
 
     async function liveSearch() {
@@ -197,21 +181,17 @@
         `;
 
         let html = '', gPay = 0, gPaid = 0;
-        let runningBalance = 0; // Balance Forward Logic
+        let runningBalance = 0;
         const mT = Number(fm.tuition||0), mH = (s.hostel==='Yes'?Number(fm.hostel||0):0), mTr = tRate;
 
-        // REGISTRATION ROW
         const aPaid = payData.filter(p => ["Admission", "Exam", "Books", "Annual", "Development", "Registration"].includes(p.month)).reduce((sum, p) => sum + Number(p.amount), 0);
         runningBalance = annualTotal - aPaid;
         html += `<tr><td class="month-name">REGISTRATION</td><td>-</td><td>-</td><td>-</td><td>₹${annualTotal}</td><td>₹${annualTotal}</td><td>₹${aPaid}</td><td>₹${runningBalance}</td></tr>`;
         gPay += annualTotal; gPaid += aPaid;
 
-        // MONTHLY ROWS WITH ACCUMULATED BALANCE
         months.forEach(m => {
             const total = mT + mH + mTr;
             const monthPaid = payData.filter(p => p.month === m).reduce((acc, curr) => acc + Number(curr.amount), 0);
-            
-            // Forward Logic: Old Balance + Current Month Payable - Current Month Paid
             runningBalance = (runningBalance + total) - monthPaid;
 
             html += `<tr>
