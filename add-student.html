@@ -217,6 +217,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
 </head>
 <body>
 
@@ -357,15 +359,6 @@
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-  authDomain: "the-lalit-d7472.firebaseapp.com",
-  projectId: "the-lalit-d7472",
-  appId: "1:479237084229:web:31078825739b3c5712ff2c"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 let compressedBase64 = "";
 let currentViewData = null;
 let allStudents = [];
@@ -396,7 +389,6 @@ function syncAddress() {
     if(document.getElementById('sameAddr').checked) document.getElementById('permAddr').value = document.getElementById('currAddr').value;
 }
 
-// Distance toggle logic
 function toggleTransportDistance() {
     const transportVal = document.getElementById('sTransport').value;
     const distanceSelect = document.getElementById('sTransportDistance');
@@ -548,20 +540,16 @@ function startEdit(data) {
     document.getElementById('sSection').value = data.section;
     document.getElementById('sHouse').value = data.house;
     document.getElementById('sHostel').value = data.hostel;
-    
-    // Transport Edit logic
     document.getElementById('sTransport').value = data.transport;
     toggleTransportDistance();
     if(data.transport === 'Yes') {
         document.getElementById('sTransportDistance').value = data.transportDistance || "";
     }
-
     document.getElementById('pFather').value = data.father;
     document.getElementById('pMother').value = data.mother;
     document.getElementById('pContact').value = data.contact;
     document.getElementById('currAddr').value = data.currentAddr;
     document.getElementById('permAddr').value = data.permanentAddr;
-    
     if(data.photo) {
         document.getElementById('imgPreview').src = data.photo;
         document.getElementById('imgPreview').style.display = 'block';
