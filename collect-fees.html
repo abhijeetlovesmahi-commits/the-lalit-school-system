@@ -103,16 +103,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDqDmsMp2eAuHJBcjW-ciO2JcLTXapiIrs",
-  authDomain: "the-lalit-d7472.firebaseapp.com",
-  projectId: "the-lalit-d7472",
-  appId: "1:479237084229:web:31078825739b3c5712ff2c"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+<script src="firebase-config.js"></script>
 
+<script>
 let activeStudent = null;
 let currentBalance = 0;
 
@@ -148,7 +141,7 @@ async function selectStudent(s) {
     let paid = 0; tSnap.forEach(d => paid += Number(d.data().amount));
     
     // Estimate expected dues till current month
-    const curMonthIdx = new Date().getMonth(); // 0 is Jan, so needs mapping to Apr cycle
+    const curMonthIdx = new Date().getMonth(); 
     const mList = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
     const monthName = new Date().toLocaleString('en-us', {month:'long'});
     const mIdx = mList.indexOf(monthName) === -1 ? 11 : mList.indexOf(monthName);
