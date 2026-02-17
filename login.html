@@ -10,35 +10,25 @@
         :root { --royal-blue: #002366; --gold: #D4AF37; }
         body { 
             background: linear-gradient(135deg, var(--royal-blue) 0%, #001a4d 100%); 
-            height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif;
         }
         .login-card { 
             background: white; padding: 40px; border-radius: 15px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 100%; max-width: 420px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 100%; max-width: 400px; text-align: center;
         }
-        .form-control { border-radius: 8px; padding: 12px; border: 1px solid #ddd; margin-bottom: 20px; }
-        .btn-login { 
-            background: var(--royal-blue); color: var(--gold); font-weight: bold; 
-            padding: 12px; width: 100%; border: 1px solid var(--gold); transition: 0.3s;
-        }
-        .btn-login:hover { background: var(--gold); color: var(--royal-blue); }
-        #statusMsg { font-size: 0.85rem; margin-top: 15px; min-height: 20px; }
-        .loader { display: none; margin: 10px auto; border: 3px solid #f3f3f3; border-top: 3px solid var(--gold); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .form-control { margin-bottom: 20px; padding: 12px; border-radius: 8px; }
+        .btn-login { background: var(--royal-blue); color: var(--gold); font-weight: bold; width: 100%; padding: 12px; border: 1px solid var(--gold); }
+        #statusMsg { font-size: 0.85rem; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="login-card">
     <h3 class="fw-bold mb-4" style="color: var(--royal-blue);">STAFF PORTAL</h3>
-    
-    <input type="email" id="email" class="form-control" placeholder="Institutional Email" required>
-    <input type="password" id="pass" class="form-control" placeholder="Security Password" required>
-    
+    <input type="email" id="email" class="form-control" placeholder="Email Address">
+    <input type="password" id="pass" class="form-control" placeholder="Password">
     <button class="btn btn-login" id="loginBtn" onclick="processLogin()">AUTHENTICATE SYSTEM</button>
-    <div class="loader" id="loader"></div>
     <div id="statusMsg"></div>
-    
     <hr>
     <a href="index.html" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left"></i> Back to School Website</a>
 </div>
@@ -50,66 +40,48 @@
 <script src="firebase-config.js"></script>
 
 <script>
+    // Ye do lines "auth is not defined" error ko theek karti hain
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
     async function processLogin() {
         const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('pass').value;
         const msg = document.getElementById('statusMsg');
-        const loader = document.getElementById('loader');
         const btn = document.getElementById('loginBtn');
 
-        // Reset UI
-        msg.innerHTML = "";
-        msg.className = "";
-        loader.style.display = "block";
+        if(!email || !pass) {
+            msg.innerHTML = "<span class='text-danger'>Fill all fields!</span>";
+            return;
+        }
+
         btn.disabled = true;
+        btn.innerText = "VERIFYING...";
 
         try {
-            // STEP 1: Attempt Authentication
+            // STEP 1: Firebase Auth login
             const userCredential = await auth.signInWithEmailAndPassword(email, pass);
-            const user = userCredential.user;
-            console.log("Auth Step Success:", user.email);
-            
-            msg.innerHTML = "<span class='text-success'>Identity Verified. Checking Permissions...</span>";
+            msg.innerHTML = "<span class='text-success'>Access Granted. Loading Dashboard...</span>";
 
-            // STEP 2: Fetch Role from Firestore 'users' collection
-            const userDoc = await db.collection('users').where('email', '==', email.toLowerCase()).get();
+            // STEP 2: Role check in Firestore
+            const snap = await db.collection('users').where('email', '==', email.toLowerCase()).get();
 
-            if (!userDoc.empty) {
-                const userData = userDoc.docs[0].data();
-                const role = userData.role;
-                console.log("Role Found:", role);
-
-                // STEP 3: Redirect based on role
-                if (role === 'admin') {
-                    window.location.href = "dashboard.html";
-                } else if (role === 'accountant') {
-                    window.location.href = "collect-fees.html";
-                } else if (role === 'teacher') {
-                    window.location.href = "attendance.html";
-                } else {
-                    msg.innerHTML = "<span class='text-danger'>Unauthorized: Role not mapped.</span>";
-                    await auth.signOut();
-                }
+            if (!snap.empty) {
+                const role = snap.docs[0].data().role;
+                // Redirection based on Role
+                if (role === 'admin') window.location.href = "dashboard.html";
+                else if (role === 'accountant') window.location.href = "collect-fees.html";
+                else if (role === 'teacher') window.location.href = "attendance.html";
+                else window.location.href = "dashboard.html"; // Default
             } else {
-                // Fallback: If Auth exists but Firestore record is missing
-                console.warn("Auth exists but no Firestore entry found for:", email);
-                msg.innerHTML = "<span class='text-warning'>Warning: Profile not found in Registry. Redirecting to Dashboard...</span>";
-                setTimeout(() => { window.location.href = "dashboard.html"; }, 2000);
+                // Agar Firestore mein nahi hai par Auth mein hai, toh seedha dashboard bhej do
+                window.location.href = "dashboard.html";
             }
 
         } catch (error) {
-            console.error("Login System Error:", error.code, error.message);
-            loader.style.display = "none";
             btn.disabled = false;
-
-            // Specific error handling
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                msg.innerHTML = "<span class='text-danger'>Invalid Email or Password. Please check Firebase Auth tab.</span>";
-            } else if (error.code === 'auth/network-request-failed') {
-                msg.innerHTML = "<span class='text-danger'>Network Error. Check your internet.</span>";
-            } else {
-                msg.innerHTML = "<span class='text-danger'>Error: " + error.message + "</span>";
-            }
+            btn.innerText = "AUTHENTICATE SYSTEM";
+            msg.innerHTML = "<span class='text-danger'>Error: " + error.message + "</span>";
         }
     }
 </script>
